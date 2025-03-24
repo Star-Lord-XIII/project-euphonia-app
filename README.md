@@ -1,6 +1,6 @@
 # Project Euphonia App
 
-This repository provides open-source toolkits to build personalized speech recognition solutions, stemming from the broader [Project Euphonia](https://sites.research.google/euphonia/about/) initiative started by Google in 2019. This specific iteration focuses on enabling accurate speech-to-text transcription, particularly for individuals with conditions like Dysarthria.
+This repository provides an open-source toolkit to build personalized speech recognition solutions, stemming from the broader [Project Euphonia](https://sites.research.google/euphonia/about/) initiative started by Google in 2019. This specific iteration focuses on enabling improved speech-to-text transcription, particularly for individuals with non-standard speech.
 
 ## Intended Use
 
