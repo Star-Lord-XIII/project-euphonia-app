@@ -86,4 +86,4 @@ Deploy the web app into Google Cloud Run following steps reported in the [app RE
 
 ## Usege
 
-Following all [Setup](#setup) steps you installed the Euphonia App on your smarphone and the api on Goocle Cloud Run. You can now set the URL of the Google Cloud Run instance in the app configuration and start transcribing your speech.
+Following all [Setup](#setup) steps you installed the Project Euphonia App on your smartphone and the api on Google Cloud Run. You can now set the URL of the Google Cloud Run instance in the app Settings and start transcribing your speech.
