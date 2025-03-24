@@ -76,7 +76,7 @@ Open the notebook in the [training_colabs](https://github.com/google/project-eup
 
 ### Web service that performs speech-to-text
 
-This component consist on a simple web application to serve the model trained in the previous step. The app is contenerized and can be run in Google Cloud Run.
+This component consist of a simple web application to serve the model trained in the previous step. The app is containerized and can be run in Google Cloud Run.
 
 #### Deploy
 
