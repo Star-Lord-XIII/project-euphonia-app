@@ -36,7 +36,7 @@ cd project-euphonia-app
 
 This component consists of a **Flutter-based mobile application**. The application consists on 2 main section:
 
-- a section that allows users to record their voice saying specific phrases.
+- a section that allows users to record phrases in their own voice.
 - a section to capture capture user speech and transcript into text relying on the trained model.
 
 The application comes with a set of 100 default phrases located under `assets/phrases.txt`. You can customize or add more phrases. You can, for example, create training phrases for different languages.
