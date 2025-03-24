@@ -70,7 +70,7 @@ For iOS: Run `cd ios` and `run pod install`. Make sure mobile-provisioning profi
 
 ### Train model
 
-This component consists in an Google Colab notebook to run the training. The Notebook will train ASR opensource model to racognize the speech of the user that recorded the training phrases.
+This component consists of a Google Colab notebook to run the training. The Notebook will train ASR an open source model to recognize the speech of the user that recorded the training phrases.
 
 Open the notebook in the [training_colabs](https://github.com/google/project-euphonia-app/tree/main/training_colabs) and follow the steps.
 
