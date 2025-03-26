@@ -53,8 +53,6 @@ The application requires a [Firebase Storage](https://firebase.google.com/docs/s
 - [Create firebase storage](https://firebase.google.com/docs/storage/web/start) (Note: not "database", it needs to be "storage").
 - Configure security rules as public. NOTE: This makes your files accessible by anyone. Consider adding autentication to secure your data.
 
-Install the following packages: [curl](https://curl.se/), [unzip](https://linux.die.net/man/1/unzip), [xz-utils](https://xz.tukaani.org/xz-utils/), [zip](https://linux.die.net/man/1/zip), [libglu1-mesa](https://packages.debian.org/buster/libglu1-mesa).
-
 Install [Android Studio](https://developer.android.com/studio/install) 2023.3.1 (Jellyfish) or later to debug and compile Java or Kotlin code for Android. Flutter requires the full version of Android Studio.
 
 Install the [Flutter SDK](https://docs.flutter.dev/get-started/install). When you run the current version of `flutter doctor`, it might list a different version of one of these packages. If it does, install the version it recommends.
