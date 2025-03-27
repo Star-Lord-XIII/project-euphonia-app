@@ -1,0 +1,77 @@
+{
+    "appTitle": "Project Euphonia",
+    "@appTitle": {
+        "description": "Title of the app displayed in AppBar & Navigation Drawer"
+    },
+
+    "trainModeTitle": "Train",
+    "@trainModeTitle": {
+        "description": "Title for bottom navigation Train mode item"
+    },
+
+    "transcribeModeTitle": "Transcribe",
+    "@transcribeModeTitle": {
+        "description": "Title for bottom navigation Transcribe mode item"
+    },
+
+    "recordButtonTitle": "Record",
+    "@recordButtonTitle": {
+        "description": "Title for button state to start recording phrases"
+    },
+
+    "reRecordButtonTitle": "Re-record",
+    "@reRecordButtonTitle": {
+        "description": "Title for button state to re-record a phrases"
+    },
+
+    "stopRecordingButtonTitle": "Stop Recording",
+    "@recordButtonTitle": {
+        "description": "Title for button state to stop recording phrases"
+    },
+
+    "transcribeButtonTitle": "Transcribe",
+    "@transcribeButtonTitle": {
+        "description": "Title for button state to start transcribing"
+    },
+
+    "stopTranscribingButtonTitle": "Stop",
+    "@stopTranscribingButtonTitle": {
+        "description": "Title for button state to stop transcribing"
+    },
+
+    "settingsMenuDrawerTitle": "Settings",
+    "@settingsMenuDrawerTitle": {
+        "description": "Title for settings menu-item in drawer menu"
+    },
+
+    "saveButtonTitle": "Save",
+    "@saveButtonTitle": {
+        "description": "Save button title text"
+    },
+
+    "valueSavedMessage": "Value saved",
+    "@valueSavedMessage": {
+        "description": "Snackbar message when saving settings succeeds"
+    },
+
+    "cloudRunTextFieldLabel": "URL of cloud-run service",
+    "@cloudRunTextFieldLabel": {
+        "description": "Label for text-field for adding cloud-run transcription endpoint"
+    },
+
+    "addTranscriptionEndpointPrompt": "Please add a URL before transcribing",
+    "@addTranscriptionEndpointPrompt": {
+        "description": "Prompt user to add transcription endpoint before trying transcription"
+    },
+
+    "transcriptionEndpointDisplay": "Using endpoint \"{transcriptionURL}/transcribe\" to transcribe",
+    "@transcriptionEndpointDisplay": {
+        "description": "Message to display the transcription url configured by the user",
+        "placeholders": {
+            "transcriptionURL": {
+                "type": "String",
+                "example": "https://project-euphonia-inference-xyz.LOCATION.run.app"
+            }
+        }
+    }
+}

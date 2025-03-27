@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../generated/l10n/app_localizations.dart';
 import 'upload_status.dart';
 
 class TrainModeView extends StatelessWidget {
@@ -173,10 +174,9 @@ class TrainModeView extends StatelessWidget {
         MaterialButton(
           onPressed: record,
           minWidth: width - 48,
-          color:
-              isRecording
-                  ? Colors.teal
-                  : (isRecorded ? Colors.lightBlueAccent : Colors.blue),
+          color: isRecording
+              ? Colors.teal
+              : (isRecorded ? Colors.lightBlueAccent : Colors.blue),
           textColor: Colors.white,
           disabledColor: Colors.grey,
           shape: const RoundedRectangleBorder(
@@ -185,8 +185,10 @@ class TrainModeView extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(80, 24, 80, 24),
           child: Text(
             isRecording
-                ? 'Stop Recording'
-                : (isRecorded ? 'Re-record' : 'Record'),
+                ? AppLocalizations.of(context)!.stopRecordingButtonTitle
+                : (isRecorded
+                    ? AppLocalizations.of(context)!.reRecordButtonTitle
+                    : AppLocalizations.of(context)!.recordButtonTitle),
             style: const TextStyle(fontSize: 24),
           ),
         ),

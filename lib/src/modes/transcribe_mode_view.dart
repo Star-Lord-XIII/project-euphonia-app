@@ -14,6 +14,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../generated/l10n/app_localizations.dart';
+
 enum UploadStatus { notStarted, started, completed, interrupted }
 
 class TranscribeModeView extends StatelessWidget {
@@ -64,11 +66,11 @@ class TranscribeModeView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  transcriptUrl == ''
-                      ? 'Please add a URL before transcribing'
-                      : 'Using endpoint "$transcriptUrl/transcribe" to transcribe',
-                ),
+                Text(transcriptUrl == ''
+                    ? AppLocalizations.of(context)!
+                        .addTranscriptionEndpointPrompt
+                    : AppLocalizations.of(context)!
+                        .transcriptionEndpointDisplay(transcriptUrl)),
                 Visibility(
                   visible: _showUploadProgress,
                   child: const CircularProgressIndicator(color: Colors.blue),
@@ -102,10 +104,9 @@ class TranscribeModeView extends StatelessWidget {
               Expanded(
                 child: MaterialButton(
                   onPressed: record,
-                  color:
-                      isRecording
-                          ? Colors.teal
-                          : (isRecorded ? Colors.lightBlueAccent : Colors.blue),
+                  color: isRecording
+                      ? Colors.teal
+                      : (isRecorded ? Colors.lightBlueAccent : Colors.blue),
                   textColor: Colors.white,
                   disabledColor: Colors.grey,
                   shape: const RoundedRectangleBorder(
@@ -113,7 +114,10 @@ class TranscribeModeView extends StatelessWidget {
                   ),
                   padding: const EdgeInsets.fromLTRB(48, 24, 48, 24),
                   child: Text(
-                    isRecording ? 'Stop' : 'Transcribe',
+                    isRecording
+                        ? AppLocalizations.of(context)!
+                            .stopTranscribingButtonTitle
+                        : AppLocalizations.of(context)!.transcribeButtonTitle,
                     style: const TextStyle(fontSize: 24),
                   ),
                 ),
