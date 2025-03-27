@@ -66,12 +66,11 @@ class TranscribeModeView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  transcriptUrl == ''
-                      ? AppLocalizations.of(context)!
-                          .addTranscriptionEndpointPrompt
-                      : 'Using endpoint "$transcriptUrl/transcribe" to transcribe',
-                ),
+                Text(transcriptUrl == ''
+                    ? AppLocalizations.of(context)!
+                        .addTranscriptionEndpointPrompt
+                    : AppLocalizations.of(context)!
+                        .transcriptionEndpointDisplay(transcriptUrl)),
                 Visibility(
                   visible: _showUploadProgress,
                   child: const CircularProgressIndicator(color: Colors.blue),

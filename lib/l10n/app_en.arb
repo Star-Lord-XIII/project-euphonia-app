@@ -62,5 +62,16 @@
     "addTranscriptionEndpointPrompt": "Please add a URL before transcribing",
     "@addTranscriptionEndpointPrompt": {
         "description": "Prompt user to add transcription endpoint before trying transcription"
+    },
+
+    "transcriptionEndpointDisplay": "Using endpoint \"{transcriptionURL}/transcribe\" to transcribe",
+    "@transcriptionEndpointDisplay": {
+        "description": "Message to display the transcription url configured by the user",
+        "placeholders": {
+            "transcriptionURL": {
+                "type": "String",
+                "example": "https://project-euphonia-inference-xyz.LOCATION.run.app"
+            }
+        }
     }
 }
