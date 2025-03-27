@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../generated/l10n/app_localizations.dart';
 import 'settings_view.dart';
 
 final class SettingsController extends StatefulWidget {
@@ -47,7 +48,8 @@ class _SettingsControllerState extends State<SettingsController> {
     await _preferences.setString(TRANSCRIBE_URL_KEY, url);
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Value saved')));
+    ).showSnackBar(SnackBar(
+        content: Text(AppLocalizations.of(context)!.valueSavedMessage)));
   }
 
   @override

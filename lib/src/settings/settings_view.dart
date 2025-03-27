@@ -14,12 +14,12 @@
 
 import 'package:flutter/material.dart';
 
+import '../generated/l10n/app_localizations.dart';
+
 class SettingsView extends StatelessWidget {
   final transcriptionURLController = TextEditingController();
-
   final void Function(String)? saveTranscript;
-
-  String defaultTranscriptURL = '';
+  final String defaultTranscriptURL;
 
   SettingsView({
     super.key,
@@ -32,7 +32,7 @@ class SettingsView extends StatelessWidget {
     transcriptionURLController.text = defaultTranscriptURL;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(AppLocalizations.of(context)!.settingsMenuDrawerTitle),
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
@@ -45,16 +45,17 @@ class SettingsView extends StatelessWidget {
         children: [
           TextField(
             controller: transcriptionURLController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'URL of cloud-run service',
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: AppLocalizations.of(context)!.cloudRunTextFieldLabel,
               hintText: 'https://project-euphoina.us-west2.run.app',
-              hintStyle: TextStyle(color: Colors.grey),
+              hintStyle: const TextStyle(color: Colors.grey),
             ),
           ),
           const SizedBox(height: 16),
           FilledButton(
-            child: const Text('Save', style: TextStyle(fontSize: 20)),
+            child: Text(AppLocalizations.of(context)!.saveButtonTitle,
+                style: TextStyle(fontSize: 20)),
             onPressed: () {
               if (saveTranscript != null) {
                 saveTranscript!(transcriptionURLController.text);

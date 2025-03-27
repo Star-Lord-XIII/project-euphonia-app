@@ -14,6 +14,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../generated/l10n/app_localizations.dart';
+
 enum UploadStatus { notStarted, started, completed, interrupted }
 
 class TranscribeModeView extends StatelessWidget {
@@ -66,7 +68,8 @@ class TranscribeModeView extends StatelessWidget {
               children: [
                 Text(
                   transcriptUrl == ''
-                      ? 'Please add a URL before transcribing'
+                      ? AppLocalizations.of(context)!
+                          .addTranscriptionEndpointPrompt
                       : 'Using endpoint "$transcriptUrl/transcribe" to transcribe',
                 ),
                 Visibility(
@@ -102,10 +105,9 @@ class TranscribeModeView extends StatelessWidget {
               Expanded(
                 child: MaterialButton(
                   onPressed: record,
-                  color:
-                      isRecording
-                          ? Colors.teal
-                          : (isRecorded ? Colors.lightBlueAccent : Colors.blue),
+                  color: isRecording
+                      ? Colors.teal
+                      : (isRecorded ? Colors.lightBlueAccent : Colors.blue),
                   textColor: Colors.white,
                   disabledColor: Colors.grey,
                   shape: const RoundedRectangleBorder(
@@ -113,7 +115,10 @@ class TranscribeModeView extends StatelessWidget {
                   ),
                   padding: const EdgeInsets.fromLTRB(48, 24, 48, 24),
                   child: Text(
-                    isRecording ? 'Stop' : 'Transcribe',
+                    isRecording
+                        ? AppLocalizations.of(context)!
+                            .stopTranscribingButtonTitle
+                        : AppLocalizations.of(context)!.transcribeButtonTitle,
                     style: const TextStyle(fontSize: 24),
                   ),
                 ),

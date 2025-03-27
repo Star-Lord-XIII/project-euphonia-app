@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'generated/l10n/app_localizations.dart';
 import 'home.dart';
 
 class ProjectEuphonia extends StatelessWidget {
@@ -27,10 +28,15 @@ class ProjectEuphonia extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(useMaterial3: true),
-      darkTheme: ThemeData.dark(useMaterial3: true),
-      home: const HomeController(title: 'Project Euphonia'),
-    );
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.light(useMaterial3: true),
+        darkTheme: ThemeData.dark(useMaterial3: true),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en'), // English
+        ],
+        home: const HomeController());
   }
 }

@@ -14,14 +14,13 @@
 
 import 'package:flutter/material.dart';
 
+import 'generated/l10n/app_localizations.dart';
 import 'modes/train_mode_controller.dart';
 import 'modes/transcribe_mode_controller.dart';
 import 'settings/settings_controller.dart';
 
 class HomeController extends StatefulWidget {
-  const HomeController({super.key, required this.title});
-
-  final String title;
+  const HomeController({super.key});
 
   @override
   State<HomeController> createState() => _HomeControllerState();
@@ -50,21 +49,24 @@ class _HomeControllerState extends State<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text(widget.title)),
+      appBar: AppBar(
+          centerTitle: true,
+          title: Text(AppLocalizations.of(context)!.appTitle)),
       body: _widgetOptions[_selectedIndex],
       drawer: Drawer(
         child: ListView(
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
+            DrawerHeader(
+              decoration: const BoxDecoration(color: Colors.blue),
               child: Text(
-                'Project Euphonia',
-                style: TextStyle(fontSize: 36, color: Colors.white),
+                AppLocalizations.of(context)!.appTitle,
+                style: const TextStyle(fontSize: 36, color: Colors.white),
               ),
             ),
             ListTile(
               leading: const Icon(Icons.settings_sharp),
-              title: const Text('Settings'),
+              title:
+                  Text(AppLocalizations.of(context)!.settingsMenuDrawerTitle),
               onTap: () {
                 Navigator.push(
                   context,
@@ -78,11 +80,13 @@ class _HomeControllerState extends State<HomeController> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.mic), label: 'Train'),
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.hearing),
-            label: 'Transcribe',
+              icon: const Icon(Icons.mic),
+              label: AppLocalizations.of(context)!.trainModeTitle),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.hearing),
+            label: AppLocalizations.of(context)!.transcribeModeTitle,
           ),
         ],
         currentIndex: _selectedIndex,

@@ -243,16 +243,14 @@ class _TrainModeControllerState extends State<TrainModeController> {
     return TrainModeView(
       index: _selectedPhraseIndex,
       phrase: _phrases[_selectedPhraseIndex],
-      previousPhrase:
-          (_selectedPhraseIndex == 0 || _isRecording || _isPlaying)
-              ? null
-              : _previousPhrase,
-      nextPhrase:
-          (_selectedPhraseIndex == _phrases.length - 1 ||
-                  _isRecording ||
-                  _isPlaying)
-              ? null
-              : _nextPhrase,
+      previousPhrase: (_selectedPhraseIndex == 0 || _isRecording || _isPlaying)
+          ? null
+          : _previousPhrase,
+      nextPhrase: (_selectedPhraseIndex == _phrases.length - 1 ||
+              _isRecording ||
+              _isPlaying)
+          ? null
+          : _nextPhrase,
       record: _isPlaying ? null : _manageRecording,
       isRecording: _isRecording,
       play: _canPlay && !_isRecording ? _playRecording : null,
