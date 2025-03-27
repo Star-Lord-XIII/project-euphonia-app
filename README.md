@@ -82,6 +82,6 @@ Copy the trained model (e.g. `pytorch_model.bin`) into the `api/custom_tiny_whis
 
 Deploy the web app into Google Cloud Run following steps reported in the [app README](api/).
 
-## Usege
+## Usage
 
 Following all [Setup](#setup) steps you installed the Project Euphonia App on your smartphone and the api on Google Cloud Run. You can now set the URL of the Google Cloud Run instance in the app Settings and start transcribing your speech.
