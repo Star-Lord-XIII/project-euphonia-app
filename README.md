@@ -85,3 +85,29 @@ Deploy the web app into Google Cloud Run following steps reported in the [app RE
 ## Usage
 
 Following all [Setup](#setup) steps you installed the Project Euphonia App on your smartphone and the api on Google Cloud Run. You can now set the URL of the Google Cloud Run instance in the app Settings and start transcribing your speech.
+
+## Localization (Internationalization)
+
+This application supports localization, allowing it to be translated into different languages.
+
+To contribute a new localization for the app, please follow these steps:
+
+**Create a new ARB file:** Inside the `/lib/l10n` directory, create a new file named according to the following pattern: `app_COUNTRY_CODE.arb`.
+Replace `COUNTRY_CODE` with the appropriate two-letter ISO 639-1 language code (in lowercase). For example:
+
+- For Italian, the file name would be `app_it.arb`.
+- For French, the file name would be `app_fr.arb`.
+- And so on.
+
+**Add translations:** Open the newly created `.arb` file and add your translations in the standard ARB (Application Resource Bundle) format. This is a JSON-based format where keys represent the identifiers of your text strings and values are their translations in the target language.
+
+```json
+{
+    "appTitle": "Project Euphonia",
+    "recordButtonTitle": "Registra"
+}
+```
+
+**Contribute your changes:** Once you have added the translations, add the file to the repository following our [contributing guidelines](CONTRIBUTING.md).
+
+Thank you for helping to make our app accessible to a wider audience!
