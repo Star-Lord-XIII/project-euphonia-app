@@ -39,7 +39,7 @@ This component consists of a **Flutter-based mobile application**. The applicati
 - a section that allows users to record phrases in their own voice.
 - a section to transcribe user speech into text using the trained model.
 
-The application comes with a set of 100 default phrases located under `assets/phrases.txt`. You can customize or add more phrases. You can, for example, create training phrases for different languages.
+The application comes with a set of 100 default phrases located under `assets/phrases.txt`. You can customize or add more phrases. You can, for example, create training phrases for different languages. For reference, in the folder you can find `assets/phrases_it.txt` file with 100 Italian phrases you can use to update the `assets/phrases.txt` file.
 
 Please create a list of 100 short English phrases such that they have good distribution of all phonemes and their allophones, try to keep the length of each phrase less than 140. Please make sure none of the words in the list are repeated more than thrice. All the phrases don't need to be a valid sentence either, the important task is to ensure coverage over all phonemes and maintain a good distribution of allophones. Please don't add numbering at the beginning of the list.
 

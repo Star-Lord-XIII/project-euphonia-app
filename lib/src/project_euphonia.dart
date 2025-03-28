@@ -31,12 +31,8 @@ class ProjectEuphonia extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData.light(useMaterial3: true),
         darkTheme: ThemeData.dark(useMaterial3: true),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('en'), // English
-        ],
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: const HomeController());
   }
 }
