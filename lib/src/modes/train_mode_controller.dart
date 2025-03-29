@@ -33,8 +33,7 @@ class TrainModeController extends StatefulWidget {
 
 class _TrainModeControllerState extends State<TrainModeController> {
   var _uploadStatus = UploadStatus.notStarted;
-  PageController _pageController =
-      PageController(initialPage: 0, viewportFraction: 0.8);
+  final _pageController = PageController(initialPage: 0, viewportFraction: 0.8);
 
   @override
   void initState() {
@@ -42,7 +41,9 @@ class _TrainModeControllerState extends State<TrainModeController> {
     Provider.of<PhrasesRepository>(context, listen: false)
         .getLastRecordedPhraseIndex()
         .then((lastRecordedPhraseIndex) => setState(() {
-              _pageController.jumpToPage(lastRecordedPhraseIndex);
+              if (_pageController.hasClients) {
+                _pageController.jumpToPage(lastRecordedPhraseIndex);
+              }
             }));
   }
 
@@ -51,7 +52,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
         Provider.of<PhrasesRepository>(context, listen: false);
     phrasesRepoProvider.moveToPreviousPhrase();
     setState(() {
-      _pageController?.animateToPage(phrasesRepoProvider.currentPhraseIndex,
+      _pageController.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
       _uploadStatus = UploadStatus.notStarted;
     });
@@ -62,7 +63,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
         Provider.of<PhrasesRepository>(context, listen: false);
     phrasesRepoProvider.moveToNextPhrase();
     setState(() {
-      _pageController?.animateToPage(phrasesRepoProvider.currentPhraseIndex,
+      _pageController.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
       _uploadStatus = UploadStatus.notStarted;
     });
@@ -72,8 +73,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
   Widget build(BuildContext context) {
     return Consumer3<PhrasesRepository, AudioPlayer, AudioRecorder>(
         builder: (_, repo, player, recorder, _1) {
-      developer.log('RELOAD AT INDEX: ${repo.currentPhraseIndex}');
-      if (repo.phrases.isEmpty && _pageController == null) {
+      if (repo.phrases.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }
       return TrainModeView(

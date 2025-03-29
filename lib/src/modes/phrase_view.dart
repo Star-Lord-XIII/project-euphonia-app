@@ -32,7 +32,9 @@ final class PhraseView extends StatelessWidget {
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(48)),
             ),
-            color: isRecordingAvailable ? Color(0xFFD3E3FD) : Color(0xFFE3E3E3),
+            color: isRecordingAvailable
+                ? ColorScheme.of(context).tertiary
+                : ColorScheme.of(context).secondary,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
               child: Column(
@@ -44,7 +46,8 @@ final class PhraseView extends StatelessWidget {
                         padding: const EdgeInsets.all(8),
                         child: Text(
                           '${_phrase.index}',
-                          style: TextStyle(color: Theme.of(context).hintColor),
+                          style: TextStyle(
+                              color: ColorScheme.of(context).surfaceDim),
                         ),
                       ),
                       Container(
@@ -68,7 +71,10 @@ final class PhraseView extends StatelessWidget {
                     child: Center(
                       child: Text(
                         _phrase.text,
-                        style: TextTheme.of(context).headlineMedium,
+                        style: TextTheme.of(context).headlineMedium?.copyWith(
+                            color: isRecordingAvailable
+                                ? ColorScheme.of(context).onTertiary
+                                : ColorScheme.of(context).onSecondary),
                         textAlign: TextAlign.center,
                       ),
                     ),

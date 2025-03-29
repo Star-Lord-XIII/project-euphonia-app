@@ -17,6 +17,7 @@ import 'package:flutter/services.dart';
 
 import 'generated/l10n/app_localizations.dart';
 import 'home.dart';
+import 'ui/core/themes/colors.dart';
 
 class ProjectEuphonia extends StatelessWidget {
   const ProjectEuphonia({super.key});
@@ -29,8 +30,8 @@ class ProjectEuphonia extends StatelessWidget {
     ]);
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.light(useMaterial3: true),
-        darkTheme: ThemeData.dark(useMaterial3: true),
+        theme: ThemeData(colorScheme: AppColors.lightColorScheme),
+        darkTheme: ThemeData(colorScheme: AppColors.darkColorScheme),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: const HomeController());
