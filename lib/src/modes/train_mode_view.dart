@@ -13,13 +13,17 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
+import 'phrase_view.dart';
+import 'package:provider/provider.dart';
 
 import '../generated/l10n/app_localizations.dart';
+import '../repos/phrases_repository.dart';
+import '../repos/phrase.dart';
 import 'upload_status.dart';
 
 class TrainModeView extends StatelessWidget {
   final int index;
-  final String phrase;
+  final List<Phrase> phrases;
   final void Function()? record;
   final void Function()? play;
   final void Function()? nextPhrase;
@@ -28,20 +32,21 @@ class TrainModeView extends StatelessWidget {
   final bool isPlaying;
   final bool isRecorded;
   final UploadStatus uploadStatus;
+  final PageController? controller;
 
-  const TrainModeView({
-    super.key,
-    required this.index,
-    required this.phrase,
-    required this.nextPhrase,
-    required this.previousPhrase,
-    required this.record,
-    required this.play,
-    required this.isRecording,
-    required this.isPlaying,
-    required this.isRecorded,
-    required this.uploadStatus,
-  });
+  const TrainModeView(
+      {super.key,
+      required this.index,
+      required this.phrases,
+      required this.nextPhrase,
+      required this.previousPhrase,
+      required this.record,
+      required this.play,
+      required this.isRecording,
+      required this.isPlaying,
+      required this.isRecorded,
+      required this.uploadStatus,
+      this.controller});
 
   Icon get _uploadIcon {
     switch (uploadStatus) {
@@ -80,73 +85,17 @@ class TrainModeView extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          width: sideLength,
-          height: sideLength,
-          child: Card(
-            margin: const EdgeInsets.all(24),
-            elevation: 4,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(48)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          '$index',
-                          style: TextStyle(color: Theme.of(context).hintColor),
-                        ),
-                      ),
-                      Stack(
-                        children: [
-                          Visibility(
-                            visible: _showUploadProgress,
-                            child: const CircularProgressIndicator(
-                              color: Colors.blue,
-                            ),
-                          ),
-                          Visibility(
-                            visible: uploadStatus != UploadStatus.notStarted,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              child: _uploadIcon,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        decoration: ShapeDecoration(
-                          shape: const CircleBorder(),
-                          color: !isRecorded ? Colors.transparent : Colors.blue,
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.check_rounded,
-                          color:
-                              !isRecorded ? Colors.transparent : Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        phrase,
-                        style: const TextStyle(fontSize: 36),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+            width: sideLength,
+            height: sideLength,
+            child: PageView.builder(
+                controller: controller,
+                itemBuilder: (context, index) {
+                  return PhraseView(phrase: phrases[index]);
+                },
+                itemCount: phrases.length,
+                onPageChanged: (index) =>
+                    Provider.of<PhrasesRepository>(context, listen: false)
+                        .jumpToPhrase(updatedPhraseIndex: index))),
         const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
