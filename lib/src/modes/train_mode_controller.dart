@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:developer' as developer;
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -72,7 +69,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
   @override
   Widget build(BuildContext context) {
     return Consumer3<PhrasesRepository, AudioPlayer, AudioRecorder>(
-        builder: (_, repo, player, recorder, _1) {
+        builder: (_, repo, player, recorder, __) {
       if (repo.phrases.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }

@@ -44,7 +44,7 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
   var _canPlay = false;
   var _uploadStatus = UploadStatus.notStarted;
   var transcriptURL = '';
-  static const TRANSCRIBE_URL_KEY = 'TRANSCRIBE_URL_KEY';
+  static const _transcribeURLKey = 'TRANSCRIBE_URL_KEY';
 
   @override
   void initState() {
@@ -55,7 +55,7 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
   void _populateState() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      transcriptURL = prefs.getString(TRANSCRIBE_URL_KEY) ?? '';
+      transcriptURL = prefs.getString(_transcribeURLKey) ?? '';
     });
   }
 

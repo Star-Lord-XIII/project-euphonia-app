@@ -55,7 +55,7 @@ class SettingsView extends StatelessWidget {
           const SizedBox(height: 16),
           FilledButton(
             child: Text(AppLocalizations.of(context)!.saveButtonTitle,
-                style: TextStyle(fontSize: 20)),
+                style: const TextStyle(fontSize: 20)),
             onPressed: () {
               if (saveTranscript != null) {
                 saveTranscript!(transcriptionURLController.text);
