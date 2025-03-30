@@ -27,62 +27,66 @@ final class PhraseView extends StatelessWidget {
         future: _phrase.isRecordingAvailableLocally,
         builder: (context, snapshot) {
           var isRecordingAvailable = (snapshot.data == true);
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 48, horizontal: 6),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(48)),
-            ),
-            color: isRecordingAvailable
-                ? ColorScheme.of(context).tertiary
-                : ColorScheme.of(context).secondary,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
+          return OrientationBuilder(builder: (context, orientation) {
+            return Card(
+              margin: EdgeInsets.symmetric(
+                  vertical: orientation == Orientation.portrait ? 48 : 0,
+                  horizontal: 6),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(48)),
+              ),
+              color: isRecordingAvailable
+                  ? ColorScheme.of(context).tertiary
+                  : ColorScheme.of(context).secondary,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            '${_phrase.index}',
+                            style: TextStyle(
+                                color: ColorScheme.of(context).surfaceDim),
+                          ),
+                        ),
+                        Container(
+                          decoration: ShapeDecoration(
+                            shape: const CircleBorder(),
+                            color: !isRecordingAvailable
+                                ? Colors.transparent
+                                : Colors.blue,
+                          ),
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.check_rounded,
+                            color: !isRecordingAvailable
+                                ? Colors.transparent
+                                : Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: Center(
                         child: Text(
-                          '${_phrase.index}',
-                          style: TextStyle(
-                              color: ColorScheme.of(context).surfaceDim),
+                          _phrase.text,
+                          style: TextTheme.of(context).headlineMedium?.copyWith(
+                              color: isRecordingAvailable
+                                  ? ColorScheme.of(context).onTertiary
+                                  : ColorScheme.of(context).onSecondary),
+                          textAlign: TextAlign.center,
                         ),
-                      ),
-                      Container(
-                        decoration: ShapeDecoration(
-                          shape: const CircleBorder(),
-                          color: !isRecordingAvailable
-                              ? Colors.transparent
-                              : Colors.blue,
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.check_rounded,
-                          color: !isRecordingAvailable
-                              ? Colors.transparent
-                              : Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        _phrase.text,
-                        style: TextTheme.of(context).headlineMedium?.copyWith(
-                            color: isRecordingAvailable
-                                ? ColorScheme.of(context).onTertiary
-                                : ColorScheme.of(context).onSecondary),
-                        textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          });
         });
   }
 }

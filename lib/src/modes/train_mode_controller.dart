@@ -30,18 +30,22 @@ class TrainModeController extends StatefulWidget {
 
 class _TrainModeControllerState extends State<TrainModeController> {
   var _uploadStatus = UploadStatus.notStarted;
+  final Key _key = GlobalKey();
   final _pageController = PageController(initialPage: 0, viewportFraction: 0.8);
 
   @override
   void initState() {
     super.initState();
-    Provider.of<PhrasesRepository>(context, listen: false)
-        .getLastRecordedPhraseIndex()
-        .then((lastRecordedPhraseIndex) => setState(() {
-              if (_pageController.hasClients) {
-                _pageController.jumpToPage(lastRecordedPhraseIndex);
-              }
-            }));
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await Future.delayed(const Duration(milliseconds: 100));
+      Provider.of<PhrasesRepository>(context, listen: false)
+          .getLastRecordedPhraseIndex()
+          .then((lastRecordedPhraseIndex) => setState(() {
+                if (_pageController.hasClients) {
+                  _pageController.jumpToPage(lastRecordedPhraseIndex);
+                }
+              }));
+    });
   }
 
   void _previousPhrase() async {
@@ -75,6 +79,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
       }
       return TrainModeView(
         index: repo.currentPhraseIndex,
+        pageStorageKey: _key,
         phrases: repo.phrases,
         previousPhrase: repo.currentPhraseIndex == 0 ? null : _previousPhrase,
         nextPhrase: repo.currentPhraseIndex == repo.phrases.length - 1

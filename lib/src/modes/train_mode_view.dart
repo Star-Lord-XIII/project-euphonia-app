@@ -23,6 +23,7 @@ import 'upload_status.dart';
 
 class TrainModeView extends StatelessWidget {
   final int index;
+  final Key pageStorageKey;
   final List<Phrase> phrases;
   final void Function()? record;
   final void Function()? play;
@@ -36,6 +37,7 @@ class TrainModeView extends StatelessWidget {
 
   const TrainModeView(
       {super.key,
+      required this.pageStorageKey,
       required this.index,
       required this.phrases,
       required this.nextPhrase,
@@ -80,14 +82,17 @@ class TrainModeView extends StatelessWidget {
     var height = MediaQuery.of(context).size.height;
     var sideLength = width;
     if (height < width) {
-      sideLength = height;
+      sideLength = height - 180;
     }
-    return Column(
-      children: [
+    return OrientationBuilder(builder: (context, orientation) {
+      final List<Widget> firstHalf = [
         SizedBox(
-            width: sideLength,
+            width: orientation == Orientation.landscape
+                ? (width * 2 / 3) - 100
+                : sideLength,
             height: sideLength,
             child: PageView.builder(
+                key: pageStorageKey,
                 controller: controller,
                 itemBuilder: (context, index) {
                   return PhraseView(phrase: phrases[index]);
@@ -96,6 +101,8 @@ class TrainModeView extends StatelessWidget {
                 onPageChanged: (index) =>
                     Provider.of<PhrasesRepository>(context, listen: false)
                         .jumpToPhrase(updatedPhraseIndex: index))),
+      ];
+      final List<Widget> secondHalf = [
         const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -122,7 +129,6 @@ class TrainModeView extends StatelessWidget {
         const SizedBox(height: 40),
         MaterialButton(
           onPressed: record,
-          minWidth: width - 48,
           color: isRecording
               ? Colors.teal
               : (isRecorded ? Colors.lightBlueAccent : Colors.blue),
@@ -140,8 +146,18 @@ class TrainModeView extends StatelessWidget {
                     : AppLocalizations.of(context)!.recordButtonTitle),
             style: const TextStyle(fontSize: 24),
           ),
-        ),
-      ],
-    );
+        )
+      ];
+      return orientation == Orientation.portrait
+          ? Column(children: firstHalf + secondHalf)
+          : Row(children: [
+              Column(children: firstHalf),
+              Expanded(
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 8),
+                      child: Column(children: secondHalf)))
+            ]);
+    });
   }
 }
