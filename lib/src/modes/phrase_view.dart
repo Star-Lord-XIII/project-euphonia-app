@@ -36,8 +36,8 @@ final class PhraseView extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(48)),
               ),
               color: isRecordingAvailable
-                  ? ColorScheme.of(context).tertiary
-                  : ColorScheme.of(context).secondary,
+                  ? ColorScheme.of(context).onTertiary
+                  : ColorScheme.of(context).onSecondary,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
                 child: Column(
@@ -50,7 +50,7 @@ final class PhraseView extends StatelessWidget {
                           child: Text(
                             '${_phrase.index}',
                             style: TextStyle(
-                                color: ColorScheme.of(context).surfaceDim),
+                                color: ColorScheme.of(context).outline),
                           ),
                         ),
                         Container(
@@ -76,8 +76,8 @@ final class PhraseView extends StatelessWidget {
                           _phrase.text,
                           style: TextTheme.of(context).headlineMedium?.copyWith(
                               color: isRecordingAvailable
-                                  ? ColorScheme.of(context).onTertiary
-                                  : ColorScheme.of(context).onSecondary),
+                                  ? ColorScheme.of(context).tertiary
+                                  : ColorScheme.of(context).secondary),
                           textAlign: TextAlign.center,
                         ),
                       ),

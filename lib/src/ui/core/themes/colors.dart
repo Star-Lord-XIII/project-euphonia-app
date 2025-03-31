@@ -17,8 +17,14 @@ import 'package:flutter/material.dart';
 abstract final class AppColors {
   static const black1 = Color(0xFF101010);
   static const white1 = Color(0xFFFFF7FA);
-  static var grey500 = Colors.grey.shade500;
+  static const grey1 = Color(0xFFF2F2F2);
+  static const greylight = Color(0xFFE3E3E3);
+  static var grey900 = Colors.grey.shade900;
   static const grey2 = Color(0xFF4D4D4D);
+  static const grey3 = Color(0xFFA4A4A4);
+  static const whiteTransparent = Color(
+    0x4DFFFFFF,
+  ); // Figma rgba(255, 255, 255, 0.3)
   static const blackTransparent = Color(0x4D000000);
   static const red1 = Color(0xFFE74C3C);
 
@@ -26,31 +32,32 @@ abstract final class AppColors {
   static const lightCardColor = Color(0xFFE3E3E3);
 
   static const lightColorScheme = ColorScheme(
-      brightness: Brightness.light,
-      primary: AppColors.white1,
-      onPrimary: AppColors.black1,
-      secondary: AppColors.lightCardColor,
-      onSecondary: AppColors.black1,
-      tertiary: AppColors.blueCardColor,
-      onTertiary: AppColors.black1,
-      surface: Colors.white,
-      onSurface: AppColors.black1,
-      error: Colors.white,
-      onError: Colors.red,
-      surfaceDim: AppColors.black1);
+    brightness: Brightness.light,
+    primary: AppColors.black1,
+    onPrimary: AppColors.white1,
+    secondary: AppColors.black1,
+    onSecondary: AppColors.greylight,
+    tertiary: AppColors.black1,
+    onTertiary: AppColors.blueCardColor,
+    surface: Colors.white,
+    onSurface: AppColors.black1,
+    error: Colors.white,
+    onError: Colors.red,
+    outline: Colors.blueGrey,
+  );
 
   static var darkColorScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: AppColors.black1,
-    onPrimary: AppColors.white1,
-    secondary: AppColors.grey2,
-    onSecondary: AppColors.white1,
-    tertiary: AppColors.blueCardColor,
-    onTertiary: AppColors.black1,
+    primary: AppColors.white1,
+    onPrimary: AppColors.black1,
+    secondary: AppColors.white1,
+    onSecondary: AppColors.grey900,
+    tertiary: AppColors.black1,
+    onTertiary: AppColors.blueCardColor,
     surface: AppColors.black1,
     onSurface: Colors.white,
     error: Colors.black,
     onError: AppColors.red1,
-    surfaceDim: AppColors.grey500,
+    outline: Colors.blueGrey,
   );
 }
