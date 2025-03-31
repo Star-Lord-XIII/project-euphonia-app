@@ -44,7 +44,9 @@ final class Phrase {
   }
 
   Future<void> uploadRecording() async {
-    final storageRef = FirebaseStorage.instance.ref();
+    final storage = FirebaseStorage.instance;
+    storage.setMaxUploadRetryTime(const Duration(seconds: 5));
+    final storageRef = storage.ref();
     final phraseRef = storageRef.child('data/$index/phrase.txt');
     final audioRef = storageRef.child('data/$index/recording.wav');
     final audioPath = await localRecordingPath;

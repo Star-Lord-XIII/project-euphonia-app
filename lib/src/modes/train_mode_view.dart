@@ -50,32 +50,6 @@ class TrainModeView extends StatelessWidget {
       required this.uploadStatus,
       this.controller});
 
-  Icon get _uploadIcon {
-    switch (uploadStatus) {
-      case UploadStatus.notStarted:
-        return const Icon(Icons.cloud_upload, color: Colors.transparent);
-      case UploadStatus.started:
-        return const Icon(Icons.cloud_upload, color: Colors.blue);
-      case UploadStatus.completed:
-        return const Icon(Icons.cloud_done, color: Colors.green);
-      case UploadStatus.interrupted:
-        return const Icon(Icons.cloud_off, color: Colors.red);
-    }
-  }
-
-  bool get _showUploadProgress {
-    switch (uploadStatus) {
-      case UploadStatus.notStarted:
-        return false;
-      case UploadStatus.started:
-        return true;
-      case UploadStatus.completed:
-        return false;
-      case UploadStatus.interrupted:
-        return false;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;

@@ -19,6 +19,7 @@ import 'generated/l10n/app_localizations.dart';
 import 'modes/train_mode_controller.dart';
 import 'modes/transcribe_mode_controller.dart';
 import 'repos/phrases_repository.dart';
+import 'repos/uploader.dart';
 import 'settings/settings_controller.dart';
 
 class HomeController extends StatefulWidget {
@@ -59,7 +60,22 @@ class _HomeControllerState extends State<HomeController> {
     return Scaffold(
       appBar: AppBar(
           centerTitle: true,
-          title: Text(AppLocalizations.of(context)!.appTitle)),
+          title: Text(AppLocalizations.of(context)!.appTitle),
+          actions: [
+            Consumer<Uploader>(
+                builder: (context, uploader, _) => Stack(children: [
+                      Visibility(
+                          visible: uploader.showProgressIndicator,
+                          child: const CircularProgressIndicator(
+                              color: Colors.blue)),
+                      Visibility(
+                          visible: uploader.showUploadProgressIcon,
+                          child: Container(
+                              padding: const EdgeInsets.all(6),
+                              child: uploader.uploadIcon))
+                    ])),
+            const SizedBox(width: 24)
+          ]),
       body: _widgetOptions[_selectedIndex],
       drawer: Drawer(
         child: ListView(

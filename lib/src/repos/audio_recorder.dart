@@ -59,7 +59,6 @@ final class AudioRecorder extends ChangeNotifier {
     if (isRecording) {
       _recorder.stop();
       _isRecording = false;
-      _phrase?.uploadRecording();
       notifyListeners();
     }
   }

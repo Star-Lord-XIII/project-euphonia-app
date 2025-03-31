@@ -17,7 +17,9 @@ import 'package:provider/provider.dart';
 
 import '../repos/audio_player.dart';
 import '../repos/audio_recorder.dart';
+import '../repos/phrase.dart';
 import '../repos/phrases_repository.dart';
+import '../repos/uploader.dart';
 import 'train_mode_view.dart';
 import 'upload_status.dart';
 
@@ -70,6 +72,24 @@ class _TrainModeControllerState extends State<TrainModeController> {
     });
   }
 
+  void _stopRecordingAndUpload(AudioRecorder recorder, Phrase phrase) async {
+    if (!recorder.isRecording) {
+      recorder.start();
+      return;
+    }
+    recorder.stop();
+    Provider.of<Uploader>(context, listen: false)
+        .updateStatus(status: UploadStatus.started);
+    try {
+      await phrase.uploadRecording();
+      Provider.of<Uploader>(context, listen: false)
+          .updateStatus(status: UploadStatus.completed);
+    } catch (_) {
+      Provider.of<Uploader>(context, listen: false)
+          .updateStatus(status: UploadStatus.interrupted);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer3<PhrasesRepository, AudioPlayer, AudioRecorder>(
@@ -87,7 +107,9 @@ class _TrainModeControllerState extends State<TrainModeController> {
             : _nextPhrase,
         record: player.isPlaying
             ? null
-            : (recorder.isRecording ? recorder.stop : recorder.start),
+            : () {
+                _stopRecordingAndUpload(recorder, repo.currentPhrase!);
+              },
         isRecording: recorder.isRecording,
         play: player.canPlay && !recorder.isRecording
             ? (player.isPlaying ? player.pause : player.play)
