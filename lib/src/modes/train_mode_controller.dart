@@ -77,7 +77,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
       recorder.start();
       return;
     }
-    recorder.stop();
+    await recorder.stop();
     Provider.of<Uploader>(context, listen: false)
         .updateStatus(status: UploadStatus.started);
     try {

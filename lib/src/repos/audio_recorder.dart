@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 import 'package:record/record.dart' as ar;
 
@@ -49,15 +51,17 @@ final class AudioRecorder extends ChangeNotifier {
             echoCancel: true,
             noiseSuppress: true,
           ),
-          path: await _phrase!.localRecordingPath,
+          path: await _phrase!.localTempPath,
         );
       }
     });
   }
 
-  void stop() {
+  Future<void> stop() async {
     if (isRecording) {
-      _recorder.stop();
+      await _recorder.stop();
+      await File(await _phrase!.localTempPath)
+          .rename(await _phrase!.localRecordingPath);
       _isRecording = false;
       notifyListeners();
     }

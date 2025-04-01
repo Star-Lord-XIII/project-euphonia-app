@@ -31,6 +31,10 @@ final class Phrase {
         (value) => '${value.path}/prompt$index.wav',
       );
 
+  Future<String> get localTempPath => getApplicationDocumentsDirectory().then(
+        (value) => '${value.path}/prompt_temp_$index.wav',
+  );
+
   Future<void> downloadRecording() async {
     final storageRef = FirebaseStorage.instance.ref();
     final audioRef = storageRef.child('data/$index/recording.wav');
