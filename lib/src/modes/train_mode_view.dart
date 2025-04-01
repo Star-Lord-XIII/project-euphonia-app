@@ -81,23 +81,32 @@ class TrainModeView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            IconButton.outlined(
-              onPressed: previousPhrase,
-              iconSize: 48,
-              icon: const Icon(Icons.skip_previous),
-            ),
+            Semantics(
+                label: AppLocalizations.of(context)!.previousPhraseButton,
+                hint: AppLocalizations.of(context)!.previousPhraseButtonHint,
+                child: IconButton.outlined(
+                  onPressed: previousPhrase,
+                  iconSize: 48,
+                  icon: const Icon(Icons.skip_previous),
+                )),
             const SizedBox(width: 24),
-            IconButton.outlined(
-              onPressed: play,
-              iconSize: 48,
-              icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-            ),
+            Semantics(
+                label: AppLocalizations.of(context)!.playPhraseButton,
+                hint: AppLocalizations.of(context)!.playPhraseButtonHint,
+                child: IconButton.outlined(
+                  onPressed: play,
+                  iconSize: 48,
+                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                )),
             const SizedBox(width: 24),
-            IconButton.outlined(
-              onPressed: nextPhrase,
-              iconSize: 48,
-              icon: const Icon(Icons.skip_next),
-            ),
+            Semantics(
+                label: AppLocalizations.of(context)!.nextPhraseButton,
+                hint: AppLocalizations.of(context)!.nextPhraseButtonHint,
+                child: IconButton.outlined(
+                  onPressed: nextPhrase,
+                  iconSize: 48,
+                  icon: const Icon(Icons.skip_next),
+                )),
           ],
         ),
         const SizedBox(height: 40),

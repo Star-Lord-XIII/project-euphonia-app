@@ -73,5 +73,35 @@
                 "example": "https://project-euphonia-inference-xyz.LOCATION.run.app"
             }
         }
+    },
+
+    "previousPhraseButton": "Previous phrase button",
+    "@previousPhraseButton": {
+        "description": "Accessibility label for previous phrase button"
+    },
+
+    "playPhraseButton": "Play phrase button",
+    "@playPhraseButton": {
+        "description": "Accessibility label for play phrase button"
+    },
+
+    "nextPhraseButton": "Next phrase button",
+    "@nextPhraseButton": {
+        "description": "Accessibility label for next phrase button"
+    },
+
+    "previousPhraseButtonHint": "Double tap to jump to previous phrase",
+    "@previousPhraseButtonHint": {
+        "description": "Accessibility action hint for previous phrase button"
+    },
+
+    "playPhraseButtonHint": "Double tap to play phrase recording",
+    "@playPhraseButtonHint": {
+        "description": "Accessibility action hint for play phrase button"
+    },
+
+    "nextPhraseButtonHint": "Double tap to jump to next phrase",
+    "@nextPhraseButtonHint": {
+        "description": "Accessibility action hint for next phrase button"
     }
 }
