@@ -32,7 +32,7 @@ gcloud builds submit \
     .
 ```
 
-## Coteiner deploy
+## Container deploy
 
 [Deploy](https://cloud.google.com/sdk/gcloud/reference/run/deploy) and run service:
 
@@ -48,7 +48,7 @@ gcloud run deploy project-euphonia-inference \
 
 **Note**: when deploying whisper large, we need more memory, and in consequence also up the CPUs. Configure `memory` and `cpu` accordingly.
 
-**Note**: when deploying model trained for a language different than English, configure the language in the app python script. For example, this is the configuration for serving Italian transcription models:
+**Note**: when deploying model trained for a language other than English, configure the language in the app python script. For example, this is the configuration for serving Italian transcription models:
 
 ```python
 # set language to whatever language you used in fine-tuning the model
