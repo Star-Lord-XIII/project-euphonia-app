@@ -1,28 +1,38 @@
-# Project Euphonia App
+# Project Euphonia serving model API
 
 Deploy transcription API as service in Google Cloud run:
 (see also: <https://cloud.google.com/build/docs/build-push-docker-image>)
 
 ## Prerequisites
 
+Configure environment variables:
+
+```bash
+export PROJECT_ID="my_project_id"
+export LOCATION="my-project-location"
+export TAG="V1"
+```
+
 Run `gcloud auth login` and create a repository in GCP:
 
 ```bash
 gcloud artifacts repositories create project-euphonia \
     --repository-format=docker \
-    --location=LOCATION \
+    --location=$LOCATION \
     --description="Project Euphonia Docker repository"
 ```
 
-Build a new image and upload to repositoryç
+Build a new image and upload to repository:
 
 ```bash
 gcloud builds submit \
-    --region=LOCATION \
-    --project=test \
-    --tag LOCATION-docker.pkg.dev/PROJECT_ID/REPO_NAME/PATH:TAG \
+    --region=$LOCATION \
+    --project=$PROJECT_ID \
+    --tag $LOCATION-docker.pkg.dev/$PROJECT_ID/project-euphonia/transcribe:$TAG \
     .
 ```
+
+## Container deploy
 
 [Deploy](https://cloud.google.com/sdk/gcloud/reference/run/deploy) and run service:
 
@@ -36,16 +46,13 @@ gcloud run deploy project-euphonia-inference \
     --image=LOCATION-docker.pkg.dev/PROJECT_ID/REPO_NAME/PATH:TAG
 ```
 
-**Note**: when deploying whisper large, we need more memory, and in consequence also up the CPUs. This works:
+**Note**: when deploying whisper large, we need more memory, and in consequence also up the CPUs. Configure `memory` and `cpu` accordingly.
 
-```bash
-gcloud run deploy project-euphonia-inference \
-    --region=LOCATION \
-    --project=test \
-    --ingress=all \
-    --timeout=300s \
-    --memory=8Gi --cpu=2 \
-    --image=LOCATION-docker.pkg.dev/PROJECT_ID/REPO_NAME/PATH:TAG
+**Note**: when deploying model trained for a language other than English, configure the language in the app python script. For example, this is the configuration for serving Italian transcription models:
+
+```python
+# set language to whatever language you used in fine-tuning the model
+LANGUAGE = "it"
 ```
 
 ## Test

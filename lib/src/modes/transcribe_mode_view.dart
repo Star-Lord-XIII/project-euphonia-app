@@ -55,41 +55,55 @@ class TranscribeModeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-          child: SizedBox(
-            width: MediaQuery.of(context).size.height,
-            height: MediaQuery.of(context).size.height - 400,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(transcriptUrl == ''
-                    ? AppLocalizations.of(context)!
-                        .addTranscriptionEndpointPrompt
-                    : AppLocalizations.of(context)!
-                        .transcriptionEndpointDisplay(transcriptUrl)),
-                Visibility(
-                  visible: _showUploadProgress,
-                  child: const CircularProgressIndicator(color: Colors.blue),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical, //.horizontal
-                    child: Text(
-                      phrase,
-                      style: const TextStyle(fontSize: 24),
-                      textAlign: TextAlign.left,
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    var sideLength = width;
+    if (height < width) {
+      sideLength = height - 180;
+    }
+    return OrientationBuilder(builder: (context, orientation) {
+      final List<Widget> firstHalf = [
+        SizedBox(
+            width: orientation == Orientation.landscape
+                ? (width * 2 / 3) - 100
+                : sideLength,
+            height: sideLength,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                  orientation == Orientation.landscape ? 48 : 24, 24, 24, 16),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.height,
+                height: MediaQuery.of(context).size.height - 400,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(transcriptUrl == ''
+                        ? AppLocalizations.of(context)!
+                            .addTranscriptionEndpointPrompt
+                        : AppLocalizations.of(context)!
+                            .transcriptionEndpointDisplay(transcriptUrl)),
+                    Visibility(
+                      visible: _showUploadProgress,
+                      child:
+                          const CircularProgressIndicator(color: Colors.blue),
                     ),
-                  ),
+                    Expanded(
+                      flex: 1,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical, //.horizontal
+                        child: Text(
+                          phrase,
+                          style: const TextStyle(fontSize: 24),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
+            )),
+      ];
+      final List<Widget> secondHalf = [
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
           child: Row(
@@ -124,8 +138,19 @@ class TranscribeModeView extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ],
-    );
+        )
+      ];
+
+      return orientation == Orientation.portrait
+          ? Column(children: firstHalf + secondHalf)
+          : Row(children: [
+              Column(children: firstHalf),
+              Expanded(
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 8),
+                      child: Column(children: secondHalf)))
+            ]);
+    });
   }
 }

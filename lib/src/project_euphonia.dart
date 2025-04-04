@@ -13,24 +13,24 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'generated/l10n/app_localizations.dart';
 import 'home.dart';
+import 'ui/core/themes/colors.dart';
 
 class ProjectEuphonia extends StatelessWidget {
   const ProjectEuphonia({super.key});
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.light(useMaterial3: true),
-        darkTheme: ThemeData.dark(useMaterial3: true),
+        theme: ThemeData(colorScheme: AppColors.lightColorScheme).copyWith(
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                backgroundColor: Colors.grey.shade200)),
+        darkTheme: ThemeData(colorScheme: AppColors.darkColorScheme).copyWith(
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                backgroundColor: Colors.grey.shade900)),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: const HomeController());

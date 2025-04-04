@@ -34,6 +34,8 @@ migrate_working_dir/
 .pub/
 /build/
 /lib/src/generated/
+/ios/Runner/GoogleService-Info.plist
+/ios/Runner.xcodeproj/project.pbxproj
 
 # Symbolication related
 app.*.symbols

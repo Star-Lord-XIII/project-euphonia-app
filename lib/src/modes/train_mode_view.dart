@@ -13,13 +13,18 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
+import 'phrase_view.dart';
+import 'package:provider/provider.dart';
 
 import '../generated/l10n/app_localizations.dart';
+import '../repos/phrases_repository.dart';
+import '../repos/phrase.dart';
 import 'upload_status.dart';
 
 class TrainModeView extends StatelessWidget {
   final int index;
-  final String phrase;
+  final Key pageStorageKey;
+  final List<Phrase> phrases;
   final void Function()? record;
   final void Function()? play;
   final void Function()? nextPhrase;
@@ -28,46 +33,22 @@ class TrainModeView extends StatelessWidget {
   final bool isPlaying;
   final bool isRecorded;
   final UploadStatus uploadStatus;
+  final PageController? controller;
 
-  const TrainModeView({
-    super.key,
-    required this.index,
-    required this.phrase,
-    required this.nextPhrase,
-    required this.previousPhrase,
-    required this.record,
-    required this.play,
-    required this.isRecording,
-    required this.isPlaying,
-    required this.isRecorded,
-    required this.uploadStatus,
-  });
-
-  Icon get _uploadIcon {
-    switch (uploadStatus) {
-      case UploadStatus.notStarted:
-        return const Icon(Icons.cloud_upload, color: Colors.transparent);
-      case UploadStatus.started:
-        return const Icon(Icons.cloud_upload, color: Colors.blue);
-      case UploadStatus.completed:
-        return const Icon(Icons.cloud_done, color: Colors.green);
-      case UploadStatus.interrupted:
-        return const Icon(Icons.cloud_off, color: Colors.red);
-    }
-  }
-
-  bool get _showUploadProgress {
-    switch (uploadStatus) {
-      case UploadStatus.notStarted:
-        return false;
-      case UploadStatus.started:
-        return true;
-      case UploadStatus.completed:
-        return false;
-      case UploadStatus.interrupted:
-        return false;
-    }
-  }
+  const TrainModeView(
+      {super.key,
+      required this.pageStorageKey,
+      required this.index,
+      required this.phrases,
+      required this.nextPhrase,
+      required this.previousPhrase,
+      required this.record,
+      required this.play,
+      required this.isRecording,
+      required this.isPlaying,
+      required this.isRecorded,
+      required this.uploadStatus,
+      this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -75,105 +56,62 @@ class TrainModeView extends StatelessWidget {
     var height = MediaQuery.of(context).size.height;
     var sideLength = width;
     if (height < width) {
-      sideLength = height;
+      sideLength = height - 180;
     }
-    return Column(
-      children: [
+    return OrientationBuilder(builder: (context, orientation) {
+      final List<Widget> firstHalf = [
         SizedBox(
-          width: sideLength,
-          height: sideLength,
-          child: Card(
-            margin: const EdgeInsets.all(24),
-            elevation: 4,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(48)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 48),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(
-                          '$index',
-                          style: TextStyle(color: Theme.of(context).hintColor),
-                        ),
-                      ),
-                      Stack(
-                        children: [
-                          Visibility(
-                            visible: _showUploadProgress,
-                            child: const CircularProgressIndicator(
-                              color: Colors.blue,
-                            ),
-                          ),
-                          Visibility(
-                            visible: uploadStatus != UploadStatus.notStarted,
-                            child: Container(
-                              padding: const EdgeInsets.all(6),
-                              child: _uploadIcon,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        decoration: ShapeDecoration(
-                          shape: const CircleBorder(),
-                          color: !isRecorded ? Colors.transparent : Colors.blue,
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.check_rounded,
-                          color:
-                              !isRecorded ? Colors.transparent : Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        phrase,
-                        style: const TextStyle(fontSize: 36),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+            width: orientation == Orientation.landscape
+                ? (width * 2 / 3) - 100
+                : sideLength,
+            height: sideLength,
+            child: PageView.builder(
+                key: pageStorageKey,
+                controller: controller,
+                itemBuilder: (context, index) {
+                  return PhraseView(phrase: phrases[index]);
+                },
+                itemCount: phrases.length,
+                onPageChanged: (index) =>
+                    Provider.of<PhrasesRepository>(context, listen: false)
+                        .jumpToPhrase(updatedPhraseIndex: index))),
+      ];
+      final List<Widget> secondHalf = [
         const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            IconButton.outlined(
-              onPressed: previousPhrase,
-              iconSize: 48,
-              icon: const Icon(Icons.skip_previous),
-            ),
+            Semantics(
+                label: AppLocalizations.of(context)!.previousPhraseButton,
+                hint: AppLocalizations.of(context)!.previousPhraseButtonHint,
+                child: IconButton.outlined(
+                  onPressed: previousPhrase,
+                  iconSize: 48,
+                  icon: const Icon(Icons.skip_previous),
+                )),
             const SizedBox(width: 24),
-            IconButton.outlined(
-              onPressed: play,
-              iconSize: 48,
-              icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-            ),
+            Semantics(
+                label: AppLocalizations.of(context)!.playPhraseButton,
+                hint: AppLocalizations.of(context)!.playPhraseButtonHint,
+                child: IconButton.outlined(
+                  onPressed: play,
+                  iconSize: 48,
+                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                )),
             const SizedBox(width: 24),
-            IconButton.outlined(
-              onPressed: nextPhrase,
-              iconSize: 48,
-              icon: const Icon(Icons.skip_next),
-            ),
+            Semantics(
+                label: AppLocalizations.of(context)!.nextPhraseButton,
+                hint: AppLocalizations.of(context)!.nextPhraseButtonHint,
+                child: IconButton.outlined(
+                  onPressed: nextPhrase,
+                  iconSize: 48,
+                  icon: const Icon(Icons.skip_next),
+                )),
           ],
         ),
         const SizedBox(height: 40),
         MaterialButton(
           onPressed: record,
-          minWidth: width - 48,
           color: isRecording
               ? Colors.teal
               : (isRecorded ? Colors.lightBlueAccent : Colors.blue),
@@ -191,8 +129,18 @@ class TrainModeView extends StatelessWidget {
                     : AppLocalizations.of(context)!.recordButtonTitle),
             style: const TextStyle(fontSize: 24),
           ),
-        ),
-      ],
-    );
+        )
+      ];
+      return orientation == Orientation.portrait
+          ? Column(children: firstHalf + secondHalf)
+          : Row(children: [
+              Column(children: firstHalf),
+              Expanded(
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 8),
+                      child: Column(children: secondHalf)))
+            ]);
+    });
   }
 }

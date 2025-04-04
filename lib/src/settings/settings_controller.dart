@@ -28,7 +28,7 @@ final class SettingsController extends StatefulWidget {
 class _SettingsControllerState extends State<SettingsController> {
   late SharedPreferences _preferences;
   String transcriptURL = '';
-  static const TRANSCRIBE_URL_KEY = 'TRANSCRIBE_URL_KEY';
+  static const _transcribeURLKey = 'TRANSCRIBE_URL_KEY';
 
   @override
   void initState() {
@@ -38,14 +38,14 @@ class _SettingsControllerState extends State<SettingsController> {
 
   void _initPreferences() async {
     _preferences = await SharedPreferences.getInstance();
-    final url = _preferences.getString(TRANSCRIBE_URL_KEY) ?? '';
+    final url = _preferences.getString(_transcribeURLKey) ?? '';
     setState(() {
       transcriptURL = url;
     });
   }
 
   void saveTranscribeURL(String url) async {
-    await _preferences.setString(TRANSCRIBE_URL_KEY, url);
+    await _preferences.setString(_transcribeURLKey, url);
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(

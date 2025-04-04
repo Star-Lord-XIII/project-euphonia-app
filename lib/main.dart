@@ -14,12 +14,30 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 import 'src/project_euphonia.dart';
+import 'src/repos/audio_player.dart';
+import 'src/repos/audio_recorder.dart';
+import 'src/repos/phrases_repository.dart';
+import 'src/repos/uploader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const ProjectEuphonia());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (context) => PhrasesRepository()),
+    ChangeNotifierProxyProvider<PhrasesRepository, AudioRecorder>(
+        create: (context) => AudioRecorder(),
+        update: (context, phraseRepoChangeNotifier, audioRecorder) =>
+            audioRecorder!
+              ..updateAudioPathForPhrase(
+                  phraseRepoChangeNotifier.currentPhrase)),
+    ChangeNotifierProxyProvider<PhrasesRepository, AudioPlayer>(
+        create: (context) => AudioPlayer(),
+        update: (context, phraseRepoChangeNotifier, audioPlayer) =>
+            audioPlayer!..loadPhrase(phraseRepoChangeNotifier.currentPhrase)),
+    ChangeNotifierProvider(create: (context) => Uploader()),
+  ], child: const ProjectEuphonia()));
 }
