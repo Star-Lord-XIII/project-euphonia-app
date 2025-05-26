@@ -84,6 +84,7 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
+    - assets/akan_phrases.txt
     - assets/phrases.txt
     - assets/phrases_it.txt
   fonts:

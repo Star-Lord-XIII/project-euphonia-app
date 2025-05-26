@@ -70,6 +70,12 @@ final class PhraseView extends StatelessWidget {
                         ),
                       ],
                     ),
+                    _phrase.text.startsWith("http") ?
+                    Expanded(
+                      child: Center(
+                        child: Image.network(_phrase.text)
+                      ),
+                    ) :
                     Expanded(
                       child: Center(
                         child: Text(
