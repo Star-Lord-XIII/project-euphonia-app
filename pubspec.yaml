@@ -59,6 +59,9 @@ dependencies:
   provider: any
   flutter_localizations:
     sdk: flutter
+  firebase_auth: ^5.5.4
+  firebase_ui_auth: ^1.16.1
+  firebase_ui_oauth_google: ^1.4.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -83,6 +86,10 @@ flutter:
   assets:
     - assets/phrases.txt
     - assets/phrases_it.txt
+  fonts:
+    - family: SocialIcons
+      fonts:
+        - asset: packages/firebase_ui_auth/fonts/SocialIcons.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

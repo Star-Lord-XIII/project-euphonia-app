@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -103,6 +104,28 @@ class _HomeControllerState extends State<HomeController> {
                 );
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: Text(AppLocalizations.of(context)!.profileMenuItemTitle),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<ProfileScreen>(
+                    builder: (context) => ProfileScreen(
+                      appBar: AppBar(
+                        title: Text(
+                            AppLocalizations.of(context)!.profileMenuItemTitle),
+                      ),
+                      actions: [
+                        SignedOutAction((context) {
+                          Navigator.of(context).pop();
+                        })
+                      ],
+                    ),
+                  ),
+                );
+              },
+            )
           ],
         ),
       ),

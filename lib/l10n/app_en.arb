@@ -113,5 +113,10 @@
     "autoAdvanceSettingSubtitle": "Move to next phrase automatically after you finish recording the current phrase",
     "@autoAdvanceSettingSubtitle": {
         "description": "Subtitle to auto advance phrase setting"
+    },
+
+    "profileMenuItemTitle": "Profile",
+    "@profileMenuItemTitle": {
+        "description": "Title for user-profile menu item in Navigation drawer"
     }
 }

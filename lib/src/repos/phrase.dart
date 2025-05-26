@@ -14,6 +14,7 @@
 
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -51,8 +52,9 @@ final class Phrase {
     final storage = FirebaseStorage.instance;
     storage.setMaxUploadRetryTime(const Duration(seconds: 5));
     final storageRef = storage.ref();
-    final phraseRef = storageRef.child('data/$index/phrase.txt');
-    final audioRef = storageRef.child('data/$index/recording.wav');
+    final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    final phraseRef = storageRef.child('$userToken/$index/phrase.txt');
+    final audioRef = storageRef.child('$userToken/$index/recording.wav');
     final audioPath = await localRecordingPath;
     final localAudioFile = File(audioPath);
     if (!localAudioFile.existsSync()) {
