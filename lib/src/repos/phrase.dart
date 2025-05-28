@@ -18,9 +18,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 
+enum PhraseType { text, image }
+
 final class Phrase {
   final int index;
   final String text;
+
+  PhraseType get type =>
+      text.startsWith("https:") ? PhraseType.image : PhraseType.text;
 
   Phrase({required this.index, required this.text});
 

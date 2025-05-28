@@ -13,18 +13,21 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
-import 'phrase_view.dart';
 import 'package:provider/provider.dart';
 
 import '../generated/l10n/app_localizations.dart';
-import '../repos/phrases_repository.dart';
 import '../repos/phrase.dart';
+import '../repos/phrases_repository.dart';
+import 'phrase_view.dart';
 import 'upload_status.dart';
 
 class TrainModeView extends StatelessWidget {
+  final PhraseType type;
+  final Map<PhraseType, List> phrasesByType;
   final int index;
   final Key pageStorageKey;
   final List<Phrase> phrases;
+  final void Function(Set<PhraseType>)? toggleType;
   final void Function()? record;
   final void Function()? play;
   final void Function()? nextPhrase;
@@ -38,8 +41,11 @@ class TrainModeView extends StatelessWidget {
   const TrainModeView(
       {super.key,
       required this.pageStorageKey,
+      required this.type,
+      required this.phrasesByType,
       required this.index,
       required this.phrases,
+      required this.toggleType,
       required this.nextPhrase,
       required this.previousPhrase,
       required this.record,
@@ -69,15 +75,25 @@ class TrainModeView extends StatelessWidget {
                 key: pageStorageKey,
                 controller: controller,
                 itemBuilder: (context, index) {
-                  return PhraseView(phrase: phrases[index]);
+                  return PhraseView(
+                      index: index,
+                      phrase: phrases[phrasesByType[type]?[index] ?? 0]);
                 },
-                itemCount: phrases.length,
+                itemCount: phrasesByType[type]?.length ?? 0,
                 onPageChanged: (index) =>
                     Provider.of<PhrasesRepository>(context, listen: false)
                         .jumpToPhrase(updatedPhraseIndex: index))),
       ];
       final List<Widget> secondHalf = [
-        const SizedBox(height: 24),
+        SegmentedButton<PhraseType>(segments: const <ButtonSegment<PhraseType>>[
+          ButtonSegment<PhraseType>(
+              value: PhraseType.text, label: Text('text')),
+          ButtonSegment<PhraseType>(
+              value: PhraseType.image, label: Text('image'))
+        ], selected: {
+          type
+        }, onSelectionChanged: toggleType),
+        const SizedBox(height: 18),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -109,7 +125,7 @@ class TrainModeView extends StatelessWidget {
                 )),
           ],
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 32),
         MaterialButton(
           onPressed: record,
           color: isRecording
@@ -138,7 +154,7 @@ class TrainModeView extends StatelessWidget {
               Expanded(
                   child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 8),
+                          vertical: 0, horizontal: 8),
                       child: Column(children: secondHalf)))
             ]);
     });

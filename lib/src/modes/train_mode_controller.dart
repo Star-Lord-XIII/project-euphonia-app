@@ -54,7 +54,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
   void _previousPhrase() async {
     var phrasesRepoProvider =
         Provider.of<PhrasesRepository>(context, listen: false);
-    phrasesRepoProvider.moveToPreviousPhrase();
+    await phrasesRepoProvider.moveToPreviousPhrase();
     setState(() {
       _pageController.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
@@ -65,7 +65,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
   void _nextPhrase() async {
     var phrasesRepoProvider =
         Provider.of<PhrasesRepository>(context, listen: false);
-    phrasesRepoProvider.moveToNextPhrase();
+    await phrasesRepoProvider.moveToNextPhrase();
     setState(() {
       _pageController.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
@@ -94,6 +94,16 @@ class _TrainModeControllerState extends State<TrainModeController> {
     }
   }
 
+  void _toggleType(Set<PhraseType> newSelection) async {
+    var phrasesRepoProvider =
+        Provider.of<PhrasesRepository>(context, listen: false);
+    await phrasesRepoProvider.toggleType(newSelection.first);
+    setState(() {
+      _pageController.jumpToPage(phrasesRepoProvider.currentPhraseIndex);
+      _uploadStatus = UploadStatus.notStarted;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer3<PhrasesRepository, AudioPlayer, AudioRecorder>(
@@ -102,9 +112,12 @@ class _TrainModeControllerState extends State<TrainModeController> {
         return const Center(child: CircularProgressIndicator());
       }
       return TrainModeView(
+        type: repo.currentPhraseType,
+        phrasesByType: repo.phrasesByType,
         index: repo.currentPhraseIndex,
         pageStorageKey: _key,
         phrases: repo.phrases,
+        toggleType: _toggleType,
         previousPhrase: repo.currentPhraseIndex == 0 ? null : _previousPhrase,
         nextPhrase: repo.currentPhraseIndex == repo.phrases.length - 1
             ? null

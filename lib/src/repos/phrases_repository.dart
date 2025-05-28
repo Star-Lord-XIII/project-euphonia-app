@@ -18,37 +18,57 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'phrase.dart';
 
 final class PhrasesRepository extends ChangeNotifier {
   static const lastRecordedPhraseIndexKey = 'LAST_RECORDED_PHRASE_INDEX_KEY';
+  static const lastSelectedPhraseType = "LAST_SELECTED_PHRASE_TYPE";
 
   final List<Phrase> _phrases = [];
+  final Map<PhraseType, List> _phrasesByType = {};
   int _currentPhraseIndex = 0;
+  PhraseType _currentPhraseType = PhraseType.text;
 
   UnmodifiableListView<Phrase> get phrases => UnmodifiableListView(_phrases);
   int get currentPhraseIndex => _currentPhraseIndex;
-  Phrase? get currentPhrase =>
-      _currentPhraseIndex < 0 || _currentPhraseIndex >= _phrases.length
-          ? null
-          : _phrases[_currentPhraseIndex];
+  Phrase? get currentPhrase => _currentPhraseIndex < 0 ||
+          (_currentPhraseIndex >=
+              (phrasesByType[currentPhraseType]?.length ?? 0))
+      ? null
+      : _phrases[phrasesByType[currentPhraseType]![_currentPhraseIndex]];
+
+  PhraseType get currentPhraseType => _currentPhraseType;
+
+  Map<PhraseType, List> get phrasesByType => _phrasesByType;
 
   Future<void> initFromAssetFile() async {
     var prefs = await SharedPreferences.getInstance();
-    rootBundle.loadString('assets/phrases.txt').then((content) {
-      _currentPhraseIndex = prefs.getInt(lastRecordedPhraseIndexKey) ?? 0;
+    rootBundle.loadString('assets/akan_phrases.txt').then((content) {
+      _currentPhraseType = PhraseType.values
+          .byName(prefs.getString(lastSelectedPhraseType) ?? "text");
+      _currentPhraseIndex = prefs.getInt(_currentRecordedPhraseIndexKey()) ?? 0;
       var textPhrases = LineSplitter.split(content).toList();
       List<Phrase> phrasesList = [];
       for (var i = 0; i < textPhrases.length; ++i) {
-        phrasesList.add(Phrase(index: i, text: textPhrases[i]));
+        final curPhrase = Phrase(index: i, text: textPhrases[i]);
+        phrasesList.add(curPhrase);
+        if (_phrasesByType[curPhrase.type] == null) {
+          _phrasesByType[curPhrase.type] = [];
+        }
+        _phrasesByType[curPhrase.type]!.add(i);
       }
       reset(updatedPhrases: phrasesList);
     });
   }
 
+  String _currentRecordedPhraseIndexKey({PhraseType? type}) {
+    return '${lastRecordedPhraseIndexKey}_${(type ?? _currentPhraseType).name.toUpperCase()}';
+  }
+
   Future<int> getLastRecordedPhraseIndex() async {
     return (await SharedPreferences.getInstance())
-            .getInt(lastRecordedPhraseIndexKey) ??
+            .getInt(_currentRecordedPhraseIndexKey()) ??
         0;
   }
 
@@ -59,13 +79,16 @@ final class PhrasesRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> jumpToPhrase({required int updatedPhraseIndex}) async {
-    if (_currentPhraseIndex == updatedPhraseIndex) {
+  Future<void> jumpToPhrase(
+      {required int updatedPhraseIndex, PhraseType? type}) async {
+    if (_currentPhraseIndex == updatedPhraseIndex && type == null) {
       return;
     }
+    _currentPhraseType = type ?? _currentPhraseType;
     _currentPhraseIndex = updatedPhraseIndex;
     var prefs = await SharedPreferences.getInstance();
-    prefs.setInt(lastRecordedPhraseIndexKey, _currentPhraseIndex);
+    prefs.setString(lastSelectedPhraseType, _currentPhraseType.name);
+    prefs.setInt(_currentRecordedPhraseIndexKey(), _currentPhraseIndex);
     notifyListeners();
   }
 
@@ -75,5 +98,15 @@ final class PhrasesRepository extends ChangeNotifier {
 
   Future<void> moveToPreviousPhrase() async {
     jumpToPhrase(updatedPhraseIndex: currentPhraseIndex - 1);
+  }
+
+  Future<void> toggleType(PhraseType type) async {
+    if (_currentPhraseType == type) {
+      return;
+    }
+    var prefs = await SharedPreferences.getInstance();
+    final updatedIndex =
+        prefs.getInt(_currentRecordedPhraseIndexKey(type: type)) ?? 0;
+    jumpToPhrase(updatedPhraseIndex: updatedIndex, type: type);
   }
 }
