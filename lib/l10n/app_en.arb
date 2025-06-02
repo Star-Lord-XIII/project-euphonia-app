@@ -64,7 +64,7 @@
         "description": "Prompt user to add transcription endpoint before trying transcription"
     },
 
-    "transcriptionEndpointDisplay": "Using endpoint \"{transcriptionURL}/transcribe\" to transcribe",
+    "transcriptionEndpointDisplay": "Using endpoint \"{transcriptionURL}\" to transcribe",
     "@transcriptionEndpointDisplay": {
         "description": "Message to display the transcription url configured by the user",
         "placeholders": {

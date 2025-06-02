@@ -71,6 +71,17 @@ class SettingsView extends StatelessWidget {
               .updateTranscribeEndpoint(newValue);
         },
       )),
+      const SizedBox(height: 36),
+      ListTile(
+          title: Text('Rich captions',
+              style: Theme.of(context).textTheme.headlineSmall),
+          subtitle: Text(
+              'Display coloured captions to show probability of each word. Green when greater than 0.9, else yellow if greater than 0.7, else red.'),
+          trailing: Switch(
+              value: settings.displayRichCaptions,
+              onChanged: (newValue) {
+                settings.updateRichCaptions(newValue);
+              })),
       const SizedBox(height: 64)
     ];
 

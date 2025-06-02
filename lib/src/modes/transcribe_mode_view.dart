@@ -20,6 +20,7 @@ enum UploadStatus { notStarted, started, completed, interrupted }
 
 class TranscribeModeView extends StatelessWidget {
   final String phrase;
+  final List words;
   final String transcriptUrl;
   final void Function()? record;
   final void Function()? play;
@@ -31,6 +32,7 @@ class TranscribeModeView extends StatelessWidget {
   const TranscribeModeView({
     super.key,
     required this.phrase,
+    required this.words,
     required this.transcriptUrl,
     required this.record,
     required this.play,
@@ -51,6 +53,15 @@ class TranscribeModeView extends StatelessWidget {
       case UploadStatus.interrupted:
         return false;
     }
+  }
+
+  Color getColorForWordProbability(double probability) {
+    if (probability > 0.9) {
+      return Colors.green;
+    } else if (probability > 0.7) {
+      return Colors.yellow;
+    }
+    return Colors.red;
   }
 
   @override
@@ -91,11 +102,23 @@ class TranscribeModeView extends StatelessWidget {
                       flex: 1,
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical, //.horizontal
-                        child: Text(
-                          phrase,
-                          style: const TextStyle(fontSize: 24),
-                          textAlign: TextAlign.left,
-                        ),
+                        child: words.isNotEmpty
+                            ? RichText(
+                                text: TextSpan(
+                                    children: words
+                                        .map((w) => TextSpan(
+                                            text: w["word"],
+                                            style: TextStyle(
+                                                fontSize: 24,
+                                                color:
+                                                    getColorForWordProbability(
+                                                        w["probability"]))))
+                                        .toList()))
+                            : Text(
+                                phrase,
+                                style: const TextStyle(fontSize: 24),
+                                textAlign: TextAlign.left,
+                              ),
                       ),
                     ),
                   ],

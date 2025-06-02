@@ -12,7 +12,7 @@
     "valueSavedMessage": "Parametro salvato",
     "cloudRunTextFieldLabel": "URL del servizio Cloud Run",
     "addTranscriptionEndpointPrompt": "Aggiungi uan URL nelle impostazioni per iniziare la trascrizione.",
-    "transcriptionEndpointDisplay": "L'indirizzo \"{transcriptionURL}/transcribe\" è utilizzato per la trascrizione",
+    "transcriptionEndpointDisplay": "L'indirizzo \"{transcriptionURL}\" è utilizzato per la trascrizione",
     "previousPhraseButton": "Frase precedente",
     "playPhraseButton": "Riproduci frase",
     "nextPhraseButton": "Frase successiva",
