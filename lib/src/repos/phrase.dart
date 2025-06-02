@@ -52,14 +52,17 @@ final class Phrase {
   Future<bool> get isRecordingAvailableLocally =>
       localRecordingPath.then((x) => File(x).existsSync());
 
-  Future<String> get localRecordingPath =>
-      getApplicationDocumentsDirectory().then(
-        (value) => '${value.path}/prompt$index.wav',
-      );
+  Future<String> get localRecordingPath async {
+    final appDocDirPath = await getApplicationDocumentsDirectory();
+    final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    return '${appDocDirPath.path}/${userToken}_prompt$index.wav';
+  }
 
-  Future<String> get localTempPath => getApplicationDocumentsDirectory().then(
-        (value) => '${value.path}/prompt_temp_$index.wav',
-      );
+  Future<String> get localTempPath async {
+    final appDocDirPath = await getApplicationDocumentsDirectory();
+    final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    return '${appDocDirPath.path}/${userToken}_prompt_temp_$index.wav';
+  }
 
   Future<void> downloadRecording() async {
     final storageRef = FirebaseStorage.instance.ref();
