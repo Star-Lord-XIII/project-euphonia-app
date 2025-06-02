@@ -77,13 +77,14 @@ final class PhraseView extends StatelessWidget {
                     _phrase.type == PhraseType.image
                         ? Expanded(
                             child: Center(
-                                child: CachedNetworkImage(
-                                    imageUrl: _phrase.text,
-                                    placeholder: (context, url) =>
-                                        const CircularProgressIndicator(),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(Icons.error))),
-                          )
+                                child: (_phrase.isLocalImage
+                                    ? Image(image: AssetImage(_phrase.imageUrl))
+                                    : CachedNetworkImage(
+                                        imageUrl: _phrase.imageUrl,
+                                        placeholder: (context, url) =>
+                                            const CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.error)))))
                         : Expanded(
                             child: Center(
                               child: Text(

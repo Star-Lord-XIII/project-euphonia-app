@@ -44,7 +44,7 @@ final class PhrasesRepository extends ChangeNotifier {
 
   Future<void> initFromAssetFile() async {
     var prefs = await SharedPreferences.getInstance();
-    rootBundle.loadString('assets/akan_phrases.txt').then((content) {
+    rootBundle.loadString('assets/swahili_phrases.txt').then((content) {
       _currentPhraseType = PhraseType.values
           .byName(prefs.getString(lastSelectedPhraseType) ?? "text");
       _currentPhraseIndex = prefs.getInt(_currentRecordedPhraseIndexKey()) ?? 0;

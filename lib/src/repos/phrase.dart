@@ -24,8 +24,28 @@ final class Phrase {
   final int index;
   final String text;
 
-  PhraseType get type =>
-      text.startsWith("https:") ? PhraseType.image : PhraseType.text;
+  bool get isLocalImage {
+    return text.startsWith("/");
+  }
+
+  String get imageUrl {
+    if (type == PhraseType.image) {
+      if (isLocalImage) {
+        return 'assets$text';
+      }
+      return text;
+    }
+    return '';
+  }
+
+  PhraseType get type {
+    if (text.startsWith("/")) {
+      return PhraseType.image;
+    } else if (text.startsWith("https:")) {
+      return PhraseType.image;
+    }
+    return PhraseType.text;
+  }
 
   Phrase({required this.index, required this.text});
 

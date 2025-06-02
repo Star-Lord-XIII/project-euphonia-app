@@ -16,7 +16,6 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -36,7 +35,6 @@ class TranscribeModeController extends StatefulWidget {
 }
 
 class _TranscribeModeControllerState extends State<TranscribeModeController> {
-  final storage = FirebaseStorage.instance;
   final record = AudioRecorder();
   late VideoPlayerController _playerController;
   var _phrase = '';
