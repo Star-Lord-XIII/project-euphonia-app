@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../generated/l10n/app_localizations.dart';
+import '../repos/audio_recorder.dart';
 import '../repos/phrase.dart';
 import '../repos/phrases_repository.dart';
 import 'phrase_view.dart';
@@ -60,6 +61,11 @@ class TrainModeView extends StatelessWidget {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
+    var progress =
+        Provider.of<AudioRecorder>(listen: false, context).ticksPassed /
+            AudioRecorder.maxTicksAllowed;
+    var progressColor =
+        Color.lerp(Theme.of(context).colorScheme.primary, Colors.red, progress);
     var sideLength = width;
     if (height < width) {
       sideLength = height - 180;
@@ -106,15 +112,31 @@ class TrainModeView extends StatelessWidget {
                   icon: const Icon(Icons.skip_previous),
                 )),
             const SizedBox(width: 24),
-            Semantics(
-                label: AppLocalizations.of(context)!.playPhraseButton,
-                hint: AppLocalizations.of(context)!.playPhraseButtonHint,
-                child: IconButton.outlined(
-                  onPressed: play,
-                  iconSize: 48,
-                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                )),
-            const SizedBox(width: 24),
+            isRecording
+                ? Stack(children: [
+                    SizedBox(
+                        height: 36,
+                        width: 36,
+                        child: Center(
+                            child: Text(
+                                Provider.of<AudioRecorder>(context)
+                                    .recordingTime,
+                                style: TextStyle(
+                                    fontSize: 16, color: progressColor)))),
+                    Transform.scale(
+                        scale: 1.6,
+                        child: CircularProgressIndicator(
+                            value: progress, color: progressColor)),
+                  ])
+                : Semantics(
+                    label: AppLocalizations.of(context)!.playPhraseButton,
+                    hint: AppLocalizations.of(context)!.playPhraseButtonHint,
+                    child: IconButton.outlined(
+                      onPressed: play,
+                      iconSize: 48,
+                      icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                    )),
+            SizedBox(width: 24),
             Semantics(
                 label: AppLocalizations.of(context)!.nextPhraseButton,
                 hint: AppLocalizations.of(context)!.nextPhraseButtonHint,

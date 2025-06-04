@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -110,6 +112,39 @@ class _TrainModeControllerState extends State<TrainModeController> {
         builder: (_, repo, player, recorder, __) {
       if (repo.phrases.isEmpty) {
         return const Center(child: CircularProgressIndicator());
+      }
+      if (recorder.ticksPassed >= AudioRecorder.maxTicksAllowed) {
+        var phrasesRepoProvider =
+            Provider.of<PhrasesRepository>(context, listen: false);
+        recorder.stop().then((_) async {
+          File(await phrasesRepoProvider.currentPhrase!.localRecordingPath)
+              .delete();
+          return showDialog<void>(
+            context: context,
+            barrierDismissible: false, // user must tap button!
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Recording too long'),
+                content: const SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Text(
+                          'Recordings should be less than ${AudioRecorder.maxTicksAllowed / 10}sec long. Please start the recording again as recordings longer than ${AudioRecorder.maxTicksAllowed / 10}sec are not accepted'),
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Okay'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        });
       }
       return TrainModeView(
         type: repo.currentPhraseType,
