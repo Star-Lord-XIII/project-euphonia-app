@@ -44,7 +44,8 @@ jobs:
           sudo npm i -g firebase-tools
       - name: Install FlutterFire
         run: |
-          dart pub global activate --source="path" . --executable="flutterfire" --overwrite
+          dart pub global activate flutterfire_cli  
+          export PATH="$PATH":"$HOME/.pub-cache/bin"
       - name: Decode Google SA Json file
         run: |
           echo "${{ secrets.GOOGLE_SA_JSON_BASE64 }}" | base64 --decode > google_sa.json
