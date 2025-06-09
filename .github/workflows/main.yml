@@ -51,7 +51,7 @@ jobs:
           echo "${{ secrets.GOOGLE_SA_JSON_BASE64 }}" | base64 --decode > google_sa.json
       - name: Setup Firebase Project
         run: |
-          flutterfire configure -y --project=${{ secrets.FIREBASE_PROJECT_ID }} --platforms=android,ios --android-package-name=${{ secrets.ANDROID_PACKAGE_NAME }} --ios-bundle-id=${{ secrets.IOS_BUNDLE_ID }} --service-acount=google_sa.json
+          flutterfire configure -y --project=${{ secrets.FIREBASE_PROJECT_ID }} --platforms=android,ios --android-package-name=${{ secrets.ANDROID_PACKAGE_NAME }} --ios-bundle-id=${{ secrets.IOS_BUNDLE_ID }} --service-account=google_sa.json
 
       #5 Setup Keystore
       - name: Decode Keystore
