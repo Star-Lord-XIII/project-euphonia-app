@@ -13,18 +13,22 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
-import 'phrase_view.dart';
 import 'package:provider/provider.dart';
 
 import '../generated/l10n/app_localizations.dart';
-import '../repos/phrases_repository.dart';
+import '../repos/audio_recorder.dart';
 import '../repos/phrase.dart';
+import '../repos/phrases_repository.dart';
+import 'phrase_view.dart';
 import 'upload_status.dart';
 
 class TrainModeView extends StatelessWidget {
+  final PhraseType type;
+  final Map<PhraseType, List> phrasesByType;
   final int index;
   final Key pageStorageKey;
   final List<Phrase> phrases;
+  final void Function(Set<PhraseType>)? toggleType;
   final void Function()? record;
   final void Function()? play;
   final void Function()? nextPhrase;
@@ -38,8 +42,11 @@ class TrainModeView extends StatelessWidget {
   const TrainModeView(
       {super.key,
       required this.pageStorageKey,
+      required this.type,
+      required this.phrasesByType,
       required this.index,
       required this.phrases,
+      required this.toggleType,
       required this.nextPhrase,
       required this.previousPhrase,
       required this.record,
@@ -54,6 +61,11 @@ class TrainModeView extends StatelessWidget {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
+    var progress =
+        Provider.of<AudioRecorder>(listen: false, context).ticksPassed /
+            AudioRecorder.maxTicksAllowed;
+    var progressColor =
+        Color.lerp(Theme.of(context).colorScheme.primary, Colors.red, progress);
     var sideLength = width;
     if (height < width) {
       sideLength = height - 180;
@@ -69,15 +81,25 @@ class TrainModeView extends StatelessWidget {
                 key: pageStorageKey,
                 controller: controller,
                 itemBuilder: (context, index) {
-                  return PhraseView(phrase: phrases[index]);
+                  return PhraseView(
+                      index: index,
+                      phrase: phrases[phrasesByType[type]?[index] ?? 0]);
                 },
-                itemCount: phrases.length,
+                itemCount: phrasesByType[type]?.length ?? 0,
                 onPageChanged: (index) =>
                     Provider.of<PhrasesRepository>(context, listen: false)
                         .jumpToPhrase(updatedPhraseIndex: index))),
       ];
       final List<Widget> secondHalf = [
-        const SizedBox(height: 24),
+        SegmentedButton<PhraseType>(segments: const <ButtonSegment<PhraseType>>[
+          ButtonSegment<PhraseType>(
+              value: PhraseType.text, label: Text('text')),
+          ButtonSegment<PhraseType>(
+              value: PhraseType.image, label: Text('image'))
+        ], selected: {
+          type
+        }, onSelectionChanged: toggleType),
+        const SizedBox(height: 18),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -90,15 +112,31 @@ class TrainModeView extends StatelessWidget {
                   icon: const Icon(Icons.skip_previous),
                 )),
             const SizedBox(width: 24),
-            Semantics(
-                label: AppLocalizations.of(context)!.playPhraseButton,
-                hint: AppLocalizations.of(context)!.playPhraseButtonHint,
-                child: IconButton.outlined(
-                  onPressed: play,
-                  iconSize: 48,
-                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                )),
-            const SizedBox(width: 24),
+            isRecording
+                ? Stack(children: [
+                    SizedBox(
+                        height: 36,
+                        width: 36,
+                        child: Center(
+                            child: Text(
+                                Provider.of<AudioRecorder>(context)
+                                    .recordingTime,
+                                style: TextStyle(
+                                    fontSize: 16, color: progressColor)))),
+                    Transform.scale(
+                        scale: 1.6,
+                        child: CircularProgressIndicator(
+                            value: progress, color: progressColor)),
+                  ])
+                : Semantics(
+                    label: AppLocalizations.of(context)!.playPhraseButton,
+                    hint: AppLocalizations.of(context)!.playPhraseButtonHint,
+                    child: IconButton.outlined(
+                      onPressed: play,
+                      iconSize: 48,
+                      icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                    )),
+            SizedBox(width: 24),
             Semantics(
                 label: AppLocalizations.of(context)!.nextPhraseButton,
                 hint: AppLocalizations.of(context)!.nextPhraseButtonHint,
@@ -109,7 +147,7 @@ class TrainModeView extends StatelessWidget {
                 )),
           ],
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 32),
         MaterialButton(
           onPressed: record,
           color: isRecording
@@ -138,7 +176,7 @@ class TrainModeView extends StatelessWidget {
               Expanded(
                   child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 8),
+                          vertical: 0, horizontal: 8),
                       child: Column(children: secondHalf)))
             ]);
     });

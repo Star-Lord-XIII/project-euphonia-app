@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -54,7 +56,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
   void _previousPhrase() async {
     var phrasesRepoProvider =
         Provider.of<PhrasesRepository>(context, listen: false);
-    phrasesRepoProvider.moveToPreviousPhrase();
+    await phrasesRepoProvider.moveToPreviousPhrase();
     setState(() {
       _pageController.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
@@ -65,7 +67,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
   void _nextPhrase() async {
     var phrasesRepoProvider =
         Provider.of<PhrasesRepository>(context, listen: false);
-    phrasesRepoProvider.moveToNextPhrase();
+    await phrasesRepoProvider.moveToNextPhrase();
     setState(() {
       _pageController.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
@@ -94,6 +96,16 @@ class _TrainModeControllerState extends State<TrainModeController> {
     }
   }
 
+  void _toggleType(Set<PhraseType> newSelection) async {
+    var phrasesRepoProvider =
+        Provider.of<PhrasesRepository>(context, listen: false);
+    await phrasesRepoProvider.toggleType(newSelection.first);
+    setState(() {
+      _pageController.jumpToPage(phrasesRepoProvider.currentPhraseIndex);
+      _uploadStatus = UploadStatus.notStarted;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer3<PhrasesRepository, AudioPlayer, AudioRecorder>(
@@ -101,10 +113,46 @@ class _TrainModeControllerState extends State<TrainModeController> {
       if (repo.phrases.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }
+      if (recorder.ticksPassed >= AudioRecorder.maxTicksAllowed) {
+        var phrasesRepoProvider =
+            Provider.of<PhrasesRepository>(context, listen: false);
+        recorder.stop().then((_) async {
+          File(await phrasesRepoProvider.currentPhrase!.localRecordingPath)
+              .delete();
+          return showDialog<void>(
+            context: context,
+            barrierDismissible: false, // user must tap button!
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Recording too long'),
+                content: const SingleChildScrollView(
+                  child: ListBody(
+                    children: <Widget>[
+                      Text(
+                          'Recordings should be less than ${AudioRecorder.maxTicksAllowed / 10}sec long. Please start the recording again as recordings longer than ${AudioRecorder.maxTicksAllowed / 10}sec are not accepted'),
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Okay'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        });
+      }
       return TrainModeView(
+        type: repo.currentPhraseType,
+        phrasesByType: repo.phrasesByType,
         index: repo.currentPhraseIndex,
         pageStorageKey: _key,
         phrases: repo.phrases,
+        toggleType: _toggleType,
         previousPhrase: repo.currentPhraseIndex == 0 ? null : _previousPhrase,
         nextPhrase: repo.currentPhraseIndex == repo.phrases.length - 1
             ? null

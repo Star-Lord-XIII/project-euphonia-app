@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +27,13 @@ import 'src/repos/uploader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final app = await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final auth = FirebaseAuth.instanceFor(app: app);
+  const usingEmulator = false;
+  if (usingEmulator) {
+    await auth.useAuthEmulator('localhost', 9099);
+  }
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => PhrasesRepository()),

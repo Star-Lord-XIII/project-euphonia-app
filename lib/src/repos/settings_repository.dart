@@ -18,17 +18,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 final class SettingsRepository extends ChangeNotifier {
   static const _transcribeEndpointKey = 'TRANSCRIBE_URL_KEY';
   static const _autoAdvanceKey = 'AUTO_ADVANCE_KEY';
+  static const _richCaptionKey = 'RICH_CAPTION_KEY';
+  static const String _defaultEndpoint =
+      'https://personalizedmodels--transcription-service-fasterwhisper--38f293.modal.run';
 
   String _transcribeEndpoint = '';
   bool _autoAdvance = false;
+  bool _displayRichCaptions = false;
 
   String get transcribeEndpoint => _transcribeEndpoint;
   bool get autoAdvance => _autoAdvance;
 
+  bool get displayRichCaptions => _displayRichCaptions;
+
   Future<void> initFromPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    _transcribeEndpoint = prefs.getString(_transcribeEndpointKey) ?? '';
+    final preferredEndpoint = prefs.getString(_transcribeEndpointKey);
+    _transcribeEndpoint =
+        (preferredEndpoint == null || preferredEndpoint.isEmpty)
+            ? _defaultEndpoint
+            : '';
     _autoAdvance = prefs.getBool(_autoAdvanceKey) ?? false;
+    _displayRichCaptions = prefs.getBool(_richCaptionKey) ?? false;
     notifyListeners();
   }
 
@@ -43,6 +54,13 @@ final class SettingsRepository extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool(_autoAdvanceKey, updatedAutoAdvancePref);
     _autoAdvance = updatedAutoAdvancePref;
+    notifyListeners();
+  }
+
+  Future<void> updateRichCaptions(bool show) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_richCaptionKey, show);
+    _displayRichCaptions = show;
     notifyListeners();
   }
 }

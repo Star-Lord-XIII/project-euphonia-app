@@ -14,26 +14,55 @@
 
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
+
+enum PhraseType { text, image }
 
 final class Phrase {
   final int index;
   final String text;
+
+  bool get isLocalImage {
+    return text.startsWith("/");
+  }
+
+  String get imageUrl {
+    if (type == PhraseType.image) {
+      if (isLocalImage) {
+        return 'assets$text';
+      }
+      return text;
+    }
+    return '';
+  }
+
+  PhraseType get type {
+    if (text.startsWith("/")) {
+      return PhraseType.image;
+    } else if (text.startsWith("https:")) {
+      return PhraseType.image;
+    }
+    return PhraseType.text;
+  }
 
   Phrase({required this.index, required this.text});
 
   Future<bool> get isRecordingAvailableLocally =>
       localRecordingPath.then((x) => File(x).existsSync());
 
-  Future<String> get localRecordingPath =>
-      getApplicationDocumentsDirectory().then(
-        (value) => '${value.path}/prompt$index.wav',
-      );
+  Future<String> get localRecordingPath async {
+    final appDocDirPath = await getApplicationDocumentsDirectory();
+    final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    return '${appDocDirPath.path}/${userToken}_prompt$index.wav';
+  }
 
-  Future<String> get localTempPath => getApplicationDocumentsDirectory().then(
-        (value) => '${value.path}/prompt_temp_$index.wav',
-      );
+  Future<String> get localTempPath async {
+    final appDocDirPath = await getApplicationDocumentsDirectory();
+    final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    return '${appDocDirPath.path}/${userToken}_prompt_temp_$index.wav';
+  }
 
   Future<void> downloadRecording() async {
     final storageRef = FirebaseStorage.instance.ref();
@@ -51,8 +80,9 @@ final class Phrase {
     final storage = FirebaseStorage.instance;
     storage.setMaxUploadRetryTime(const Duration(seconds: 5));
     final storageRef = storage.ref();
-    final phraseRef = storageRef.child('data/$index/phrase.txt');
-    final audioRef = storageRef.child('data/$index/recording.wav');
+    final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    final phraseRef = storageRef.child('$userToken/$index/phrase.txt');
+    final audioRef = storageRef.child('$userToken/$index/recording.wav');
     final audioPath = await localRecordingPath;
     final localAudioFile = File(audioPath);
     if (!localAudioFile.existsSync()) {

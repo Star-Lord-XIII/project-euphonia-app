@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
@@ -20,11 +21,20 @@ import 'package:record/record.dart' as ar;
 import 'phrase.dart';
 
 final class AudioRecorder extends ChangeNotifier {
+  static const maxTicksAllowed = 300; // 30 sec
+
   Phrase? _phrase;
   final _recorder = ar.AudioRecorder();
   var _isRecording = false;
+  Timer? _timer;
+  String _recordingTime = "0";
+  int _ticksPassed = 0;
 
   bool get isRecording => _isRecording;
+
+  String get recordingTime => _recordingTime;
+
+  int get ticksPassed => _ticksPassed;
 
   void updateAudioPathForPhrase(Phrase? phrase) {
     if (phrase == null) {
@@ -53,6 +63,11 @@ final class AudioRecorder extends ChangeNotifier {
           ),
           path: await _phrase!.localTempPath,
         );
+        _timer = Timer.periodic(const Duration(milliseconds: 100), (Timer t) {
+          _recordingTime = "${(t.tick / 10)}";
+          _ticksPassed = t.tick;
+          notifyListeners();
+        });
       }
     });
   }
@@ -63,6 +78,10 @@ final class AudioRecorder extends ChangeNotifier {
       await File(await _phrase!.localTempPath)
           .rename(await _phrase!.localRecordingPath);
       _isRecording = false;
+      _timer?.cancel();
+      _recordingTime = "0";
+      _ticksPassed = 0;
+      _timer = null;
       notifyListeners();
     }
   }

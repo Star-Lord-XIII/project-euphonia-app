@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../repos/phrase.dart';
 
 final class PhraseView extends StatelessWidget {
+  final int _index;
   final Phrase _phrase;
 
-  const PhraseView({super.key, required Phrase phrase}) : _phrase = phrase;
+  const PhraseView({super.key, required int index, required Phrase phrase})
+      : _index = index,
+        _phrase = phrase;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +52,7 @@ final class PhraseView extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(8),
                           child: Text(
-                            '${_phrase.index}',
+                            '$_index',
                             style: TextStyle(
                                 color: ColorScheme.of(context).outline),
                           ),
@@ -70,18 +74,32 @@ final class PhraseView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          _phrase.text,
-                          style: TextTheme.of(context).headlineMedium?.copyWith(
-                              color: isRecordingAvailable
-                                  ? ColorScheme.of(context).tertiary
-                                  : ColorScheme.of(context).secondary),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
+                    _phrase.type == PhraseType.image
+                        ? Expanded(
+                            child: Center(
+                                child: (_phrase.isLocalImage
+                                    ? Image(image: AssetImage(_phrase.imageUrl))
+                                    : CachedNetworkImage(
+                                        imageUrl: _phrase.imageUrl,
+                                        placeholder: (context, url) =>
+                                            const CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.error)))))
+                        : Expanded(
+                            child: Center(
+                              child: Text(
+                                _phrase.text,
+                                style: TextTheme.of(context)
+                                    .headlineMedium
+                                    ?.copyWith(
+                                        color: isRecordingAvailable
+                                            ? ColorScheme.of(context).tertiary
+                                            : ColorScheme.of(context)
+                                                .secondary),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
                   ],
                 ),
               ),

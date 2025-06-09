@@ -34,6 +34,7 @@ version: 1.0.0+1
 
 environment:
   sdk: ">=3.1.0 <4.0.0"
+  flutter: 3.29.2
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -48,7 +49,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  record: ^5.1.2
+  record: ^6.0.0
   path_provider:
   video_player: ^2.9.2
   firebase_storage: ^12.3.2
@@ -59,6 +60,10 @@ dependencies:
   provider: any
   flutter_localizations:
     sdk: flutter
+  firebase_auth: ^5.5.4
+  firebase_ui_auth: ^1.16.1
+  firebase_ui_oauth_google: ^1.4.1
+  cached_network_image: ^3.4.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -68,7 +73,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -81,8 +86,15 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
+    - assets/akan_phrases.txt
     - assets/phrases.txt
     - assets/phrases_it.txt
+    - assets/swahili_phrases.txt
+    - assets/pictures/
+  fonts:
+    - family: SocialIcons
+      fonts:
+        - asset: packages/firebase_ui_auth/fonts/SocialIcons.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

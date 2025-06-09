@@ -14,8 +14,8 @@
 
 import 'package:flutter/material.dart';
 
+import 'auth_gate.dart';
 import 'generated/l10n/app_localizations.dart';
-import 'home.dart';
 import 'ui/core/themes/colors.dart';
 
 class ProjectEuphonia extends StatelessWidget {
@@ -33,6 +33,6 @@ class ProjectEuphonia extends StatelessWidget {
                 backgroundColor: Colors.grey.shade900)),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: const HomeController());
+        home: const AuthGate());
   }
 }

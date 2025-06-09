@@ -16,7 +16,6 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
 
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -36,10 +35,10 @@ class TranscribeModeController extends StatefulWidget {
 }
 
 class _TranscribeModeControllerState extends State<TranscribeModeController> {
-  final storage = FirebaseStorage.instance;
   final record = AudioRecorder();
   late VideoPlayerController _playerController;
   var _phrase = '';
+  var _words = [];
   var _isRecording = false;
   var _isPlaying = false;
   var _canPlay = false;
@@ -108,7 +107,7 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
       if (transcribeEndpoint.isEmpty) {
         return;
       }
-      final uri = Uri.parse('$transcribeEndpoint/transcribe');
+      final uri = Uri.parse(transcribeEndpoint);
       var request = http.MultipartRequest('POST', uri);
       request.files.add(
         await http.MultipartFile.fromPath('wav', audioFile.path),
@@ -118,7 +117,8 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
       final result = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode == 200) {
         setState(() {
-          _phrase = result['transcript'] ?? 'ERROR: TRANSCRIPT NOT FOUND!';
+          _phrase = result['transcription'] ?? 'ERROR: TRANSCRIPT NOT FOUND!';
+          _words = result['words'] ?? [];
           _uploadStatus = UploadStatus.completed;
         });
       } else {
@@ -177,6 +177,7 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
     return Consumer<SettingsRepository>(
         builder: (context, settings, _) => TranscribeModeView(
               phrase: _phrase,
+              words: settings.displayRichCaptions ? _words : [],
               transcriptUrl: settings.transcribeEndpoint,
               record: _isPlaying ? null : _manageRecording,
               isRecording: _isRecording,
