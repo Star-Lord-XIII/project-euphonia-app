@@ -1,0 +1,115 @@
+name: "Initial manual workflow test"
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    name: Build & Release
+    runs-on: macos-latest
+
+    steps:
+      #1 Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      #2 Setup Java
+      - name: Set Up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '21'
+
+      #3 Setup Flutter
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml # path to pubspec.yaml
+      - run: flutter --version
+
+      #4 Install Dependencies
+      - name: Install Dependencies
+        run: flutter pub get
+
+      #4.a Setup Firebase
+      - name: Install Firebase CLI
+        run: |
+          sudo npm i -g firebase-tools
+      - name: Install FlutterFire
+        run: |
+          dart pub global activate --source="path" . --executable="flutterfire" --overwrite
+      - name: Decode Google SA Json file
+        run: |
+          echo "${{ secrets.GOOGLE_SA_JSON_BASE64 }}" | base64 --decode > google_sa.json
+      - name: Setup Firebase Project
+        run: |
+          flutterfire configure -y --project=${{ secrets.FIREBASE_PROJECT_ID }} --platforms=android,ios --android-package-name=${{ secrets.ANDROID_PACKAGE_NAME }} --ios-bundle-id=${{ secrets.IOS_BUNDLE_ID }} --service-acount=google_sa.json
+
+      #5 Setup Keystore
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=keystore.jks" >> android/key.properties
+
+      #6 Building APK
+      - name: Build APK
+        run: flutter build apk --debug
+
+      #7 Build IPA ( IOS Build )
+      #      - name: Build IPA
+      #        run: flutter build ipa --no-codesign
+      #
+      #      - name: Compress Archives and IPAs
+      #        run: |
+      #          cd build
+      #          tar -czf ios_build.tar.gz ios
+
+      #8 Upload Artifacts
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Releases
+          path: |
+            build/app/outputs/flutter-apk/app-debug.apk
+      #            build/ios_build.tar.gz
+
+      #9 Extract Version
+      - name: Extract version from pubspec.yaml
+        id: extract_version
+        run: |
+          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
+          echo "VERSION=$version" >> $GITHUB_ENV
+
+      #10 Check if Tag Exists
+      - name: Check if Tag Exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      #11 Modify Tag if it Exists
+      - name: Modify Tag
+        if: env.TAG_EXISTS == 'true'
+        id: modify_tag
+        run: |
+          new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
+          echo "VERSION=$new_version" >> $GITHUB_ENV
+
+      #12 Upload to Firebase App Distribution
+      - name: Upload artifacts to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{secrets.FIREBASE_APP_ID}}
+          serviceCredentialsFile: google_sa.json
+          groups: cdli-testers
+          file: build/app/outputs/flutter-apk/app-debug.apk
