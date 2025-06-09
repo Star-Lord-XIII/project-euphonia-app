@@ -1,12 +1,18 @@
 name: "Initial manual workflow test"
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        description: Select the environment
 
 jobs:
   build:
     name: Build & Release
     runs-on: macos-latest
+    environment:
+      name: ${{ inputs.environment }}
 
     steps:
       #1 Checkout Repository
