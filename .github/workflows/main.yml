@@ -77,20 +77,17 @@ jobs:
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          IOS_EXPORT_OPTIONS: ${{ secrets.IOS_EXPORT_OPTIONS }}
         run: |
           # create variables
           DEV_CERTIFICATE_PATH=$RUNNER_TEMP/dev_certificate.p12
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          IOS_EXPORT_OPTIONS_PATH=$RUNNER_TEMP/ExportOptions.plist
           
           # import certificate and provisioning profile from secrets
           echo -n "$DEV_CERTIFICATE_BASE64" | base64 --decode -o $DEV_CERTIFICATE_PATH
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
           echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-          echo -n "$IOS_EXPORT_OPTIONS" | base64 --decode -o $IOS_EXPORT_OPTIONS_PATH
           
           # create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -109,12 +106,16 @@ jobs:
 
       #7.b Build IPA ( IOS Build )
       - name: Build IPA
+        env:
+          IOS_EXPORT_OPTIONS: ${{ secrets.IOS_EXPORT_OPTIONS }}
         run: |
           cd ios
           pod install --repo-update
           cd ..
           flutter build ipa --no-codesign
           mkdir -p build/ios/exports
+          IOS_EXPORT_OPTIONS_PATH=build/ExportOptions.plist
+          echo -n "$IOS_EXPORT_OPTIONS" | base64 --decode -o $IOS_EXPORT_OPTIONS_PATH
           xcodebuild -exportArchive -archivePath build/ios/archive/Runner.xcarchive -exportOptionsPlist $IOS_EXPORT_OPTIONS_PATH -exportPath build/ios/exports
 
 #      #9 Extract Version
