@@ -1,3 +1,3 @@
-# v1.0.0(2)
+# v1.0.0(3)
 
-- Enabled android and iOS distribution via Firebase App Distribution.
+- Fix Google auth in iOS app.
