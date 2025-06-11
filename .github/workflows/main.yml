@@ -153,19 +153,15 @@ jobs:
 #          file: build/app/outputs/flutter-apk/app-debug.apk
 
       #8.a Upload apk to Firebase App Distribution
-      - name: Upload and Distribute App
-        uses: emertozd/Firebase-Distribution-Github-Action@v2
-        with:
-          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
-          appId: ${{ secrets.FIREBASE_APP_ID }}
-          file: build/app/outputs/flutter-apk/app-debug.apk
-          groups: cdli-testers
+      - name: Upload and Distribute android app
+        run: |
+          echo "${{ secrets.GOOGLE_SA_JSON_BASE64 }}" | base64 --decode > google_sa.json
+          export GOOGLE_APPLICATION_CREDENTIALS="`pwd`/google_sa.json"
+          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-debug.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups cdli-testers --release-notes-file RELEASE_NOTES.md
 
       #8.b Upload ipa to Firebase App Distribution
-      - name: Upload and Distribute App
-        uses: emertozd/Firebase-Distribution-Github-Action@v2
-        with:
-          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
-          appId: ${{ secrets.FIREBASE_IOS_APP_ID }}
-          file: 'build/ios/exports/Project Euphonia.ipa'
-          groups: cdli-testers
+      - name: Upload and Distribute iOS app
+        run: |
+          echo "${{ secrets.GOOGLE_SA_JSON_BASE64 }}" | base64 --decode > google_sa.json
+          export GOOGLE_APPLICATION_CREDENTIALS="`pwd`/google_sa.json"
+          firebase appdistribution:distribute "build/ios/exports/Project Euphonia.ipa" --app ${{ secrets.FIREBASE_IOS_APP_ID }} --groups cdli-testers --release-notes-file RELEASE_NOTES.md
