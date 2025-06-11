@@ -154,7 +154,7 @@ jobs:
 
       #8.a Upload apk to Firebase App Distribution
       - name: Upload and Distribute App
-        uses: mastersam07/firebase-app-distribution-action@v0.1
+        uses: emertozd/Firebase-Distribution-Github-Action@v2
         with:
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
           appId: ${{ secrets.FIREBASE_APP_ID }}
@@ -163,7 +163,7 @@ jobs:
 
       #8.b Upload ipa to Firebase App Distribution
       - name: Upload and Distribute App
-        uses: mastersam07/firebase-app-distribution-action@v0.1
+        uses: emertozd/Firebase-Distribution-Github-Action@v2
         with:
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
           appId: ${{ secrets.FIREBASE_IOS_APP_ID }}
