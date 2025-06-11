@@ -112,6 +112,8 @@ jobs:
           cd ios
           pod install --repo-update
           cd ..
+          export REVERSED_CLIENT_ID="`plutil -extract REVERSED_CLIENT_ID raw -expect string ios/GoogleService-Info.plist`"
+          sed -i '' "s/REVERSED_CLIENT_ID/$REVERSED_CLIENT_ID/g" ios/Runner/Info.plist
           flutter build ipa --no-codesign
           mkdir -p build/ios/exports
           IOS_EXPORT_OPTIONS_PATH=build/ExportOptions.plist
