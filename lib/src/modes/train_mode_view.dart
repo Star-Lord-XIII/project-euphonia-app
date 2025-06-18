@@ -33,6 +33,7 @@ class TrainModeView extends StatelessWidget {
   final void Function()? play;
   final void Function()? nextPhrase;
   final void Function()? previousPhrase;
+  final void Function()? deleteRecording;
   final bool isRecording;
   final bool isPlaying;
   final bool isRecorded;
@@ -49,6 +50,7 @@ class TrainModeView extends StatelessWidget {
       required this.toggleType,
       required this.nextPhrase,
       required this.previousPhrase,
+      required this.deleteRecording,
       required this.record,
       required this.play,
       required this.isRecording,
@@ -104,6 +106,15 @@ class TrainModeView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Semantics(
+              label: AppLocalizations.of(context)!.deleteRecordingButton,
+              hint: AppLocalizations.of(context)!.deleteRecordingButtonHint,
+              child: IconButton.outlined(
+                  onPressed: deleteRecording,
+                  iconSize: 24,
+                  icon: const Icon(Icons.delete)),
+            ),
+            const SizedBox(width: 24),
+            Semantics(
                 label: AppLocalizations.of(context)!.previousPhraseButton,
                 hint: AppLocalizations.of(context)!.previousPhraseButtonHint,
                 child: IconButton.outlined(
@@ -145,6 +156,7 @@ class TrainModeView extends StatelessWidget {
                   iconSize: 48,
                   icon: const Icon(Icons.skip_next),
                 )),
+            SizedBox(width: 72),
           ],
         ),
         const SizedBox(height: 32),

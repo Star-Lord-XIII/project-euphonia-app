@@ -96,6 +96,13 @@ class _TrainModeControllerState extends State<TrainModeController> {
     }
   }
 
+  void _deleteRecording(Phrase phrase) async {
+    await phrase.deleteRecording();
+    setState(() {
+      _uploadStatus = UploadStatus.notStarted;
+    });
+  }
+
   void _toggleType(Set<PhraseType> newSelection) async {
     var phrasesRepoProvider =
         Provider.of<PhrasesRepository>(context, listen: false);
@@ -166,6 +173,8 @@ class _TrainModeControllerState extends State<TrainModeController> {
         play: player.canPlay && !recorder.isRecording
             ? (player.isPlaying ? player.pause : player.play)
             : null,
+        deleteRecording:
+            player.canPlay ? () => _deleteRecording(repo.currentPhrase!) : null,
         isPlaying: player.isPlaying,
         isRecorded: player.canPlay,
         uploadStatus: _uploadStatus,
