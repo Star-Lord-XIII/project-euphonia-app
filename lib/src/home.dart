@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -60,6 +61,19 @@ class _HomeControllerState extends State<HomeController> {
     });
   }
 
+  Widget _getRecordedCount() {
+    final storage = FirebaseStorage.instance;
+    storage.setMaxOperationRetryTime(const Duration(seconds: 5));
+    final storageRef = storage.ref();
+    final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    final userStorageRef = storageRef.child(userToken);
+    final children = userStorageRef.listAll();
+    return FutureBuilder(
+        future: children.then((x) => x.prefixes.length),
+        builder: (context, snapshot) =>
+            Text('${snapshot.data ?? 0} recordings'));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,14 +104,17 @@ class _HomeControllerState extends State<HomeController> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                  Text(
-                    AppLocalizations.of(context)!.appTitle,
-                    style: const TextStyle(fontSize: 36, color: Colors.white),
-                  ),
-                  Text(FirebaseAuth.instance.currentUser?.email ?? "",
-                    style: const TextStyle(fontSize: 12, color: Colors.white),
-                  ),
-                ])),
+                      Text(
+                        AppLocalizations.of(context)!.appTitle,
+                        style:
+                            const TextStyle(fontSize: 36, color: Colors.white),
+                      ),
+                      Text(
+                        FirebaseAuth.instance.currentUser?.email ?? "",
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.white),
+                      ),
+                    ])),
             ListTile(
               leading: const Icon(Icons.settings_sharp),
               title:
@@ -140,6 +157,17 @@ class _HomeControllerState extends State<HomeController> {
                               const EdgeInsets.fromLTRB(12.0, 4.0, 2.0, 16.0),
                           child: Text(
                               FirebaseAuth.instance.currentUser?.email ?? ""),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(2.0, 16.0, 2.0, 8.0),
+                          child: Text("Total recordings",
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(12.0, 4.0, 2.0, 16.0),
+                          child: _getRecordedCount(),
                         ),
                       ],
                     ),
