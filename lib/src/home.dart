@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -85,12 +86,18 @@ class _HomeControllerState extends State<HomeController> {
         child: ListView(
           children: [
             DrawerHeader(
-              decoration: const BoxDecoration(color: Colors.blue),
-              child: Text(
-                AppLocalizations.of(context)!.appTitle,
-                style: const TextStyle(fontSize: 36, color: Colors.white),
-              ),
-            ),
+                decoration: const BoxDecoration(color: Colors.blue),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text(
+                    AppLocalizations.of(context)!.appTitle,
+                    style: const TextStyle(fontSize: 36, color: Colors.white),
+                  ),
+                  Text(FirebaseAuth.instance.currentUser?.email ?? "",
+                    style: const TextStyle(fontSize: 12, color: Colors.white),
+                  ),
+                ])),
             ListTile(
               leading: const Icon(Icons.settings_sharp),
               title:
@@ -121,11 +128,25 @@ class _HomeControllerState extends State<HomeController> {
                           Navigator.of(context).pop();
                         })
                       ],
+                      children: [
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(2.0, 16.0, 2.0, 8.0),
+                          child: Text("Email",
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                        Padding(
+                          padding:
+                              const EdgeInsets.fromLTRB(12.0, 4.0, 2.0, 16.0),
+                          child: Text(
+                              FirebaseAuth.instance.currentUser?.email ?? ""),
+                        ),
+                      ],
                     ),
                   ),
                 );
               },
-            )
+            ),
           ],
         ),
       ),
