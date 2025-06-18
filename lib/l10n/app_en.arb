@@ -118,5 +118,15 @@
     "profileMenuItemTitle": "Profile",
     "@profileMenuItemTitle": {
         "description": "Title for user-profile menu item in Navigation drawer"
+    },
+
+    "deleteRecordingButton": "Delete Recording",
+    "@deleteRecordingButton": {
+        "description": "Delete a recording if one exists"
+    },
+
+    "deleteRecordingButtonHint": "Double tap to delete existing recording",
+    "@deleteRecordingButtonHint": {
+        "description": "Accessibility action hint for delete recording button"
     }
 }

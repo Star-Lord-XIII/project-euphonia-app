@@ -93,4 +93,22 @@ final class Phrase {
       audioRef.putFile(localAudioFile),
     ]);
   }
+
+  Future<void> deleteRecording() async {
+    final storage = FirebaseStorage.instance;
+    storage.setMaxOperationRetryTime(const Duration(seconds: 5));
+    final storageRef = storage.ref();
+    final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    final phraseRef = storageRef.child('$userToken/$index/phrase.txt');
+    final audioRef = storageRef.child('$userToken/$index/recording.wav');
+    final audioPath = await localRecordingPath;
+    final localAudioFile = File(audioPath);
+    if (localAudioFile.existsSync()) {
+      localAudioFile.deleteSync();
+    }
+    await Future.wait([
+      phraseRef.delete(),
+      audioRef.delete()
+    ]);
+  }
 }
