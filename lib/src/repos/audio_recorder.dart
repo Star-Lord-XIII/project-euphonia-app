@@ -74,14 +74,14 @@ final class AudioRecorder extends ChangeNotifier {
 
   Future<void> stop() async {
     if (isRecording) {
-      await _recorder.stop();
-      await File(await _phrase!.localTempPath)
-          .rename(await _phrase!.localRecordingPath);
       _isRecording = false;
+      await _recorder.stop();
       _timer?.cancel();
       _recordingTime = "0";
       _ticksPassed = 0;
       _timer = null;
+      await File(await _phrase!.localTempPath)
+          .rename(await _phrase!.localRecordingPath);
       notifyListeners();
     }
   }

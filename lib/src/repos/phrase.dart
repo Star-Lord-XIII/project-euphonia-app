@@ -106,9 +106,6 @@ final class Phrase {
     if (localAudioFile.existsSync()) {
       localAudioFile.deleteSync();
     }
-    await Future.wait([
-      phraseRef.delete(),
-      audioRef.delete()
-    ]);
+    await Future.wait([phraseRef.delete(), audioRef.delete()]);
   }
 }

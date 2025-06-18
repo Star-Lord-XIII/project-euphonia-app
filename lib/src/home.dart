@@ -35,17 +35,6 @@ class HomeController extends StatefulWidget {
 
 class _HomeControllerState extends State<HomeController> {
   int _selectedIndex = 0;
-  static final List<Widget> _widgetOptions = <Widget>[
-    const TrainModeController(),
-    const TranscribeModeController(),
-    const Center(
-      child: IconButton(
-        icon: Icon(Icons.construction),
-        iconSize: 80,
-        onPressed: null,
-      ),
-    ),
-  ];
 
   @override
   void initState() {
@@ -76,6 +65,17 @@ class _HomeControllerState extends State<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> widgetOptions = <Widget>[
+      const TrainModeController(),
+      const TranscribeModeController(),
+      const Center(
+        child: IconButton(
+          icon: Icon(Icons.construction),
+          iconSize: 80,
+          onPressed: null,
+        ),
+      ),
+    ];
     return Scaffold(
       appBar: AppBar(
           centerTitle: true,
@@ -95,7 +95,7 @@ class _HomeControllerState extends State<HomeController> {
                     ])),
             const SizedBox(width: 24)
           ]),
-      body: _widgetOptions[_selectedIndex],
+      body: widgetOptions[_selectedIndex],
       drawer: Drawer(
         child: ListView(
           children: [

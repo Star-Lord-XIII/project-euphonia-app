@@ -58,7 +58,7 @@ final class PhrasesRepository extends ChangeNotifier {
         }
         _phrasesByType[curPhrase.type]!.add(i);
       }
-      reset(updatedPhrases: phrasesList);
+      _reset(updatedPhrases: phrasesList);
     });
   }
 
@@ -72,7 +72,7 @@ final class PhrasesRepository extends ChangeNotifier {
         0;
   }
 
-  void reset({required List<Phrase> updatedPhrases}) {
+  void _reset({required List<Phrase> updatedPhrases}) {
     _phrases.clear();
     _phrases.addAll(updatedPhrases);
     jumpToPhrase(updatedPhraseIndex: _currentPhraseIndex);

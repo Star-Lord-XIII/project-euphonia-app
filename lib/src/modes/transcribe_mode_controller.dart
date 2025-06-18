@@ -25,6 +25,7 @@ import 'package:video_player/video_player.dart';
 
 import '../repos/settings_repository.dart';
 import 'transcribe_mode_view.dart';
+import 'upload_status.dart';
 
 class TranscribeModeController extends StatefulWidget {
   const TranscribeModeController({super.key});

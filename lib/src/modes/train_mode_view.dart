@@ -63,11 +63,14 @@ class TrainModeView extends StatelessWidget {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
-    var progress =
-        Provider.of<AudioRecorder>(listen: false, context).ticksPassed /
-            AudioRecorder.maxTicksAllowed;
-    var progressColor =
-        Color.lerp(Theme.of(context).colorScheme.primary, Colors.red, progress);
+    var ticksPassed =
+        Provider.of<AudioRecorder>(listen: false, context).ticksPassed;
+    var progress = ticksPassed / AudioRecorder.maxTicksAllowed;
+    // Only start displaying red in timer once 5 seconds are left.
+    var progressColor = AudioRecorder.maxTicksAllowed - ticksPassed > 50
+        ? Theme.of(context).colorScheme.primary
+        : Color.lerp(
+            Theme.of(context).colorScheme.primary, Colors.red, progress);
     var sideLength = width;
     if (height < width) {
       sideLength = height - 180;
