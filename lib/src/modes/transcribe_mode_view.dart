@@ -15,8 +15,7 @@
 import 'package:flutter/material.dart';
 
 import '../generated/l10n/app_localizations.dart';
-
-enum UploadStatus { notStarted, started, completed, interrupted }
+import 'upload_status.dart';
 
 class TranscribeModeView extends StatelessWidget {
   final String phrase;

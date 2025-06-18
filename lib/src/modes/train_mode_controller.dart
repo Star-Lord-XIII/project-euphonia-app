@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -75,12 +73,9 @@ class _TrainModeControllerState extends State<TrainModeController> {
     });
   }
 
-  void _stopRecordingAndUpload(
-      AudioRecorder recorder, Phrase phrase, AudioPlayer player) async {
-    if (!recorder.isRecording) {
-      recorder.start();
-      return;
-    }
+  Future<void> _stopRecordingAndUpload(
+      AudioRecorder recorder, Phrase phrase, AudioPlayer player,
+      {autoAdvance = true}) async {
     await recorder.stop();
     Provider.of<Uploader>(context, listen: false)
         .updateStatus(status: UploadStatus.started);
@@ -91,7 +86,8 @@ class _TrainModeControllerState extends State<TrainModeController> {
       Provider.of<Uploader>(context, listen: false)
           .updateStatus(status: UploadStatus.interrupted);
     });
-    if (Provider.of<SettingsRepository>(context, listen: false).autoAdvance) {
+    if (Provider.of<SettingsRepository>(context, listen: false).autoAdvance &&
+        autoAdvance) {
       _nextPhrase();
     }
   }
@@ -113,6 +109,34 @@ class _TrainModeControllerState extends State<TrainModeController> {
     });
   }
 
+  void _showRecordingTooLongDialog() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Recording too long'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                    'Recordings will cut short and uploaded if they go beyond ${AudioRecorder.maxTicksAllowed / 10}sec.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Okay'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer3<PhrasesRepository, AudioPlayer, AudioRecorder>(
@@ -120,38 +144,11 @@ class _TrainModeControllerState extends State<TrainModeController> {
       if (repo.phrases.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }
-      if (recorder.ticksPassed >= AudioRecorder.maxTicksAllowed) {
-        var phrasesRepoProvider =
-            Provider.of<PhrasesRepository>(context, listen: false);
-        recorder.stop().then((_) async {
-          File(await phrasesRepoProvider.currentPhrase!.localRecordingPath)
-              .delete();
-          return showDialog<void>(
-            context: context,
-            barrierDismissible: false, // user must tap button!
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Recording too long'),
-                content: const SingleChildScrollView(
-                  child: ListBody(
-                    children: <Widget>[
-                      Text(
-                          'Recordings should be less than ${AudioRecorder.maxTicksAllowed / 10}sec long. Please start the recording again as recordings longer than ${AudioRecorder.maxTicksAllowed / 10}sec are not accepted'),
-                    ],
-                  ),
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text('Okay'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        });
+      if (recorder.isRecording &&
+          recorder.ticksPassed >= AudioRecorder.maxTicksAllowed) {
+        _stopRecordingAndUpload(recorder, repo.currentPhrase!, player,
+                autoAdvance: false)
+            .then((_) => _showRecordingTooLongDialog());
       }
       return TrainModeView(
         type: repo.currentPhraseType,
@@ -167,6 +164,10 @@ class _TrainModeControllerState extends State<TrainModeController> {
         record: player.isPlaying
             ? null
             : () {
+                if (!recorder.isRecording) {
+                  recorder.start();
+                  return;
+                }
                 _stopRecordingAndUpload(recorder, repo.currentPhrase!, player);
               },
         isRecording: recorder.isRecording,

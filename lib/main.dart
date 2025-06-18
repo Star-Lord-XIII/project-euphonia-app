@@ -27,7 +27,8 @@ import 'src/repos/uploader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final app = await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final app = await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform);
   final auth = FirebaseAuth.instanceFor(app: app);
   const usingEmulator = false;
   if (usingEmulator) {
