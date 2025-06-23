@@ -4,9 +4,9 @@
         "description": "Title of the app displayed in AppBar & Navigation Drawer"
     },
 
-    "trainModeTitle": "Train",
-    "@trainModeTitle": {
-        "description": "Title for bottom navigation Train mode item"
+    "recordModeTitle": "Record",
+    "@recordModeTitle": {
+        "description": "Title for bottom navigation Record mode item"
     },
 
     "transcribeModeTitle": "Transcribe",

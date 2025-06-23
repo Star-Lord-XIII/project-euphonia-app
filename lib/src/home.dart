@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'generated/l10n/app_localizations.dart';
-import 'modes/train_mode_controller.dart';
+import 'modes/record_mode_controller.dart';
 import 'modes/transcribe_mode_controller.dart';
 import 'repos/phrases_repository.dart';
 import 'repos/settings_repository.dart';
@@ -66,7 +66,7 @@ class _HomeControllerState extends State<HomeController> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> widgetOptions = <Widget>[
-      const TrainModeController(),
+      const RecordModeController(),
       const TranscribeModeController(),
       const Center(
         child: IconButton(
@@ -182,7 +182,7 @@ class _HomeControllerState extends State<HomeController> {
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
               icon: const Icon(Icons.mic),
-              label: AppLocalizations.of(context)!.trainModeTitle),
+              label: AppLocalizations.of(context)!.recordModeTitle),
           BottomNavigationBarItem(
             icon: const Icon(Icons.hearing),
             label: AppLocalizations.of(context)!.transcribeModeTitle,

@@ -22,7 +22,7 @@ import '../repos/phrases_repository.dart';
 import 'phrase_view.dart';
 import 'upload_status.dart';
 
-class TrainModeView extends StatelessWidget {
+class RecordModeView extends StatelessWidget {
   final PhraseType type;
   final Map<PhraseType, List> phrasesByType;
   final int index;
@@ -40,7 +40,7 @@ class TrainModeView extends StatelessWidget {
   final UploadStatus uploadStatus;
   final PageController? controller;
 
-  const TrainModeView(
+  const RecordModeView(
       {super.key,
       required this.pageStorageKey,
       required this.type,
