@@ -26,9 +26,15 @@ class ProjectEuphonia extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(colorScheme: AppColors.lightColorScheme).copyWith(
+            colorScheme: AppColors.lightColorScheme.copyWith(
+                error: Color.lerp(
+                    AppColors.lightColorScheme.primary, Colors.red, 0.3)),
             bottomNavigationBarTheme: BottomNavigationBarThemeData(
                 backgroundColor: Colors.grey.shade200)),
         darkTheme: ThemeData(colorScheme: AppColors.darkColorScheme).copyWith(
+            colorScheme: AppColors.darkColorScheme.copyWith(
+                error: Color.lerp(
+                    AppColors.darkColorScheme.primary, Colors.red, 0.4)),
             bottomNavigationBarTheme: BottomNavigationBarThemeData(
                 backgroundColor: Colors.grey.shade900)),
         localizationsDelegates: AppLocalizations.localizationsDelegates,

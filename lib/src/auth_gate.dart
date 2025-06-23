@@ -13,16 +13,7 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AuthStateListener<AuthController>(
-        listener: (oldState, state, controller) {
-          if (state is AuthFailed) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: ErrorText(exception: state.exception),
-            ));
-          }
-          return null;
-        },
-        child: StreamBuilder<User?>(
+    return StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -39,6 +30,6 @@ class AuthGate extends StatelessWidget {
             }
             return const HomeController();
           },
-        ));
+        );
   }
 }
