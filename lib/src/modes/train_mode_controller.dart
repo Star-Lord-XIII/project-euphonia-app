@@ -115,12 +115,13 @@ class _TrainModeControllerState extends State<TrainModeController> {
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
+          icon: const Icon(Icons.warning_rounded, color: Colors.yellow),
           title: const Text('Recording too long'),
           content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text(
-                    'Recordings will cut short and uploaded if they go beyond ${AudioRecorder.maxTicksAllowed / 10}sec.'),
+                    'Recording was cut after ${AudioRecorder.maxTicksAllowed / 10} seconds.'),
               ],
             ),
           ),
