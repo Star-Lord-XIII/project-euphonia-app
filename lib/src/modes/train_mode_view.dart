@@ -159,7 +159,7 @@ class TrainModeView extends StatelessWidget {
                   iconSize: 48,
                   icon: const Icon(Icons.skip_next),
                 )),
-            SizedBox(width: 72),
+            SizedBox(width: orientation == Orientation.portrait ? 72 : 36),
           ],
         ),
         const SizedBox(height: 32),
