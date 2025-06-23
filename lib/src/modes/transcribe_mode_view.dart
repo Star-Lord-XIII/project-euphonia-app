@@ -164,15 +164,17 @@ class TranscribeModeView extends StatelessWidget {
       ];
 
       return orientation == Orientation.portrait
-          ? SingleChildScrollView(child: Column(children: firstHalf + secondHalf))
-          : SingleChildScrollView(child: Row(children: [
-        Column(children: firstHalf),
-        Expanded(
-            child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 8, horizontal: 8),
-                child: Column(children: secondHalf)))
-      ]));
+          ? SingleChildScrollView(
+              child: Column(children: firstHalf + secondHalf))
+          : SingleChildScrollView(
+              child: Row(children: [
+              Column(children: firstHalf),
+              Expanded(
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 8),
+                      child: Column(children: secondHalf)))
+            ]));
     });
   }
 }
