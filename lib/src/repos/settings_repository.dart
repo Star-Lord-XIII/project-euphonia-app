@@ -19,17 +19,19 @@ final class SettingsRepository extends ChangeNotifier {
   static const _transcribeEndpointKey = 'TRANSCRIBE_URL_KEY';
   static const _autoAdvanceKey = 'AUTO_ADVANCE_KEY';
   static const _richCaptionKey = 'RICH_CAPTION_KEY';
-  static const String _defaultEndpoint =
-      'https://personalizedmodels--transcription-service-fasterwhisper--38f293.modal.run';
+  static const _segmentLevelConfidenceKey = 'SEGMENT_LEVEL_CONFIDENCE_KEY';
+  static const String _defaultEndpoint = 'DEFAULT_TRANSCRIPTION_ENDPOINT';
 
   String _transcribeEndpoint = '';
   bool _autoAdvance = false;
   bool _displayRichCaptions = false;
+  bool _displaySegmentLevelConfidence = false;
 
   String get transcribeEndpoint => _transcribeEndpoint;
   bool get autoAdvance => _autoAdvance;
 
   bool get displayRichCaptions => _displayRichCaptions;
+  bool get displaySegmentLevelConfidence => _displaySegmentLevelConfidence;
 
   Future<void> initFromPreferences() async {
     final prefs = await SharedPreferences.getInstance();
@@ -40,6 +42,7 @@ final class SettingsRepository extends ChangeNotifier {
             : '';
     _autoAdvance = prefs.getBool(_autoAdvanceKey) ?? false;
     _displayRichCaptions = prefs.getBool(_richCaptionKey) ?? false;
+    _displaySegmentLevelConfidence = prefs.getBool(_segmentLevelConfidenceKey) ?? false;
     notifyListeners();
   }
 
@@ -61,6 +64,13 @@ final class SettingsRepository extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     prefs.setBool(_richCaptionKey, show);
     _displayRichCaptions = show;
+    notifyListeners();
+  }
+
+  Future<void> updateSegmentLevelConfidence(bool show) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool(_segmentLevelConfidenceKey, show);
+    _displaySegmentLevelConfidence = show;
     notifyListeners();
   }
 }

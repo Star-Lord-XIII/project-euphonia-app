@@ -53,7 +53,7 @@ jobs:
         run: |
           flutterfire configure -y --project=${{ secrets.FIREBASE_PROJECT_ID }} --platforms=android,ios --android-package-name=${{ secrets.ANDROID_PACKAGE_NAME }} --ios-bundle-id=${{ secrets.IOS_BUNDLE_ID }} --ios-target="Runner" --ios-out="ios/GoogleService-Info.plist" --service-account=google_sa.json
 
-      #5 Setup Keystore
+      #5.a Setup Keystore
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
@@ -64,6 +64,13 @@ jobs:
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
           echo "storeFile=keystore.jks" >> android/key.properties
+
+      #5.b Set up app
+      - name: Set up app
+        env:
+          DEFAULT_TRANSCRIPTION_ENDPOINT: ${{ secrets.DEFAULT_TRANSCRIPTION_ENDPOINT }}
+        run: |
+          sed -i '' "s/DEFAULT_TRANSCRIPTION_ENDPOINT/$DEFAULT_TRANSCRIPTION_ENDPOINT/g" lib/src/repos/settings_repository.dart
 
       #6 Building APK
       - name: Build APK

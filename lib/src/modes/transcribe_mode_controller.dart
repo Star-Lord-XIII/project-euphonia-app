@@ -40,6 +40,8 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
   late VideoPlayerController _playerController;
   var _phrase = '';
   var _words = [];
+  var _segments = [];
+  var _confidences = [];
   var _isRecording = false;
   var _isPlaying = false;
   var _canPlay = false;
@@ -105,6 +107,9 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
       var transcribeEndpoint =
           Provider.of<SettingsRepository>(context, listen: false)
               .transcribeEndpoint;
+      var displayRichText =
+          Provider.of<SettingsRepository>(context, listen: false)
+              .displayRichCaptions;
       if (transcribeEndpoint.isEmpty) {
         return;
       }
@@ -113,13 +118,17 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
       request.files.add(
         await http.MultipartFile.fromPath('wav', audioFile.path),
       );
+      request.fields['use_word_timestamps'] =
+          displayRichText ? 'true' : 'false';
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
       final result = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode == 200) {
         setState(() {
-          _phrase = result['transcription'] ?? 'ERROR: TRANSCRIPT NOT FOUND!';
           _words = result['words'] ?? [];
+          _phrase = result['transcription'] ?? 'ERROR: TRANSCRIPT NOT FOUND!';
+          _segments = result['segments'] ?? [];
+          _confidences = result['confidences'] ?? [];
           _uploadStatus = UploadStatus.completed;
         });
       } else {
@@ -179,6 +188,9 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
         builder: (context, settings, _) => TranscribeModeView(
               phrase: _phrase,
               words: settings.displayRichCaptions ? _words : [],
+              segments: settings.displaySegmentLevelConfidence ? _segments : [],
+              confidences:
+                  settings.displaySegmentLevelConfidence ? _confidences : [],
               transcriptUrl: settings.transcribeEndpoint,
               record: _isPlaying ? null : _manageRecording,
               isRecording: _isRecording,
