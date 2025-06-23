@@ -34,7 +34,7 @@ class SettingsView extends StatelessWidget {
     final children = [
       const SizedBox(height: 36),
       ListTile(
-          title: Text(AppLocalizations.of(context)!.trainModeTitle,
+          title: Text(AppLocalizations.of(context)!.recordModeTitle,
               style: Theme.of(context)
                   .textTheme
                   .labelLarge

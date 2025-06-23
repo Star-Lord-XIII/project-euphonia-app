@@ -21,17 +21,17 @@ import '../repos/phrase.dart';
 import '../repos/phrases_repository.dart';
 import '../repos/settings_repository.dart';
 import '../repos/uploader.dart';
-import 'train_mode_view.dart';
+import 'record_mode_view.dart';
 import 'upload_status.dart';
 
-class TrainModeController extends StatefulWidget {
-  const TrainModeController({super.key});
+class RecordModeController extends StatefulWidget {
+  const RecordModeController({super.key});
 
   @override
-  State<TrainModeController> createState() => _TrainModeControllerState();
+  State<RecordModeController> createState() => _RecordModeControllerState();
 }
 
-class _TrainModeControllerState extends State<TrainModeController> {
+class _RecordModeControllerState extends State<RecordModeController> {
   var _uploadStatus = UploadStatus.notStarted;
   final Key _key = GlobalKey();
   final _pageController = PageController(initialPage: 0, viewportFraction: 0.8);
@@ -151,7 +151,7 @@ class _TrainModeControllerState extends State<TrainModeController> {
                 autoAdvance: false)
             .then((_) => _showRecordingTooLongDialog());
       }
-      return TrainModeView(
+      return RecordModeView(
         type: repo.currentPhraseType,
         phrasesByType: repo.phrasesByType,
         index: repo.currentPhraseIndex,
