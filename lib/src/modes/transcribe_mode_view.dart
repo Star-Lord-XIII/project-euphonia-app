@@ -127,7 +127,7 @@ class TranscribeModeView extends StatelessWidget {
       ];
       final List<Widget> secondHalf = [
         Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -164,15 +164,15 @@ class TranscribeModeView extends StatelessWidget {
       ];
 
       return orientation == Orientation.portrait
-          ? Column(children: firstHalf + secondHalf)
-          : Row(children: [
-              Column(children: firstHalf),
-              Expanded(
-                  child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 8),
-                      child: Column(children: secondHalf)))
-            ]);
+          ? SingleChildScrollView(child: Column(children: firstHalf + secondHalf))
+          : SingleChildScrollView(child: Row(children: [
+        Column(children: firstHalf),
+        Expanded(
+            child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 8, horizontal: 8),
+                child: Column(children: secondHalf)))
+      ]));
     });
   }
 }

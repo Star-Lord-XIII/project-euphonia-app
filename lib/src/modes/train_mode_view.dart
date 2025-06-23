@@ -182,18 +182,19 @@ class TrainModeView extends StatelessWidget {
                     : AppLocalizations.of(context)!.recordButtonTitle),
             style: const TextStyle(fontSize: 24),
           ),
-        )
+        ),
+      const SizedBox(height: 24)
       ];
       return orientation == Orientation.portrait
-          ? Column(children: firstHalf + secondHalf)
-          : Row(children: [
-              Column(children: firstHalf),
-              Expanded(
-                  child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 8),
-                      child: Column(children: secondHalf)))
-            ]);
+      ? SingleChildScrollView(child: Column(children: firstHalf + secondHalf))
+          : SingleChildScrollView(child: Row(children: [
+      Column(children: firstHalf),
+      Expanded(
+      child: Padding(
+      padding: const EdgeInsets.symmetric(
+      vertical: 0, horizontal: 8),
+      child: Column(children: secondHalf)))
+      ]));
     });
   }
 }
