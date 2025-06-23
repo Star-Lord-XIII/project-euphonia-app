@@ -13,13 +13,17 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../generated/l10n/app_localizations.dart';
+import '../repos/settings_repository.dart';
 import 'upload_status.dart';
 
 class TranscribeModeView extends StatelessWidget {
   final String phrase;
   final List words;
+  final List segments;
+  final List confidences;
   final String transcriptUrl;
   final void Function()? record;
   final void Function()? play;
@@ -32,6 +36,8 @@ class TranscribeModeView extends StatelessWidget {
     super.key,
     required this.phrase,
     required this.words,
+    required this.segments,
+    required this.confidences,
     required this.transcriptUrl,
     required this.record,
     required this.play,
@@ -54,7 +60,7 @@ class TranscribeModeView extends StatelessWidget {
     }
   }
 
-  Color getColorForWordProbability(double probability) {
+  Color _getColorForConfidence(double probability) {
     if (probability > 0.9) {
       return Colors.green;
     } else if (probability > 0.7) {
@@ -63,10 +69,33 @@ class TranscribeModeView extends StatelessWidget {
     return Colors.red;
   }
 
+  List<InlineSpan> _getRichTextFromSegments() {
+    List<InlineSpan> result = [];
+    for (int i = 0; i < segments.length; i++) {
+      result.add(TextSpan(
+          text: segments[i],
+          style: TextStyle(
+              fontSize: 24, color: _getColorForConfidence(confidences[i]))));
+    }
+    return result;
+  }
+
+  List<InlineSpan> _getRichTextFromWords() {
+    return words
+        .map((w) => TextSpan(
+            text: w["word"],
+            style: TextStyle(
+                fontSize: 24, color: _getColorForConfidence(w["probability"]))))
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    final displaySegmentConfidence =
+        Provider.of<SettingsRepository>(context, listen: false)
+            .displaySegmentLevelConfidence;
     var sideLength = width;
     if (height < width) {
       sideLength = height - 180;
@@ -103,21 +132,17 @@ class TranscribeModeView extends StatelessWidget {
                         scrollDirection: Axis.vertical, //.horizontal
                         child: words.isNotEmpty
                             ? RichText(
-                                text: TextSpan(
-                                    children: words
-                                        .map((w) => TextSpan(
-                                            text: w["word"],
-                                            style: TextStyle(
-                                                fontSize: 24,
-                                                color:
-                                                    getColorForWordProbability(
-                                                        w["probability"]))))
-                                        .toList()))
-                            : Text(
-                                phrase,
-                                style: const TextStyle(fontSize: 24),
-                                textAlign: TextAlign.left,
-                              ),
+                                text:
+                                    TextSpan(children: _getRichTextFromWords()))
+                            : displaySegmentConfidence
+                                ? RichText(
+                                    text: TextSpan(
+                                        children: _getRichTextFromSegments()))
+                                : Text(
+                                    phrase,
+                                    style: const TextStyle(fontSize: 24),
+                                    textAlign: TextAlign.left,
+                                  ),
                       ),
                     ),
                   ],
