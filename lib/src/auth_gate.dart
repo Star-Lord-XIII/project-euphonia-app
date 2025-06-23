@@ -13,23 +13,32 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return SignInScreen(
-            providers: [
-              EmailAuthProvider(),
-              GoogleProvider(
-                  clientId: Platform.isAndroid
-                      ? (DefaultFirebaseOptions.ios.androidClientId ?? "")
-                      : (DefaultFirebaseOptions.ios.iosClientId ?? "")),
-            ],
-          );
-        }
-
-        return const HomeController();
-      },
-    );
+    return AuthStateListener<AuthController>(
+        listener: (oldState, state, controller) {
+          if (state is AuthFailed) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: ErrorText(exception: state.exception),
+            ));
+          }
+          return null;
+        },
+        child: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return SignInScreen(
+                providers: [
+                  EmailAuthProvider(),
+                  GoogleProvider(
+                      clientId: Platform.isAndroid
+                          ? (DefaultFirebaseOptions.ios.androidClientId ?? "")
+                          : (DefaultFirebaseOptions.ios.iosClientId ?? "")),
+                ],
+                showPasswordVisibilityToggle: true,
+              );
+            }
+            return const HomeController();
+          },
+        ));
   }
 }
