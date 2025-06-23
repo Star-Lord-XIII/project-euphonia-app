@@ -79,7 +79,11 @@ class _HomeControllerState extends State<HomeController> {
     return Scaffold(
       appBar: AppBar(
           centerTitle: true,
-          title: Text(AppLocalizations.of(context)!.appTitle),
+          title: Column(children: [
+            Text(AppLocalizations.of(context)!.appTitle),
+            Text(FirebaseAuth.instance.currentUser?.email ?? "",
+                style: Theme.of(context).textTheme.bodySmall)
+          ]),
           actions: [
             Consumer<Uploader>(
                 builder: (context, uploader, _) => Stack(children: [
@@ -100,21 +104,12 @@ class _HomeControllerState extends State<HomeController> {
         child: ListView(
           children: [
             DrawerHeader(
-                decoration: const BoxDecoration(color: Colors.blue),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.appTitle,
-                        style:
-                            const TextStyle(fontSize: 36, color: Colors.white),
-                      ),
-                      Text(
-                        FirebaseAuth.instance.currentUser?.email ?? "",
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.white),
-                      ),
-                    ])),
+              decoration: const BoxDecoration(color: Colors.blue),
+              child: Text(
+                AppLocalizations.of(context)!.appTitle,
+                style: const TextStyle(fontSize: 36, color: Colors.white),
+              ),
+            ),
             ListTile(
               leading: const Icon(Icons.settings_sharp),
               title:
