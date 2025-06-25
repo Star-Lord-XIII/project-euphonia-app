@@ -68,9 +68,11 @@ jobs:
       #5.b Set up app
       - name: Set up app
         env:
+          SELECTED_LANGUAGE_PACK: ${{ secrets.SELECTED_LANGUAGE_PACK }}
           DEFAULT_TRANSCRIPTION_ENDPOINT: ${{ secrets.DEFAULT_TRANSCRIPTION_ENDPOINT }}
         run: |
           sed -i '' "s/DEFAULT_TRANSCRIPTION_ENDPOINT/$DEFAULT_TRANSCRIPTION_ENDPOINT/g" lib/src/repos/settings_repository.dart
+          sed -i '' "s/SELECTED_LANGUAGE_PACK/$SELECTED_LANGUAGE_PACK/g" lib/src/repos/phrases_repository.dart
 
       #6 Building APK
       - name: Build APK
@@ -78,6 +80,7 @@ jobs:
 
       #7.a Install the Apple certificate and provisioning profile
       - name: Install the Apple certificate and provisioning profile
+        if: env.DEV_CERTIFICATE_BASE64
         env:
           DEV_CERTIFICATE_BASE64: ${{ secrets.DEV_CERTIFICATE_BASE64 }}
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -113,6 +116,7 @@ jobs:
 
       #7.b Build IPA ( IOS Build )
       - name: Build IPA
+        if: env.IOS_EXPORT_OPTIONS
         env:
           IOS_EXPORT_OPTIONS: ${{ secrets.IOS_EXPORT_OPTIONS }}
         run: |
@@ -127,50 +131,22 @@ jobs:
           echo -n "$IOS_EXPORT_OPTIONS" | base64 --decode -o $IOS_EXPORT_OPTIONS_PATH
           xcodebuild -exportArchive -archivePath build/ios/archive/Runner.xcarchive -exportOptionsPlist $IOS_EXPORT_OPTIONS_PATH -exportPath build/ios/exports
 
-#      #9 Extract Version
-#      - name: Extract version from pubspec.yaml
-#        id: extract_version
-#        run: |
-#          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
-#          echo "VERSION=$version" >> $GITHUB_ENV
-#
-#      #10 Check if Tag Exists
-#      - name: Check if Tag Exists
-#        id: check_tag
-#        run: |
-#          if git rev-parse "v${{ env.VERSION }}" >/dev/null 2>&1; then
-#            echo "TAG_EXISTS=true" >> $GITHUB_ENV
-#          else
-#            echo "TAG_EXISTS=false" >> $GITHUB_ENV
-#          fi
-#
-#      #11 Modify Tag if it Exists
-#      - name: Modify Tag
-#        if: env.TAG_EXISTS == 'true'
-#        id: modify_tag
-#        run: |
-#          new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
-#          echo "VERSION=$new_version" >> $GITHUB_ENV
-
-#      #12 Upload to Firebase App Distribution
-#      - name: Upload artifacts to Firebase App Distribution
-#        uses: wzieba/Firebase-Distribution-Github-Action@v1
-#        with:
-#          appId: ${{secrets.FIREBASE_APP_ID}}
-#          serviceCredentialsFile: google_sa.json
-#          groups: cdli-testers
-#          file: build/app/outputs/flutter-apk/app-debug.apk
-
       #8.a Upload apk to Firebase App Distribution
       - name: Upload and Distribute android app
+        if: env.FIREBASE_APP_ID
+        env:
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         run: |
           echo "${{ secrets.GOOGLE_SA_JSON_BASE64 }}" | base64 --decode > google_sa.json
           export GOOGLE_APPLICATION_CREDENTIALS="`pwd`/google_sa.json"
-          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-debug.apk --app ${{ secrets.FIREBASE_APP_ID }} --groups cdli-testers --release-notes-file RELEASE_NOTES.md
+          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-debug.apk --app $FIREBASE_APP_ID --groups cdli-testers --release-notes-file RELEASE_NOTES.md
 
       #8.b Upload ipa to Firebase App Distribution
       - name: Upload and Distribute iOS app
+        if: env.FIREBASE_IOS_APP_ID
+        env:
+          FIREBASE_IOS_APP_ID: ${{ secrets.FIREBASE_IOS_APP_ID }}
         run: |
           echo "${{ secrets.GOOGLE_SA_JSON_BASE64 }}" | base64 --decode > google_sa.json
           export GOOGLE_APPLICATION_CREDENTIALS="`pwd`/google_sa.json"
-          firebase appdistribution:distribute "build/ios/exports/Project Euphonia.ipa" --app ${{ secrets.FIREBASE_IOS_APP_ID }} --groups cdli-testers --release-notes-file RELEASE_NOTES.md
+          firebase appdistribution:distribute "build/ios/exports/Project Euphonia.ipa" --app $FIREBASE_IOS_APP_ID --groups cdli-testers --release-notes-file RELEASE_NOTES.md

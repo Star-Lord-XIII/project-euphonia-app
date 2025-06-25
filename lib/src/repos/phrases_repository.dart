@@ -24,6 +24,7 @@ import 'phrase.dart';
 final class PhrasesRepository extends ChangeNotifier {
   static const lastRecordedPhraseIndexKey = 'LAST_RECORDED_PHRASE_INDEX_KEY';
   static const lastSelectedPhraseType = "LAST_SELECTED_PHRASE_TYPE";
+  static const selectedLanguageCode = "SELECTED_LANGUAGE_PACK";
 
   final List<Phrase> _phrases = [];
   final Map<PhraseType, List> _phrasesByType = {};
@@ -44,7 +45,7 @@ final class PhrasesRepository extends ChangeNotifier {
 
   Future<void> initFromAssetFile() async {
     var prefs = await SharedPreferences.getInstance();
-    rootBundle.loadString('assets/swahili_phrases.txt').then((content) {
+    rootBundle.loadString('assets/$selectedLanguageCode/phrases.txt').then((content) {
       _currentPhraseType = PhraseType.values
           .byName(prefs.getString(lastSelectedPhraseType) ?? "text");
       _currentPhraseIndex = prefs.getInt(_currentRecordedPhraseIndexKey()) ?? 0;
