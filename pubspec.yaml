@@ -86,11 +86,13 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    - assets/akan_phrases.txt
-    - assets/phrases.txt
-    - assets/phrases_it.txt
-    - assets/swahili_phrases.txt
-    - assets/pictures/
+    - assets/en/
+    - assets/en/pictures/
+    - assets/it/
+    - assets/tw/
+    - assets/tw/pictures/
+    - assets/sw/
+    - assets/sw/pictures/
   fonts:
     - family: SocialIcons
       fonts:
