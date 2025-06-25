@@ -20,7 +20,7 @@ final class SettingsRepository extends ChangeNotifier {
   static const _autoAdvanceKey = 'AUTO_ADVANCE_KEY';
   static const _richCaptionKey = 'RICH_CAPTION_KEY';
   static const _segmentLevelConfidenceKey = 'SEGMENT_LEVEL_CONFIDENCE_KEY';
-  static const String _defaultEndpoint = 'DEFAULT_TRANSCRIPTION_ENDPOINT';
+  static const _defaultEndpoint = 'DEFAULT_TRANSCRIPTION_ENDPOINT';
 
   String _transcribeEndpoint = '';
   bool _autoAdvance = false;
