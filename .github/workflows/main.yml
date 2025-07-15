@@ -73,6 +73,7 @@ jobs:
         run: |
           sed -i '' "s|DEFAULT_TRANSCRIPTION_ENDPOINT|$DEFAULT_TRANSCRIPTION_ENDPOINT|g" lib/src/repos/settings_repository.dart
           sed -i '' "s|SELECTED_LANGUAGE_PACK|$SELECTED_LANGUAGE_PACK|g" lib/src/repos/phrases_repository.dart
+          sed -i '' "s|SELECTED_LANGUAGE_PACK|$SELECTED_LANGUAGE_PACK|g" lib/src/repos/RELEASE_NOTES.md
 
       #6 Building APK
       - name: Build APK
