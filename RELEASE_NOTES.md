@@ -1,4 +1,4 @@
-# v1.0.0(5)
+# v1.0.0(5)(SELECTED_LANGUAGE_PACK)
 
 - Update warning message when recording is cut short
 - Fix overflow issue in record and transcribe mode
