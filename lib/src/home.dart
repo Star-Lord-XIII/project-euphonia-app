@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'generated/l10n/app_localizations.dart';
+import 'modes/admin_mode_controller.dart';
 import 'modes/record_mode_controller.dart';
 import 'modes/transcribe_mode_controller.dart';
 import 'repos/phrases_repository.dart';
@@ -27,7 +28,9 @@ import 'repos/uploader.dart';
 import 'settings/settings_controller.dart';
 
 class HomeController extends StatefulWidget {
-  const HomeController({super.key});
+  final bool isCurrentUserAdmin;
+
+  const HomeController({super.key, this.isCurrentUserAdmin = false});
 
   @override
   State<HomeController> createState() => _HomeControllerState();
@@ -68,6 +71,7 @@ class _HomeControllerState extends State<HomeController> {
     final List<Widget> widgetOptions = <Widget>[
       const RecordModeController(),
       const TranscribeModeController(),
+      const AdminModeController(),
       const Center(
         child: IconButton(
           icon: Icon(Icons.construction),
@@ -175,14 +179,22 @@ class _HomeControllerState extends State<HomeController> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.mic),
-              label: AppLocalizations.of(context)!.recordModeTitle),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.hearing),
-            label: AppLocalizations.of(context)!.transcribeModeTitle,
-          ),
-        ],
+              BottomNavigationBarItem(
+                  icon: const Icon(Icons.mic),
+                  label: AppLocalizations.of(context)!.recordModeTitle),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.hearing),
+                label: AppLocalizations.of(context)!.transcribeModeTitle,
+              ),
+            ] +
+            (widget.isCurrentUserAdmin
+                ? [
+                    BottomNavigationBarItem(
+                      icon: const Icon(Icons.admin_panel_settings),
+                      label: AppLocalizations.of(context)!.adminModeTitle,
+                    ),
+                  ]
+                : []),
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
         onTap: _onItemTapped,
