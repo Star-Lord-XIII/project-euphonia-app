@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 
@@ -14,14 +15,26 @@ class LanguagePackListController extends StatefulWidget {
 
 class _LanguagePackListControllerState
     extends State<LanguagePackListController> {
-  final List<LanguagePack> _existingLanguagePacks = [];
   NaturalLanguage? _selectedLanguage;
   final TextEditingController _languageFilterController =
       TextEditingController();
   final TextEditingController _nameFieldController = TextEditingController();
   final TextEditingController _codeFieldController = TextEditingController();
+  CollectionReference<LanguagePack>? languagePackRef;
   String _warningMessage = '';
   String _languagePackCode = '';
+
+  @override
+  void initState() {
+    super.initState();
+    languagePackRef = FirebaseFirestore.instance
+        .collection('language_packs')
+        .withConverter<LanguagePack>(
+          fromFirestore: (snapshots, _) =>
+              LanguagePack.fromJson(snapshots.data()!),
+          toFirestore: (languagePack, _) => languagePack.toJson(),
+        );
+  }
 
   void _showAddLanguagePackDialog() {
     showDialog<void>(
@@ -53,6 +66,7 @@ class _LanguagePackListControllerState
                                   _nameFieldController.text.isNotEmpty) {
                                 _languagePackCode =
                                     "${_selectedLanguage?.codeShort.toLowerCase() ?? ""}.${_nameFieldController.text.toLowerCase().split(' ').join('-')}";
+                                _warningMessage = "";
                               }
                             }),
                         filterCallback:
@@ -94,6 +108,7 @@ class _LanguagePackListControllerState
                           if (_selectedLanguage != null) {
                             _languagePackCode =
                                 "${_selectedLanguage?.codeShort.toLowerCase() ?? ""}.${val.toLowerCase().split(' ').join('-')}";
+                            _warningMessage = "";
                           } else {
                             _codeFieldController.text = '';
                           }
@@ -126,10 +141,14 @@ class _LanguagePackListControllerState
                         setState(() {
                           if (_selectedLanguage != null &&
                               _languagePackCode.isNotEmpty) {
-                            _existingLanguagePacks.add(LanguagePack(
-                                name: _nameFieldController.text,
-                                code: _languagePackCode,
-                                language: _selectedLanguage!));
+                            FirebaseFirestore.instance
+                                .collection('language_packs')
+                                .doc(_languagePackCode)
+                                .set(LanguagePack(
+                                        name: _nameFieldController.text,
+                                        code: _languagePackCode,
+                                        language: _selectedLanguage!)
+                                    .toJson());
                             Navigator.of(context).pop();
                           }
                         });
@@ -144,20 +163,36 @@ class _LanguagePackListControllerState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: CustomScrollView(slivers: [
-          SliverAppBar(
-              pinned: true,
-              flexibleSpace:
-                  AppBar(centerTitle: false, title: Text('Language Packs'))),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-                (context, index) =>
-                    LanguagePackListTile(pack: _existingLanguagePacks[index]),
-                childCount: _existingLanguagePacks.length),
-          ),
-          SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),
-          SliverToBoxAdapter(child: SizedBox(height: 100))
-        ]),
+        body: StreamBuilder<QuerySnapshot<LanguagePack>>(
+            stream: languagePackRef?.snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(snapshot.error.toString()),
+                );
+              }
+
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final data = snapshot.requireData;
+
+              return CustomScrollView(slivers: [
+                SliverAppBar(
+                    pinned: true,
+                    flexibleSpace: AppBar(
+                        centerTitle: false, title: Text('Language Packs'))),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                      (context, index) =>
+                          LanguagePackListTile(pack: data.docs[index].data()),
+                      childCount: data.size),
+                ),
+                SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),
+                SliverToBoxAdapter(child: SizedBox(height: 100))
+              ]);
+            }),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () => _showAddLanguagePackDialog()));

@@ -7,4 +7,18 @@ final class LanguagePack {
 
   LanguagePack(
       {required this.name, required this.code, required this.language});
+
+  LanguagePack.fromJson(Map<String, Object?> json)
+      : this(
+    name: (json['name'] as String?) ?? "NA",
+    code: (json['language_code'] as String?) ?? "en",
+    language: NaturalLanguage.fromCodeShort(json['language_code'] ?? "en")
+  );
+
+  Map<String, Object?> toJson() {
+    return {
+      'name': name,
+      'language_code': language.codeShort.toLowerCase()
+    };
+  }
 }

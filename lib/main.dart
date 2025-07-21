@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,9 +34,13 @@ void main() async {
   const usingEmulator = false;
   if (usingEmulator) {
     await auth.useAuthEmulator('localhost', 9099);
+    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
   }
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => PhrasesRepository()),
     ChangeNotifierProxyProvider<PhrasesRepository, AudioRecorder>(
