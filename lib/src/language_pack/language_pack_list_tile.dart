@@ -13,8 +13,7 @@ class LanguagePackListTile extends StatelessWidget {
       title: Text(pack.name),
       subtitle: Text(pack.language.name),
       trailing: Icon(Icons.chevron_right),
-      onTap: () {
-      },
+      onTap: () {},
     );
   }
 }
