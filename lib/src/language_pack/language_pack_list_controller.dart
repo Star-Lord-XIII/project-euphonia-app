@@ -145,10 +145,11 @@ class _LanguagePackListControllerState
                                 .collection('language_packs')
                                 .doc(_languagePackCode)
                                 .set(LanguagePack(
-                                        name: _nameFieldController.text,
-                                        code: _languagePackCode,
-                                        language: _selectedLanguage!)
-                                    .toJson());
+                                    name: _nameFieldController.text,
+                                    language: _selectedLanguage!,
+                                    phrases: []).toJson());
+                            _selectedLanguage = null;
+                            _nameFieldController.text = "";
                             Navigator.of(context).pop();
                           }
                         });
@@ -185,8 +186,9 @@ class _LanguagePackListControllerState
                         centerTitle: false, title: Text('Language Packs'))),
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          LanguagePackListTile(pack: data.docs[index].data()),
+                      (context, index) => LanguagePackListTile(
+                          packReference: data.docs[index].reference,
+                          pack: data.docs[index].data()),
                       childCount: data.size),
                 ),
                 SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),

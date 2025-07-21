@@ -1,0 +1,129 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+
+import 'firestore_phrase.dart';
+import 'language_pack.dart';
+import 'phrases_list_tile.dart';
+
+class PhrasesListController extends StatefulWidget {
+  final DocumentReference<LanguagePack> reference;
+  const PhrasesListController({super.key, required this.reference});
+
+  @override
+  State<PhrasesListController> createState() => _PhrasesListControllerState();
+}
+
+class _PhrasesListControllerState extends State<PhrasesListController> {
+  final TextEditingController _phraseFieldController = TextEditingController();
+  String _warningMessage = '';
+
+  void _showAddLanguagePackDialog(
+      {required List<FirestorePhrase> currentPhrases}) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+            builder: (context, StateSetter setStateInsideDialog) => AlertDialog(
+                  icon: Icon(Icons.language,
+                      color: Theme.of(context).colorScheme.primary),
+                  title: const Text('Add new phrase'),
+                  content: Wrap(runSpacing: 16, children: [
+                    TextField(
+                      controller: _phraseFieldController,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: 'Phrase',
+                          hintText: 'Good morning'),
+                      minLines: 1,
+                      maxLines: 3,
+                      maxLength: 70,
+                    ),
+                    Text(_warningMessage,
+                        style: Theme.of(context).textTheme.bodyMedium)
+                  ]),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('Cancel'),
+                      onPressed: () {
+                        setState(() {
+                          _phraseFieldController.text = "";
+                        });
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: const Text('Save'),
+                      onPressed: () {
+                        if (_phraseFieldController.text.isEmpty) {
+                          setStateInsideDialog(() {
+                            _warningMessage =
+                                'Please enter text to create a phrase';
+                          });
+                        }
+                        if (_phraseFieldController.text.isNotEmpty) {
+                          setState(() {
+                            var phrasesList = currentPhrases;
+                            final newPhrase = FirestorePhrase(
+                                id: Uuid().v4(),
+                                text: _phraseFieldController.text,
+                                active: true);
+                            phrasesList.add(newPhrase);
+                            widget.reference.update(<String, dynamic>{
+                              'phrases':
+                                  phrasesList.map((p) => p.toJson()).toList()
+                            });
+                            _phraseFieldController.text = '';
+                            Navigator.of(context).pop();
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ));
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<DocumentSnapshot<LanguagePack>>(
+        stream: widget.reference.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
+          }
+
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final data = snapshot.requireData;
+
+          return Scaffold(
+              body: CustomScrollView(slivers: [
+                SliverAppBar(
+                    pinned: true,
+                    flexibleSpace: AppBar(
+                        centerTitle: false,
+                        title: Text(
+                            "${data.data()?.name ?? "NA"} (${data.data()?.language.name})"))),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                      (context, index) =>
+                          PhrasesListTile(phrase: data.data()!.phrases[index]),
+                      childCount: data.data()?.phrases.length ?? 0),
+                ),
+                SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),
+                SliverToBoxAdapter(child: SizedBox(height: 100))
+              ]),
+              floatingActionButton: FloatingActionButton(
+                  child: Icon(Icons.add),
+                  onPressed: () => _showAddLanguagePackDialog(
+                      currentPhrases: data.data()?.phrases ?? [])));
+        });
+  }
+}
