@@ -112,10 +112,20 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
                         title: Text(
                             "${data.data()?.name ?? "NA"} (${data.data()?.language.name})"))),
                 SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          PhrasesListTile(phrase: data.data()!.phrases[index]),
-                      childCount: data.data()?.phrases.length ?? 0),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final phrase = data.data()!.phrases[index];
+                    return PhrasesListTile(
+                        phrase: phrase,
+                        onChanged: (updatedSelection) {
+                          var phrasesList = data.data()!.phrases;
+                          phrasesList[index].active =
+                              !phrasesList[index].active;
+                          widget.reference.update(<String, dynamic>{
+                            'phrases':
+                                phrasesList.map((p) => p.toJson()).toList()
+                          });
+                        });
+                  }, childCount: data.data()?.phrases.length ?? 0),
                 ),
                 SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),
                 SliverToBoxAdapter(child: SizedBox(height: 100))

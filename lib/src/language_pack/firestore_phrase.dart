@@ -1,7 +1,7 @@
 final class FirestorePhrase {
   final String id;
   final String text;
-  final bool active;
+  bool active;
 
   FirestorePhrase({required this.id, required this.text, required this.active});
 
