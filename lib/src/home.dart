@@ -41,7 +41,8 @@ class _HomeControllerState extends State<HomeController> {
 
   @override
   void initState() {
-    Provider.of<PhrasesRepository>(context, listen: false).initFromAssetFile();
+    Provider.of<PhrasesRepository>(context, listen: false)
+        .initFromCloudStorage();
     Provider.of<SettingsRepository>(context, listen: false)
         .initFromPreferences();
     super.initState();

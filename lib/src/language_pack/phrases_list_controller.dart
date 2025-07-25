@@ -93,8 +93,7 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
       isUpdating = true;
     });
     languagePack.publishToCloudStorage();
-    await widget.reference
-        .update(languagePack.toJson());
+    await widget.reference.update(languagePack.toJson());
     setState(() {
       isUpdating = false;
     });

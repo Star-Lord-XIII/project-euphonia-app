@@ -96,15 +96,6 @@ class RecordModeView extends StatelessWidget {
                         .jumpToPhrase(updatedPhraseIndex: index))),
       ];
       final List<Widget> secondHalf = [
-        SegmentedButton<PhraseType>(segments: const <ButtonSegment<PhraseType>>[
-          ButtonSegment<PhraseType>(
-              value: PhraseType.text, label: Text('text')),
-          ButtonSegment<PhraseType>(
-              value: PhraseType.image, label: Text('image'))
-        ], selected: {
-          type
-        }, onSelectionChanged: toggleType),
-        const SizedBox(height: 18),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

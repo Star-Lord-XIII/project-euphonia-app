@@ -77,13 +77,13 @@ final class LanguagePack {
     final storageRef = FirebaseStorage.instance.ref();
     final jsonRef =
         storageRef.child('phrases/${languagePackCode}.${version}.json');
-    final languagePackList =
-        storageRef.child('phrases/language_packs.json');
+    final languagePackList = storageRef.child('phrases/language_packs.json');
     try {
       Uint8List? listData = await languagePackList.getData();
       if (listData != null) {
         String languagePackListContents = Utf8Decoder().convert(listData);
-        List<dynamic> languagePackMapList = jsonDecode(languagePackListContents);
+        List<dynamic> languagePackMapList =
+            jsonDecode(languagePackListContents);
         if (version == "v1") {
           languagePackMapList.add(toSummaryJson());
           languagePackList.putString(jsonEncode(languagePackMapList));

@@ -9,7 +9,7 @@ final class FirestorePhrase {
       : this(
             id: (json['id']! as String),
             text: (json['text']! as String),
-            active: (json['active']! as bool));
+            active: (json['active'] as bool?) ?? true);
 
   Map<String, Object?> toJson() {
     return {'id': id, 'text': text, 'active': active};

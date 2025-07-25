@@ -24,6 +24,8 @@ enum PhraseType { text, image }
 
 final class Phrase {
   final int index;
+  final String uid;
+  final String languagePackCode;
   final String text;
 
   bool get isLocalImage {
@@ -49,7 +51,11 @@ final class Phrase {
     return PhraseType.text;
   }
 
-  Phrase({required this.index, required this.text});
+  Phrase(
+      {required this.index,
+      required this.uid,
+      required this.languagePackCode,
+      required this.text});
 
   Future<bool> get isRecordingAvailableLocally =>
       localRecordingPath.then((x) => File(x).existsSync());
@@ -57,6 +63,9 @@ final class Phrase {
   Future<String> get localRecordingPath async {
     final appDocDirPath = await getApplicationDocumentsDirectory();
     final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    if (languagePackCode.isNotEmpty && uid.isNotEmpty) {
+      return '${appDocDirPath.path}/${userToken}_${languagePackCode}_$uid.wav';
+    }
     return '${appDocDirPath.path}/${userToken}_prompt$index.wav';
   }
 
@@ -83,17 +92,28 @@ final class Phrase {
     storage.setMaxUploadRetryTime(const Duration(seconds: 5));
     final storageRef = storage.ref();
     final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
-    final phraseRef = storageRef.child('$userToken/$index/phrase.txt');
-    final audioRef = storageRef.child('$userToken/$index/recording.wav');
-    final audioPath = await localRecordingPath;
-    final localAudioFile = File(audioPath);
-    if (!localAudioFile.existsSync()) {
-      throw FileSystemException('File doesn\'t exist', audioPath);
+    if (languagePackCode.isNotEmpty && uid.isNotEmpty) {
+      final audioRef =
+          storageRef.child('$userToken/$languagePackCode/$uid.wav');
+      final audioPath = await localRecordingPath;
+      final localAudioFile = File(audioPath);
+      if (!localAudioFile.existsSync()) {
+        throw FileSystemException('File doesn\'t exist', audioPath);
+      }
+      await audioRef.putFile(localAudioFile);
+    } else {
+      final phraseRef = storageRef.child('$userToken/$index/phrase.txt');
+      final audioRef = storageRef.child('$userToken/$index/recording.wav');
+      final audioPath = await localRecordingPath;
+      final localAudioFile = File(audioPath);
+      if (!localAudioFile.existsSync()) {
+        throw FileSystemException('File doesn\'t exist', audioPath);
+      }
+      await Future.wait([
+        phraseRef.putString(text),
+        audioRef.putFile(localAudioFile),
+      ]);
     }
-    await Future.wait([
-      phraseRef.putString(text),
-      audioRef.putFile(localAudioFile),
-    ]);
   }
 
   Future<void> deleteRecording() async {
