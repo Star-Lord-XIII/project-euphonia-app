@@ -145,6 +145,7 @@ class _LanguagePackListControllerState
                                 .collection('language_packs')
                                 .doc(_languagePackCode)
                                 .set(LanguagePack(
+                                    version: 'draft',
                                     name: _nameFieldController.text,
                                     language: _selectedLanguage!,
                                     phrases: []).toJson());

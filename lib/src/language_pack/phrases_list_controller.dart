@@ -17,6 +17,7 @@ class PhrasesListController extends StatefulWidget {
 class _PhrasesListControllerState extends State<PhrasesListController> {
   final TextEditingController _phraseFieldController = TextEditingController();
   String _warningMessage = '';
+  var isUpdating = false;
 
   void _showAddLanguagePackDialog(
       {required List<FirestorePhrase> currentPhrases}) {
@@ -86,6 +87,19 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
     );
   }
 
+  Future<void> publishLanguagePack(LanguagePack languagePack) async {
+    languagePack.updateVersion();
+    setState(() {
+      isUpdating = true;
+    });
+    languagePack.publishToCloudStorage();
+    await widget.reference
+        .update(languagePack.toJson());
+    setState(() {
+      isUpdating = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot<LanguagePack>>(
@@ -108,9 +122,35 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
                 SliverAppBar(
                     pinned: true,
                     flexibleSpace: AppBar(
-                        centerTitle: false,
-                        title: Text(
-                            "${data.data()?.name ?? "NA"} (${data.data()?.language.name})"))),
+                      centerTitle: false,
+                      title: Text(
+                          "${data.data()?.name ?? "NA"} (${data.data()?.language.name})"),
+                      actions: isUpdating
+                          ? [
+                              CircularProgressIndicator(
+                                padding: EdgeInsets.symmetric(horizontal: 32),
+                              )
+                            ]
+                          : [
+                              Text(data.data()!.version),
+                              PopupMenuButton(
+                                icon: Icon(Icons.more_vert),
+                                itemBuilder: (BuildContext context) =>
+                                    <PopupMenuEntry>[
+                                  PopupMenuItem(
+                                    child: const ListTile(
+                                      leading: Icon(Icons.publish),
+                                      title: Text('Publish'),
+                                    ),
+                                    onTap: () async {
+                                      final languagePack = data.data()!;
+                                      publishLanguagePack(languagePack);
+                                    },
+                                  )
+                                ],
+                              ),
+                            ],
+                    )),
                 SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final phrase = data.data()!.phrases[index];

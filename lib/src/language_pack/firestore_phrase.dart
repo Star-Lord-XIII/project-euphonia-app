@@ -14,4 +14,8 @@ final class FirestorePhrase {
   Map<String, Object?> toJson() {
     return {'id': id, 'text': text, 'active': active};
   }
+
+  Map<String, String> toJsonWithoutActive() {
+    return {'id': id, 'text': text};
+  }
 }
