@@ -86,11 +86,9 @@ class RecordModeView extends StatelessWidget {
                 key: pageStorageKey,
                 controller: controller,
                 itemBuilder: (context, index) {
-                  return PhraseView(
-                      index: index,
-                      phrase: phrases[phrasesByType[type]?[index] ?? 0]);
+                  return PhraseView(index: index, phrase: phrases[index]);
                 },
-                itemCount: phrasesByType[type]?.length ?? 0,
+                itemCount: phrases.length,
                 onPageChanged: (index) =>
                     Provider.of<PhrasesRepository>(context, listen: false)
                         .jumpToPhrase(updatedPhraseIndex: index))),

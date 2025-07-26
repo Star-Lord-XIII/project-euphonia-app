@@ -37,6 +37,8 @@ final class PhrasesRepository extends ChangeNotifier {
   final Map<PhraseType, List> _phrasesByType = {};
   int _currentPhraseIndex = 0;
   PhraseType _currentPhraseType = PhraseType.text;
+  List<LanguagePackSummary> _cachedLanguagePackSummaryList = [];
+  final Map<String, LanguagePack> _cachedLanguagePackCodeToLanguagePack = {};
 
   UnmodifiableListView<Phrase> get phrases => UnmodifiableListView(_phrases);
   int get currentPhraseIndex => _currentPhraseIndex;
@@ -92,9 +94,14 @@ final class PhrasesRepository extends ChangeNotifier {
     }
   }
 
-  Future<void> updateSelectedLanguagePack(
+  Future<LanguagePack?> _getLanguagePack(
       LanguagePackSummary languagePackSummary) async {
-    selectedLanguageSummary = languagePackSummary;
+    final languagePackVersionCode =
+        '${languagePackSummary.languagePackCode}.${languagePackSummary.version}';
+    if (_cachedLanguagePackCodeToLanguagePack
+        .containsKey(languagePackVersionCode)) {
+      return _cachedLanguagePackCodeToLanguagePack[languagePackVersionCode];
+    }
     final storageRef = FirebaseStorage.instance.ref();
     final languagePack = storageRef.child(
         'phrases/${languagePackSummary.languagePackCode}.${languagePackSummary.version}.json');
@@ -103,6 +110,21 @@ final class PhrasesRepository extends ChangeNotifier {
       String languagePackListContents = Utf8Decoder().convert(languagePackData);
       LanguagePack pack =
           LanguagePack.fromJson(jsonDecode(languagePackListContents));
+      _cachedLanguagePackCodeToLanguagePack[languagePackVersionCode] = pack;
+      return pack;
+    }
+    return null;
+  }
+
+  Future<void> updateSelectedLanguagePack(
+      LanguagePackSummary languagePackSummary) async {
+    var prefs = await SharedPreferences.getInstance();
+    _currentPhraseIndex = prefs.getInt(
+            _currentRecordedPhraseIndexKey(summary: languagePackSummary)) ??
+        0;
+    selectedLanguageSummary = languagePackSummary;
+    LanguagePack? pack = await _getLanguagePack(languagePackSummary);
+    if (pack != null) {
       List<Phrase> phrasesList = [];
       for (var i = 0; i < pack.phrases.length; ++i) {
         final curPhrase = Phrase(
@@ -122,6 +144,9 @@ final class PhrasesRepository extends ChangeNotifier {
 
   Future<List<LanguagePackSummary>>
       getLanguagePackSummaryListFromCloudStorage() async {
+    if (_cachedLanguagePackSummaryList.isNotEmpty) {
+      return _cachedLanguagePackSummaryList;
+    }
     final storageRef = FirebaseStorage.instance.ref();
     final languagePackList = storageRef.child('phrases/language_packs.json');
     try {
@@ -135,6 +160,7 @@ final class PhrasesRepository extends ChangeNotifier {
           languagePackSummaryList
               .add(LanguagePackSummary.fromJson(languagePack));
         }
+        _cachedLanguagePackSummaryList = languagePackSummaryList;
         return languagePackSummaryList;
       }
     } on FirebaseException catch (e) {
