@@ -143,7 +143,6 @@ class _RecordModeControllerState extends State<RecordModeController> {
       if (repo.phrases.isNotEmpty && _pageController == null) {
         _pageController = PageController(
             initialPage: repo.currentPhraseIndex, viewportFraction: 0.8);
-        return const Center(child: CircularProgressIndicator());
       }
       return RecordModeView(
         type: repo.currentPhraseType,

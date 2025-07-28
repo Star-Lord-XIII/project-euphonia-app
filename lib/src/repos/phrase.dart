@@ -18,8 +18,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'phrases_repository.dart';
-
 enum PhraseType { text, image }
 
 final class Phrase {
@@ -32,12 +30,11 @@ final class Phrase {
     return text.startsWith("/");
   }
 
-  String get imageUrl {
+  Future<String> get imageUrl async {
     if (type == PhraseType.image) {
-      if (isLocalImage) {
-        return 'assets/${PhrasesRepository.selectedLanguageCode}$text';
-      }
-      return text;
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef.child('phrases/$languagePackCode$text');
+      return imageRef.getDownloadURL();
     }
     return '';
   }
