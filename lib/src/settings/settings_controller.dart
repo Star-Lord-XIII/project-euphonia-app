@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../repos/phrases_repository.dart';
 import '../repos/settings_repository.dart';
 import 'settings_view.dart';
 
@@ -40,10 +41,12 @@ class _SettingsControllerState extends State<SettingsController> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SettingsRepository>(builder: (context, settings, _) {
+    return Consumer2<PhrasesRepository, SettingsRepository>(
+        builder: (context, repo, settings, _) {
       return SettingsView(
         transcriptionURLController: controller,
         defaultTranscriptURL: settings.transcribeEndpoint,
+        repo: repo,
         settings: settings,
       );
     });

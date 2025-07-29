@@ -18,24 +18,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'phrases_repository.dart';
-
 enum PhraseType { text, image }
 
 final class Phrase {
   final int index;
+  final String uid;
+  final String languagePackCode;
   final String text;
 
   bool get isLocalImage {
     return text.startsWith("/");
   }
 
-  String get imageUrl {
+  Future<String> get imageUrl async {
     if (type == PhraseType.image) {
-      if (isLocalImage) {
-        return 'assets/${PhrasesRepository.selectedLanguageCode}$text';
-      }
-      return text;
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef.child('phrases/$languagePackCode$text');
+      return imageRef.getDownloadURL();
     }
     return '';
   }
@@ -49,7 +48,11 @@ final class Phrase {
     return PhraseType.text;
   }
 
-  Phrase({required this.index, required this.text});
+  Phrase(
+      {required this.index,
+      required this.uid,
+      required this.languagePackCode,
+      required this.text});
 
   Future<bool> get isRecordingAvailableLocally =>
       localRecordingPath.then((x) => File(x).existsSync());
@@ -57,25 +60,19 @@ final class Phrase {
   Future<String> get localRecordingPath async {
     final appDocDirPath = await getApplicationDocumentsDirectory();
     final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    if (languagePackCode.isNotEmpty && uid.isNotEmpty) {
+      return '${appDocDirPath.path}/${userToken}_${languagePackCode}_$uid.wav';
+    }
     return '${appDocDirPath.path}/${userToken}_prompt$index.wav';
   }
 
   Future<String> get localTempPath async {
     final appDocDirPath = await getApplicationDocumentsDirectory();
     final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
-    return '${appDocDirPath.path}/${userToken}_prompt_temp_$index.wav';
-  }
-
-  Future<void> downloadRecording() async {
-    final storageRef = FirebaseStorage.instance.ref();
-    final audioRef = storageRef.child('data/$index/recording.wav');
-    final localAudioFile = File(await localRecordingPath);
-    final remoteData = await audioRef.getData();
-    if (remoteData == null || remoteData.isEmpty) {
-      throw FileSystemException('File doesn\'t exist', audioRef.fullPath);
+    if (languagePackCode.isNotEmpty && uid.isNotEmpty) {
+      return '${appDocDirPath.path}/${userToken}_temp_${languagePackCode}_$uid.wav';
     }
-    final List<int> data = (await audioRef.getData()) as List<int>;
-    localAudioFile.writeAsBytesSync(data);
+    return '${appDocDirPath.path}/${userToken}_prompt_temp_$index.wav';
   }
 
   Future<void> uploadRecording() async {
@@ -83,17 +80,28 @@ final class Phrase {
     storage.setMaxUploadRetryTime(const Duration(seconds: 5));
     final storageRef = storage.ref();
     final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
-    final phraseRef = storageRef.child('$userToken/$index/phrase.txt');
-    final audioRef = storageRef.child('$userToken/$index/recording.wav');
-    final audioPath = await localRecordingPath;
-    final localAudioFile = File(audioPath);
-    if (!localAudioFile.existsSync()) {
-      throw FileSystemException('File doesn\'t exist', audioPath);
+    if (languagePackCode.isNotEmpty && uid.isNotEmpty) {
+      final audioRef =
+          storageRef.child('$userToken/$languagePackCode/$uid.wav');
+      final audioPath = await localRecordingPath;
+      final localAudioFile = File(audioPath);
+      if (!localAudioFile.existsSync()) {
+        throw FileSystemException('File doesn\'t exist', audioPath);
+      }
+      await audioRef.putFile(localAudioFile);
+    } else {
+      final phraseRef = storageRef.child('$userToken/$index/phrase.txt');
+      final audioRef = storageRef.child('$userToken/$index/recording.wav');
+      final audioPath = await localRecordingPath;
+      final localAudioFile = File(audioPath);
+      if (!localAudioFile.existsSync()) {
+        throw FileSystemException('File doesn\'t exist', audioPath);
+      }
+      await Future.wait([
+        phraseRef.putString(text),
+        audioRef.putFile(localAudioFile),
+      ]);
     }
-    await Future.wait([
-      phraseRef.putString(text),
-      audioRef.putFile(localAudioFile),
-    ]);
   }
 
   Future<void> deleteRecording() async {
@@ -101,13 +109,24 @@ final class Phrase {
     storage.setMaxOperationRetryTime(const Duration(seconds: 5));
     final storageRef = storage.ref();
     final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
-    final phraseRef = storageRef.child('$userToken/$index/phrase.txt');
-    final audioRef = storageRef.child('$userToken/$index/recording.wav');
-    final audioPath = await localRecordingPath;
-    final localAudioFile = File(audioPath);
-    if (localAudioFile.existsSync()) {
-      localAudioFile.deleteSync();
+    if (languagePackCode.isNotEmpty && uid.isNotEmpty) {
+      final audioRef =
+          storageRef.child('$userToken/$languagePackCode/$uid.wav');
+      final audioPath = await localRecordingPath;
+      final localAudioFile = File(audioPath);
+      if (localAudioFile.existsSync()) {
+        localAudioFile.deleteSync();
+      }
+      await audioRef.delete();
+    } else {
+      final phraseRef = storageRef.child('$userToken/$index/phrase.txt');
+      final audioRef = storageRef.child('$userToken/$index/recording.wav');
+      final audioPath = await localRecordingPath;
+      final localAudioFile = File(audioPath);
+      if (localAudioFile.existsSync()) {
+        localAudioFile.deleteSync();
+      }
+      await Future.wait([phraseRef.delete(), audioRef.delete()]);
     }
-    await Future.wait([phraseRef.delete(), audioRef.delete()]);
   }
 }

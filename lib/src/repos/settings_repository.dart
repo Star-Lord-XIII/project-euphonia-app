@@ -42,7 +42,8 @@ final class SettingsRepository extends ChangeNotifier {
             : '';
     _autoAdvance = prefs.getBool(_autoAdvanceKey) ?? false;
     _displayRichCaptions = prefs.getBool(_richCaptionKey) ?? false;
-    _displaySegmentLevelConfidence = prefs.getBool(_segmentLevelConfidenceKey) ?? false;
+    _displaySegmentLevelConfidence =
+        prefs.getBool(_segmentLevelConfidenceKey) ?? false;
     notifyListeners();
   }
 

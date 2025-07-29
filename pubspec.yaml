@@ -64,6 +64,9 @@ dependencies:
   firebase_ui_auth: ^1.16.1
   firebase_ui_oauth_google: ^1.4.1
   cached_network_image: ^3.4.1
+  sealed_languages: any
+  cloud_firestore: ^5.6.11
+  uuid: ^4.5.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -93,6 +96,7 @@ flutter:
     - assets/tw/pictures/
     - assets/sw/
     - assets/sw/pictures/
+    - assets/export/
   fonts:
     - family: SocialIcons
       fonts:

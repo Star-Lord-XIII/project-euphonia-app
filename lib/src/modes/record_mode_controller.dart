@@ -21,6 +21,7 @@ import '../repos/phrase.dart';
 import '../repos/phrases_repository.dart';
 import '../repos/settings_repository.dart';
 import '../repos/uploader.dart';
+import 'language_pack_selector.dart';
 import 'record_mode_view.dart';
 import 'upload_status.dart';
 
@@ -34,29 +35,15 @@ class RecordModeController extends StatefulWidget {
 class _RecordModeControllerState extends State<RecordModeController> {
   var _uploadStatus = UploadStatus.notStarted;
   final Key _key = GlobalKey();
-  final _pageController = PageController(initialPage: 0, viewportFraction: 0.8);
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await Future.delayed(const Duration(milliseconds: 100));
-      Provider.of<PhrasesRepository>(context, listen: false)
-          .getLastRecordedPhraseIndex()
-          .then((lastRecordedPhraseIndex) => setState(() {
-                if (_pageController.hasClients) {
-                  _pageController.jumpToPage(lastRecordedPhraseIndex);
-                }
-              }));
-    });
-  }
+  PageController? _pageController;
+  var _currentLanguagePackCode = '';
 
   void _previousPhrase() async {
     var phrasesRepoProvider =
         Provider.of<PhrasesRepository>(context, listen: false);
     await phrasesRepoProvider.moveToPreviousPhrase();
     setState(() {
-      _pageController.animateToPage(phrasesRepoProvider.currentPhraseIndex,
+      _pageController?.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
       _uploadStatus = UploadStatus.notStarted;
     });
@@ -67,7 +54,7 @@ class _RecordModeControllerState extends State<RecordModeController> {
         Provider.of<PhrasesRepository>(context, listen: false);
     await phrasesRepoProvider.moveToNextPhrase();
     setState(() {
-      _pageController.animateToPage(phrasesRepoProvider.currentPhraseIndex,
+      _pageController?.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
       _uploadStatus = UploadStatus.notStarted;
     });
@@ -104,7 +91,7 @@ class _RecordModeControllerState extends State<RecordModeController> {
         Provider.of<PhrasesRepository>(context, listen: false);
     await phrasesRepoProvider.toggleType(newSelection.first);
     setState(() {
-      _pageController.jumpToPage(phrasesRepoProvider.currentPhraseIndex);
+      _pageController?.jumpToPage(phrasesRepoProvider.currentPhraseIndex);
       _uploadStatus = UploadStatus.notStarted;
     });
   }
@@ -142,6 +129,9 @@ class _RecordModeControllerState extends State<RecordModeController> {
   Widget build(BuildContext context) {
     return Consumer3<PhrasesRepository, AudioPlayer, AudioRecorder>(
         builder: (_, repo, player, recorder, __) {
+      if (repo.selectedLanguageSummary == null) {
+        return const Center(child: LanguagePackSelector());
+      }
       if (repo.phrases.isEmpty) {
         return const Center(child: CircularProgressIndicator());
       }
@@ -150,6 +140,15 @@ class _RecordModeControllerState extends State<RecordModeController> {
         _stopRecordingAndUpload(recorder, repo.currentPhrase!, player,
                 autoAdvance: false)
             .then((_) => _showRecordingTooLongDialog());
+      }
+      if (repo.phrases.isNotEmpty && _pageController == null) {
+        _pageController = PageController(
+            initialPage: repo.currentPhraseIndex, viewportFraction: 0.8);
+      } else if ((repo.selectedLanguageSummary?.languagePackCode ?? '') !=
+          _currentLanguagePackCode) {
+        _currentLanguagePackCode =
+            repo.selectedLanguageSummary?.languagePackCode ?? '';
+        _pageController?.jumpToPage(repo.currentPhraseIndex);
       }
       return RecordModeView(
         type: repo.currentPhraseType,

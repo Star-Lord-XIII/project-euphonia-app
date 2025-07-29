@@ -16,17 +16,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../generated/l10n/app_localizations.dart';
+import '../repos/language_pack_summary.dart';
+import '../repos/phrases_repository.dart';
 import '../repos/settings_repository.dart';
 
 class SettingsView extends StatelessWidget {
   final TextEditingController transcriptionURLController;
   final String defaultTranscriptURL;
+  final PhrasesRepository repo;
   final SettingsRepository settings;
+  final languagePackDropDownUniqueKey = UniqueKey();
 
-  const SettingsView(
+  SettingsView(
       {super.key,
       required this.transcriptionURLController,
       required this.defaultTranscriptURL,
+      required this.repo,
       required this.settings});
 
   @override
@@ -39,6 +44,44 @@ class SettingsView extends StatelessWidget {
                   .textTheme
                   .labelLarge
                   ?.copyWith(color: Colors.blue))),
+      FutureBuilder(
+          future: repo.getLanguagePackSummaryListFromCloudStorage(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return ListTile(
+                  title: Text('Language Pack',
+                      style: Theme.of(context).textTheme.headlineSmall),
+                  subtitle: Text('Switch to another Language pack'),
+                  trailing: DropdownMenu<LanguagePackSummary>(
+                      key: languagePackDropDownUniqueKey,
+                      initialSelection: repo.selectedLanguageSummary,
+                      label: Text(repo.selectedLanguageSummary?.name ??
+                          'Language Pack'),
+                      dropdownMenuEntries: snapshot.requireData
+                          .map((x) => DropdownMenuEntry(
+                              value: x,
+                              label: x.name,
+                              trailingIcon: Wrap(
+                                children: [
+                                  Chip(
+                                      label: Text(
+                                          x.language.codeShort.toLowerCase()),
+                                      labelPadding: EdgeInsets.zero,
+                                      labelStyle:
+                                          Theme.of(context).textTheme.bodySmall,
+                                      visualDensity: VisualDensity.compact)
+                                ],
+                              )))
+                          .toList(),
+                      onSelected: (x) {
+                        if (x != null) {
+                          repo.updateSelectedLanguagePack(x);
+                        }
+                      }));
+            }
+            return Center(child: CircularProgressIndicator());
+          }),
+      const SizedBox(height: 36),
       ListTile(
         title: Text(AppLocalizations.of(context)!.autoAdvanceSettingTitle,
             style: Theme.of(context).textTheme.headlineSmall),
