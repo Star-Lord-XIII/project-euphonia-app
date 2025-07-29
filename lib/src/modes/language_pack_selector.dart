@@ -34,6 +34,9 @@ class _LanguagePackSelectorState extends State<LanguagePackSelector> {
                   future: repo.getLanguagePackSummaryListFromCloudStorage(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                      if (snapshot.requireData.isEmpty) {
+                        return Text('No language packs found!');
+                      }
                       return DropdownMenu(
                           label: Text('Language pack'),
                           dropdownMenuEntries: snapshot.requireData

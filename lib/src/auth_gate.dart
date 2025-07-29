@@ -1,18 +1,17 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
 
 import '../firebase_options.dart';
+import 'auth/FirestoreAdminDoc.dart';
 import 'home.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
-
-  // TODO: Enable better mechanism for admin identity.
-  static const _admins = [];
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +30,26 @@ class AuthGate extends StatelessWidget {
             showPasswordVisibilityToggle: true,
           );
         }
-        final isCurrentUserAdmin =
-            _admins.contains(FirebaseAuth.instance.currentUser?.email);
-        return HomeController(isCurrentUserAdmin: isCurrentUserAdmin);
+        final firestoreRef =
+            FirebaseFirestore.instance.collection('users').doc('admins').get();
+        return FutureBuilder(
+            future: firestoreRef,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(child: Text(snapshot.error.toString()));
+              } else if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              final data =
+                  FirestoreAdminDoc.fromJson(snapshot.requireData.data());
+              final currentUser =
+                  FirebaseAuth.instance.currentUser?.email ?? 'anonymous';
+              final isCurrentUserAdmin = data.languagePackAdmins
+                  .map((lpa) => lpa.emailId)
+                  .toList()
+                  .contains(currentUser);
+              return HomeController(isCurrentUserAdmin: isCurrentUserAdmin);
+            });
       },
     );
   }

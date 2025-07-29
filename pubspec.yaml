@@ -96,6 +96,7 @@ flutter:
     - assets/tw/pictures/
     - assets/sw/
     - assets/sw/pictures/
+    - assets/export/
   fonts:
     - family: SocialIcons
       fonts:

@@ -17,11 +17,15 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sealed_languages/sealed_languages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
+import '../language_pack/firestore_phrase.dart';
 import '../language_pack/language_pack.dart';
 import 'language_pack_summary.dart';
 import 'phrase.dart';
@@ -39,6 +43,7 @@ final class PhrasesRepository extends ChangeNotifier {
   PhraseType _currentPhraseType = PhraseType.text;
   List<LanguagePackSummary> _cachedLanguagePackSummaryList = [];
   final Map<String, LanguagePack> _cachedLanguagePackCodeToLanguagePack = {};
+  var updated = false;
 
   UnmodifiableListView<Phrase> get phrases => UnmodifiableListView(_phrases);
   int get currentPhraseIndex => _currentPhraseIndex;
@@ -57,27 +62,42 @@ final class PhrasesRepository extends ChangeNotifier {
 
   Map<PhraseType, List> get phrasesByType => _phrasesByType;
 
-  Future<void> initFromAssetFile() async {
-    var prefs = await SharedPreferences.getInstance();
-    rootBundle
-        .loadString('assets/$selectedLanguageCode/phrases.txt')
-        .then((content) {
-      _currentPhraseType = PhraseType.values
-          .byName(prefs.getString(lastSelectedPhraseType) ?? "text");
-      _currentPhraseIndex = prefs.getInt(_currentRecordedPhraseIndexKey()) ?? 0;
-      var textPhrases = LineSplitter.split(content).toList();
-      List<Phrase> phrasesList = [];
-      for (var i = 0; i < textPhrases.length; ++i) {
-        final curPhrase = Phrase(
-            index: i, text: textPhrases[i], uid: '', languagePackCode: '');
-        phrasesList.add(curPhrase);
-        if (_phrasesByType[curPhrase.type] == null) {
-          _phrasesByType[curPhrase.type] = [];
+  Future<void> exportFromAssetFile() async {
+    if (updated) {
+      return;
+    }
+    updated = true;
+    final languagePackList = [
+      // LanguagePackSummary(version: 'draft', name: 'English complicated', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.english-complicated', phrasesCount: 100),
+      // LanguagePackSummary(version: 'draft', name: 'Kenyan english', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.kenyan-english', phrasesCount: 200),
+      // LanguagePackSummary(version: 'draft', name: 'Sample picture phrases', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.sample-picture-phrases', phrasesCount: 10),
+      // LanguagePackSummary(version: 'draft', name: 'Swahili common', language: NaturalLanguage.fromCodeShort('sw'), languagePackCode: 'sw.swahili-common', phrasesCount: 198),
+      // LanguagePackSummary(version: 'draft', name: 'Swahili images', language: NaturalLanguage.fromCodeShort('sw'), languagePackCode: 'sw.swahili-images', phrasesCount: 50),
+      // LanguagePackSummary(version: 'draft', name: 'Twi common', language: NaturalLanguage.fromCodeShort('tw'), languagePackCode: 'tw.twi-common', phrasesCount: 247),
+      // LanguagePackSummary(version: 'draft', name: 'Twi images', language: NaturalLanguage.fromCodeShort('tw'), languagePackCode: 'tw.twi-images', phrasesCount: 167),
+    ];
+    for (final pack in languagePackList) {
+      rootBundle
+          .loadString('assets/export/${pack.languagePackCode}.txt')
+          .then((content) {
+        final textPhrases = LineSplitter.split(content).toList();
+        List<FirestorePhrase> phraseList = [];
+        for (var i = 0; i < textPhrases.length; ++i) {
+          final curPhrase = FirestorePhrase(
+              id: Uuid().v4(), text: textPhrases[i].trim(), active: true);
+          phraseList.add(curPhrase);
         }
-        _phrasesByType[curPhrase.type]!.add(i);
-      }
-      _reset(updatedPhrases: phrasesList);
-    });
+        final assembledPack = LanguagePack(
+            version: pack.version,
+            name: pack.name,
+            language: pack.language,
+            phrases: phraseList);
+        FirebaseFirestore.instance
+            .collection('language_packs')
+            .doc(pack.languagePackCode)
+            .set(assembledPack.toJson());
+      });
+    }
   }
 
   Future<void> initFromCloudStorage() async {
