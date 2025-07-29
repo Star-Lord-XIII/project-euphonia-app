@@ -36,6 +36,7 @@ class _RecordModeControllerState extends State<RecordModeController> {
   var _uploadStatus = UploadStatus.notStarted;
   final Key _key = GlobalKey();
   PageController? _pageController;
+  var _currentLanguagePackCode = '';
 
   void _previousPhrase() async {
     var phrasesRepoProvider =
@@ -143,6 +144,9 @@ class _RecordModeControllerState extends State<RecordModeController> {
       if (repo.phrases.isNotEmpty && _pageController == null) {
         _pageController = PageController(
             initialPage: repo.currentPhraseIndex, viewportFraction: 0.8);
+      } else if ((repo.selectedLanguageSummary?.languagePackCode ?? '') != _currentLanguagePackCode) {
+        _currentLanguagePackCode = repo.selectedLanguageSummary?.languagePackCode ?? '';
+        _pageController?.jumpToPage(repo.currentPhraseIndex);
       }
       return RecordModeView(
         type: repo.currentPhraseType,
