@@ -18,6 +18,7 @@ import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -107,9 +108,6 @@ final class PhrasesRepository extends ChangeNotifier {
     if (lastSelectedLanguagePackValue.isNotEmpty) {
       var languageSummary = LanguagePackSummary.fromJson(
           jsonDecode(lastSelectedLanguagePackValue));
-      _currentPhraseIndex = prefs.getInt(
-              _currentRecordedPhraseIndexKey(summary: languageSummary)) ??
-          0;
       await updateSelectedLanguagePack(languageSummary);
     }
   }
@@ -192,7 +190,8 @@ final class PhrasesRepository extends ChangeNotifier {
   String _currentRecordedPhraseIndexKey(
       {PhraseType? type, LanguagePackSummary? summary}) {
     if (summary != null) {
-      return '${lastRecordedPhraseIndexKey}_${summary.languagePackCode}';
+      final userToken = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
+      return '${lastRecordedPhraseIndexKey}_${userToken}_${summary.languagePackCode}';
     }
     return '${lastRecordedPhraseIndexKey}_${(type ?? _currentPhraseType).name.toUpperCase()}';
   }

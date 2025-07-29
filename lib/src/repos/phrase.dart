@@ -111,7 +111,7 @@ final class Phrase {
     final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
     if (languagePackCode.isNotEmpty && uid.isNotEmpty) {
       final audioRef =
-      storageRef.child('$userToken/$languagePackCode/$uid.wav');
+          storageRef.child('$userToken/$languagePackCode/$uid.wav');
       final audioPath = await localRecordingPath;
       final localAudioFile = File(audioPath);
       if (localAudioFile.existsSync()) {

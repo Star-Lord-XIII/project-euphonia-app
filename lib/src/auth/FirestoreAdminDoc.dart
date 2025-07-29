@@ -5,12 +5,15 @@ final class FirestoreAdminDoc {
 
   FirestoreAdminDoc.fromJson(Map<String, dynamic>? json)
       : this(
-      languagePackAdmins: (json?['language_packs'] as List<dynamic>? ?? [])
-          .map((x) => FirestoreAdmin.fromJson(x))
-          .toList());
+            languagePackAdmins:
+                (json?['language_packs'] as List<dynamic>? ?? [])
+                    .map((x) => FirestoreAdmin.fromJson(x))
+                    .toList());
 
   Map<String, Object?> toJson() {
-    return {'language_packs': languagePackAdmins.map((l) => l.toJson()).toList()};
+    return {
+      'language_packs': languagePackAdmins.map((l) => l.toJson()).toList()
+    };
   }
 }
 
@@ -20,7 +23,7 @@ final class FirestoreAdmin {
   FirestoreAdmin({required this.emailId});
 
   FirestoreAdmin.fromJson(Map<String, Object?> json)
-  : this(emailId: ((json['email_id'] as String?) ?? ''));
+      : this(emailId: ((json['email_id'] as String?) ?? ''));
 
   Map<String, String> toJson() {
     return {'email_id': emailId};
