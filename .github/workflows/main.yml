@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     name: Build & Release
-    runs-on: macos-14
+    runs-on: macos-latest
     environment:
       name: ${{ inputs.environment }}
 
@@ -32,7 +32,9 @@ jobs:
         with:
           channel: stable
           flutter-version-file: pubspec.yaml # path to pubspec.yaml
-      - run: flutter --version
+      - run: |
+          flutter --version
+          flutter doctor --verbose
 
       #4 Install Dependencies
       - name: Install Dependencies
@@ -122,7 +124,7 @@ jobs:
           IOS_EXPORT_OPTIONS: ${{ secrets.IOS_EXPORT_OPTIONS }}
         run: |
           cd ios
-          pod install --repo-update
+          pod install
           cd ..
           export REVERSED_CLIENT_ID="`plutil -extract REVERSED_CLIENT_ID raw -expect string ios/GoogleService-Info.plist`"
           sed -i '' "s/REVERSED_CLIENT_ID/$REVERSED_CLIENT_ID/g" ios/Runner/Info.plist
