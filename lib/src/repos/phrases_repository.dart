@@ -69,6 +69,8 @@ final class PhrasesRepository extends ChangeNotifier {
     }
     updated = true;
     final languagePackList = [
+      // LanguagePackSummary(version: 'draft', name: 'Ewe daily phrases', language: NaturalLanguage.fromCodeShort('ee'), languagePackCode: 'ee.ewe-daily-phrases', phrasesCount: 100),
+      // LanguagePackSummary(version: 'draft', name: 'Dagbani daily phrases', language: NaturalLanguage.fromCodeShort('ee'), languagePackCode: 'ee.dagbani-daily-phrases', phrasesCount: 199),
       // LanguagePackSummary(version: 'draft', name: 'English complicated', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.english-complicated', phrasesCount: 100),
       // LanguagePackSummary(version: 'draft', name: 'Kenyan english', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.kenyan-english', phrasesCount: 200),
       // LanguagePackSummary(version: 'draft', name: 'Sample picture phrases', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.sample-picture-phrases', phrasesCount: 10),

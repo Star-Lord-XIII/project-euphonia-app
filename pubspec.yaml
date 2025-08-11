@@ -89,6 +89,7 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
+    - assets/ee/
     - assets/en/
     - assets/en/pictures/
     - assets/it/
