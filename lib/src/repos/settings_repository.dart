@@ -28,6 +28,7 @@ final class SettingsRepository extends ChangeNotifier {
   bool _displaySegmentLevelConfidence = false;
 
   String get transcribeEndpoint => _transcribeEndpoint;
+  bool get isWebsocketEndpoint => _transcribeEndpoint.startsWith('wss://');
   bool get autoAdvance => _autoAdvance;
 
   bool get displayRichCaptions => _displayRichCaptions;
@@ -39,7 +40,7 @@ final class SettingsRepository extends ChangeNotifier {
     _transcribeEndpoint =
         (preferredEndpoint == null || preferredEndpoint.isEmpty)
             ? _defaultEndpoint
-            : '';
+            : preferredEndpoint;
     _autoAdvance = prefs.getBool(_autoAdvanceKey) ?? false;
     _displayRichCaptions = prefs.getBool(_richCaptionKey) ?? false;
     _displaySegmentLevelConfidence =

@@ -15,6 +15,7 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -24,6 +25,7 @@ import 'package:record/record.dart';
 import 'package:video_player/video_player.dart';
 
 import '../repos/settings_repository.dart';
+import '../repos/websocket_transcriber.dart';
 import 'transcribe_mode_view.dart';
 import 'upload_status.dart';
 
@@ -46,20 +48,37 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
   var _isPlaying = false;
   var _canPlay = false;
   var _uploadStatus = UploadStatus.notStarted;
+  Stream<Uint8List>? _stream;
 
   @override
   void initState() {
     super.initState();
+    if (Provider.of<SettingsRepository>(context, listen: false)
+        .isWebsocketEndpoint) {
+      final websocketEndpoint =
+          Provider.of<SettingsRepository>(context, listen: false)
+              .transcribeEndpoint;
+      Provider.of<WebsocketTranscriber>(context, listen: false)
+          .initializeConnection(websocketEndpoint);
+    }
   }
 
-  void _manageRecording() async {
+  @override
+  void dispose() {
+    Provider.of<WebsocketTranscriber>(context, listen: false)
+        .stopSendingDataToChannel();
+    super.dispose();
+  }
+
+  void _manageRecording(
+      SettingsRepository settings, WebsocketTranscriber transcriber) async {
     if (_isRecording) {
-      await _stopRecording();
+      await _stopRecording(settings, transcriber);
       setState(() {
         _isRecording = false;
       });
     } else {
-      await _startRecording();
+      await _startRecording(settings, transcriber);
       setState(() {
         _isRecording = true;
       });
@@ -72,20 +91,35 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
     );
   }
 
-  Future<void> _startRecording() async {
-    var path = await _getRecordingPath();
+  Future<void> _startRecording(
+      SettingsRepository settings, WebsocketTranscriber transcriber) async {
     if (await record.hasPermission()) {
-      await record.start(
-        const RecordConfig(
-          encoder: AudioEncoder.wav,
-          sampleRate: 16000,
-          numChannels: 1,
-          autoGain: true,
-          echoCancel: true,
-          noiseSuppress: true,
-        ),
-        path: path,
-      );
+      if (settings.isWebsocketEndpoint) {
+        transcriber.startSendingDataToChannel();
+        _stream = await record.startStream(const RecordConfig(
+            encoder: AudioEncoder.pcm16bits,
+            sampleRate: 16000,
+            numChannels: 1,
+            autoGain: true,
+            echoCancel: true,
+            noiseSuppress: true));
+        _stream?.listen((data) {
+          transcriber.sendDataToChannel(data);
+        });
+      } else {
+        var path = await _getRecordingPath();
+        await record.start(
+          const RecordConfig(
+            encoder: AudioEncoder.wav,
+            sampleRate: 16000,
+            numChannels: 1,
+            autoGain: true,
+            echoCancel: true,
+            noiseSuppress: true,
+          ),
+          path: path,
+        );
+      }
     }
   }
 
@@ -168,36 +202,46 @@ class _TranscribeModeControllerState extends State<TranscribeModeController> {
     return _canPlay;
   }
 
-  Future<void> _stopRecording() async {
+  Future<void> _stopRecording(
+      SettingsRepository settings, WebsocketTranscriber transcriber) async {
     var _ = await record.stop();
-    Future.wait([_checkIfRecordingFileIsAvailable(), _getRecordingPath()]).then(
-      (results) {
-        final bool fileExists = results[0] as bool;
-        final String filePath = results[1] as String;
-        if (fileExists) {
-          _preparePlayerForFile(audioFile: File(filePath));
-          _transcribe(audioFile: File(filePath));
-        }
-      },
-    );
+    if (settings.isWebsocketEndpoint) {
+      transcriber.stopSendingDataToChannel();
+    } else {
+      Future.wait([_checkIfRecordingFileIsAvailable(), _getRecordingPath()])
+          .then(
+        (results) {
+          final bool fileExists = results[0] as bool;
+          final String filePath = results[1] as String;
+          if (fileExists) {
+            _preparePlayerForFile(audioFile: File(filePath));
+            _transcribe(audioFile: File(filePath));
+          }
+        },
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SettingsRepository>(
-        builder: (context, settings, _) => TranscribeModeView(
-              phrase: _phrase,
-              words: settings.displayRichCaptions ? _words : [],
-              segments: settings.displaySegmentLevelConfidence ? _segments : [],
-              confidences:
-                  settings.displaySegmentLevelConfidence ? _confidences : [],
-              transcriptUrl: settings.transcribeEndpoint,
-              record: _isPlaying ? null : _manageRecording,
-              isRecording: _isRecording,
-              play: _canPlay && !_isRecording ? _playRecording : null,
-              isPlaying: _isPlaying,
-              isRecorded: _canPlay,
-              uploadStatus: _uploadStatus,
-            ));
+    return Consumer2<SettingsRepository, WebsocketTranscriber>(
+        builder: (context, settings, transcriber, _) {
+      return TranscribeModeView(
+        phrase: _phrase,
+        words: settings.displayRichCaptions ? _words : [],
+        segments: settings.displaySegmentLevelConfidence ? _segments : [],
+        confidences: settings.displaySegmentLevelConfidence ? _confidences : [],
+        transcriptUrl: settings.transcribeEndpoint,
+        record:
+            _isPlaying ? null : () => _manageRecording(settings, transcriber),
+        isRecording: _isRecording,
+        play: _canPlay && !_isRecording ? _playRecording : null,
+        isPlaying: _isPlaying,
+        isRecorded: _canPlay,
+        uploadStatus: _uploadStatus,
+        websocketText: transcriber.text,
+        isWebsocketEndpoint: settings.isWebsocketEndpoint,
+      );
+    });
   }
 }

@@ -31,6 +31,8 @@ class TranscribeModeView extends StatelessWidget {
   final bool isPlaying;
   final bool isRecorded;
   final UploadStatus uploadStatus;
+  final bool isWebsocketEndpoint;
+  final String websocketText;
 
   const TranscribeModeView({
     super.key,
@@ -45,6 +47,8 @@ class TranscribeModeView extends StatelessWidget {
     required this.isPlaying,
     required this.isRecorded,
     required this.uploadStatus,
+    required this.isWebsocketEndpoint,
+    required this.websocketText,
   });
 
   bool get _showUploadProgress {
@@ -122,7 +126,7 @@ class TranscribeModeView extends StatelessWidget {
                         : AppLocalizations.of(context)!
                             .transcriptionEndpointDisplay(transcriptUrl)),
                     Visibility(
-                      visible: _showUploadProgress,
+                      visible: isWebsocketEndpoint && _showUploadProgress,
                       child:
                           const CircularProgressIndicator(color: Colors.blue),
                     ),
@@ -130,19 +134,23 @@ class TranscribeModeView extends StatelessWidget {
                       flex: 1,
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical, //.horizontal
-                        child: words.isNotEmpty
-                            ? RichText(
-                                text:
-                                    TextSpan(children: _getRichTextFromWords()))
-                            : displaySegmentConfidence
+                        child: isWebsocketEndpoint
+                            ? Text(websocketText,
+                                style: const TextStyle(fontSize: 24))
+                            : (words.isNotEmpty
                                 ? RichText(
                                     text: TextSpan(
-                                        children: _getRichTextFromSegments()))
-                                : Text(
-                                    phrase,
-                                    style: const TextStyle(fontSize: 24),
-                                    textAlign: TextAlign.left,
-                                  ),
+                                        children: _getRichTextFromWords()))
+                                : displaySegmentConfidence
+                                    ? RichText(
+                                        text: TextSpan(
+                                            children:
+                                                _getRichTextFromSegments()))
+                                    : Text(
+                                        phrase,
+                                        style: const TextStyle(fontSize: 24),
+                                        textAlign: TextAlign.left,
+                                      )),
                       ),
                     ),
                   ],
