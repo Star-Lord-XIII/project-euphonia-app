@@ -25,6 +25,7 @@ import 'src/repos/audio_recorder.dart';
 import 'src/repos/phrases_repository.dart';
 import 'src/repos/settings_repository.dart';
 import 'src/repos/uploader.dart';
+import 'src/repos/websocket_transcriber.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,5 +56,6 @@ void main() async {
             audioPlayer!..loadPhrase(phraseRepoChangeNotifier.currentPhrase)),
     ChangeNotifierProvider(create: (context) => Uploader()),
     ChangeNotifierProvider(create: (context) => SettingsRepository()),
+    ChangeNotifierProvider(create: (context) => WebsocketTranscriber())
   ], child: const ProjectEuphonia()));
 }
