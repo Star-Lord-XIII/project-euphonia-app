@@ -69,6 +69,9 @@ final class PhrasesRepository extends ChangeNotifier {
     }
     updated = true;
     final languagePackList = [
+      // LanguagePackSummary(version: 'draft', name: 'Ugandan english', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-english', phrasesCount: 200),
+      // LanguagePackSummary(version: 'draft', name: 'Luganda text prompts', language: NaturalLanguage.fromCodeShort('lg'), languagePackCode: 'lg.luganda-text-prompts', phrasesCount: 210),
+      // LanguagePackSummary(version: 'draft', name: 'Ugandan luo text phrases', language: NaturalLanguage.fromCodeShort('lg'), languagePackCode: 'lg.ugandan-luo-text-prompts', phrasesCount: 200),
       // LanguagePackSummary(version: 'draft', name: 'Ewe daily phrases', language: NaturalLanguage.fromCodeShort('ee'), languagePackCode: 'ee.ewe-daily-phrases', phrasesCount: 100),
       // LanguagePackSummary(version: 'draft', name: 'Dagbani daily phrases', language: NaturalLanguage.fromCodeShort('ee'), languagePackCode: 'ee.dagbani-daily-phrases', phrasesCount: 199),
       // LanguagePackSummary(version: 'draft', name: 'English complicated', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.english-complicated', phrasesCount: 100),
