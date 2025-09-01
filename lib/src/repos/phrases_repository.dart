@@ -69,7 +69,9 @@ final class PhrasesRepository extends ChangeNotifier {
     }
     updated = true;
     final languagePackList = [
-       // LanguagePackSummary(version: 'draft', name: 'Ugandan images', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-images', phrasesCount: 51),
+      // LanguagePackSummary(version: 'draft', name: 'Ugandan english long', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-english-long', phrasesCount: 100),
+      // LanguagePackSummary(version: 'draft', name: 'Luganda text prompts long', language: NaturalLanguage.fromCodeShort('lg'), languagePackCode: 'lg.luganda-text-prompts-long', phrasesCount: 120),
+      // LanguagePackSummary(version: 'draft', name: 'Ugandan images', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-images', phrasesCount: 66),
       // LanguagePackSummary(version: 'draft', name: 'Ugandan english', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-english', phrasesCount: 200),
       // LanguagePackSummary(version: 'draft', name: 'Luganda text prompts', language: NaturalLanguage.fromCodeShort('lg'), languagePackCode: 'lg.luganda-text-prompts', phrasesCount: 210),
       // LanguagePackSummary(version: 'draft', name: 'Ugandan luo text phrases', language: NaturalLanguage.fromCodeShort('lg'), languagePackCode: 'lg.ugandan-luo-text-prompts', phrasesCount: 200),
