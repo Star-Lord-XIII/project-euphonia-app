@@ -19,7 +19,7 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
   String _warningMessage = '';
   var isUpdating = false;
 
-  void _showAddLanguagePackDialog(
+  void _showAddNewPhraseDialog(
       {required List<FirestorePhrase> currentPhrases}) {
     showDialog<void>(
       context: context,
@@ -171,7 +171,7 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
               ]),
               floatingActionButton: FloatingActionButton(
                   child: Icon(Icons.add),
-                  onPressed: () => _showAddLanguagePackDialog(
+                  onPressed: () => _showAddNewPhraseDialog(
                       currentPhrases: data.data()?.phrases ?? [])));
         });
   }

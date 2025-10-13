@@ -109,6 +109,37 @@ final class PhrasesRepository extends ChangeNotifier {
     }
   }
 
+  Future<void> appendFromFile() async {
+    if (updated) {
+      return;
+    }
+    updated = true;
+    var additionalPhrases = 'assets/export/tw.twi-images.v2.txt';
+    var existingLanguagePack = 'tw.twi-images';
+    rootBundle.loadString(additionalPhrases).then((content) {
+      FirebaseFirestore.instance
+          .collection('language_packs')
+          .doc(existingLanguagePack)
+          .get()
+          .then((value) {
+        var data = value.data() as Map<String, dynamic>;
+        final textPhrases = LineSplitter.split(content).toList();
+        List<dynamic> phraseListJson = data['phrases'];
+        List<FirestorePhrase> phraseList = phraseListJson
+            .map((x) => FirestorePhrase(
+                id: x['id'], text: x['text'], active: x['active']))
+            .toList();
+        for (var i = 0; i < textPhrases.length; ++i) {
+          final curPhrase = FirestorePhrase(
+              id: Uuid().v4(), text: textPhrases[i].trim(), active: true);
+          phraseList.add(curPhrase);
+        }
+        value.reference
+            .update({'phrases': phraseList.map((p) => p.toJson()).toList()});
+      });
+    });
+  }
+
   Future<void> initFromCloudStorage() async {
     var prefs = await SharedPreferences.getInstance();
     var lastSelectedLanguagePackValue =
