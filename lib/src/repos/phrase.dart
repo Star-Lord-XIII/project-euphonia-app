@@ -14,7 +14,6 @@
 
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
@@ -31,17 +30,8 @@ final class Phrase {
     return text.startsWith("/");
   }
 
-  Future<String> get imageUrl async {
-    if (type == PhraseType.image) {
-      final cachedFile = await  CachedNetworkImageProvider.defaultCacheManager.getFileFromCache(uid);
-      if (cachedFile != null && File(cachedFile.file.uri.path).existsSync()) {
-        return cachedFile.file.uri.path;
-      }
-      final storageRef = FirebaseStorage.instance.ref();
-      final imageRef = storageRef.child('phrases/$languagePackCode$text');
-      return imageRef.getDownloadURL();
-    }
-    return '';
+  String get firebaseRef {
+    return 'phrases/$languagePackCode$text';
   }
 
   PhraseType get type {

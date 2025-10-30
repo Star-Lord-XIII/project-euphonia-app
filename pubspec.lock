@@ -225,6 +225,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.15.3"
+  firebase_cached_image:
+    dependency: "direct main"
+    description:
+      name: firebase_cached_image
+      sha256: "81fcedb9c33a20d0cb8c0dd599c9b7cdb6e7fef45697517760fae1596191a1fe"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.0"
   firebase_core:
     dependency: "direct main"
     description:
@@ -327,7 +335,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_cache_manager:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_cache_manager
       sha256: "400b6592f16a4409a7f2bb929a9a7e38c72cceb8ffb99ee57bbf2cb2cecf8386"
