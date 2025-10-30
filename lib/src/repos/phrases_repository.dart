@@ -69,6 +69,12 @@ final class PhrasesRepository extends ChangeNotifier {
     }
     updated = true;
     final languagePackList = [
+      // LanguagePackSummary(version: 'draft', name: 'Ugandan english long', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-english-long', phrasesCount: 100),
+      // LanguagePackSummary(version: 'draft', name: 'Luganda text prompts long', language: NaturalLanguage.fromCodeShort('lg'), languagePackCode: 'lg.luganda-text-prompts-long', phrasesCount: 120),
+      // LanguagePackSummary(version: 'draft', name: 'Ugandan images', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-images', phrasesCount: 66),
+      // LanguagePackSummary(version: 'draft', name: 'Ugandan english', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-english', phrasesCount: 200),
+      // LanguagePackSummary(version: 'draft', name: 'Luganda text prompts', language: NaturalLanguage.fromCodeShort('lg'), languagePackCode: 'lg.luganda-text-prompts', phrasesCount: 210),
+      // LanguagePackSummary(version: 'draft', name: 'Ugandan luo text phrases', language: NaturalLanguage.fromCodeShort('lg'), languagePackCode: 'lg.ugandan-luo-text-prompts', phrasesCount: 200),
       // LanguagePackSummary(version: 'draft', name: 'Ewe daily phrases', language: NaturalLanguage.fromCodeShort('ee'), languagePackCode: 'ee.ewe-daily-phrases', phrasesCount: 100),
       // LanguagePackSummary(version: 'draft', name: 'Dagbani daily phrases', language: NaturalLanguage.fromCodeShort('ee'), languagePackCode: 'ee.dagbani-daily-phrases', phrasesCount: 199),
       // LanguagePackSummary(version: 'draft', name: 'English complicated', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.english-complicated', phrasesCount: 100),
@@ -101,6 +107,37 @@ final class PhrasesRepository extends ChangeNotifier {
             .set(assembledPack.toJson());
       });
     }
+  }
+
+  Future<void> appendFromFile() async {
+    if (updated) {
+      return;
+    }
+    updated = true;
+    var additionalPhrases = 'assets/export/tw.twi-images.v2.txt';
+    var existingLanguagePack = 'tw.twi-images';
+    rootBundle.loadString(additionalPhrases).then((content) {
+      FirebaseFirestore.instance
+          .collection('language_packs')
+          .doc(existingLanguagePack)
+          .get()
+          .then((value) {
+        var data = value.data() as Map<String, dynamic>;
+        final textPhrases = LineSplitter.split(content).toList();
+        List<dynamic> phraseListJson = data['phrases'];
+        List<FirestorePhrase> phraseList = phraseListJson
+            .map((x) => FirestorePhrase(
+                id: x['id'], text: x['text'], active: x['active']))
+            .toList();
+        for (var i = 0; i < textPhrases.length; ++i) {
+          final curPhrase = FirestorePhrase(
+              id: Uuid().v4(), text: textPhrases[i].trim(), active: true);
+          phraseList.add(curPhrase);
+        }
+        value.reference
+            .update({'phrases': phraseList.map((p) => p.toJson()).toList()});
+      });
+    });
   }
 
   Future<void> initFromCloudStorage() async {

@@ -30,13 +30,8 @@ final class Phrase {
     return text.startsWith("/");
   }
 
-  Future<String> get imageUrl async {
-    if (type == PhraseType.image) {
-      final storageRef = FirebaseStorage.instance.ref();
-      final imageRef = storageRef.child('phrases/$languagePackCode$text');
-      return imageRef.getDownloadURL();
-    }
-    return '';
+  String get firebaseRef {
+    return 'phrases/$languagePackCode$text';
   }
 
   PhraseType get type {
