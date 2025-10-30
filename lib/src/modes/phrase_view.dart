@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../repos/phrase.dart';
+import 'image_phrase_view.dart';
 
 final class PhraseView extends StatelessWidget {
   final int _index;
@@ -75,21 +75,7 @@ final class PhraseView extends StatelessWidget {
                       ],
                     ),
                     _phrase.type == PhraseType.image
-                        ? Expanded(
-                            child: Center(
-                                child: FutureBuilder(
-                                    future: _phrase.imageUrl,
-                                    builder: (context, snapshot) {
-                                      if (!snapshot.hasData) {
-                                        return CircularProgressIndicator();
-                                      }
-                                      return CachedNetworkImage(
-                                          imageUrl: snapshot.requireData,
-                                          placeholder: (context, url) =>
-                                              const CircularProgressIndicator(),
-                                          errorWidget: (context, url, error) =>
-                                              const Icon(Icons.error));
-                                    })))
+                        ? ImagePhraseView(phrase: _phrase)
                         : Expanded(
                             child: Center(
                               child: Text(
