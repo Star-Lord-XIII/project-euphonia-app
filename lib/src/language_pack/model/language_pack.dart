@@ -1,16 +1,22 @@
-import 'dart:convert';
-import 'dart:developer' as developer;
-import 'dart:typed_data';
-
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 
 import 'firestore_phrase.dart';
 
+///
+/// LanguagePack document in Firestore.
+///
 final class LanguagePack {
+  // Version of the language pack.
+  // Goes "draft", "v1", "v2", ...
   String version;
+
+  // Human readable name of the language pack
   final String name;
+
+  // Intermediate instance of language to list languages to/from language codes.
   final NaturalLanguage language;
+
+  // List of phrases
   final List<FirestorePhrase> phrases;
 
   LanguagePack(
@@ -38,6 +44,8 @@ final class LanguagePack {
     };
   }
 
+  // Just list active phrases phrases. To be used in saving a language-pack
+  // as json file in storage.
   Map<String, Object?> toActivePhrasesJson() {
     return {
       'version': version,
@@ -50,6 +58,8 @@ final class LanguagePack {
     };
   }
 
+  // Summarize a language pack to be added to a list of language-packs. To be
+  // displayed during language-pack selection.
   Map<String, Object?> toSummaryJson() {
     return {
       'version': version,
@@ -71,35 +81,5 @@ final class LanguagePack {
 
   String get languagePackCode {
     return "${language.codeShort.toLowerCase()}.${name.trim().toLowerCase().split(' ').join('-')}";
-  }
-
-  Future<void> publishToCloudStorage() async {
-    final storageRef = FirebaseStorage.instance.ref();
-    final jsonRef =
-        storageRef.child('phrases/${languagePackCode}.${version}.json');
-    final languagePackList = storageRef.child('phrases/language_packs.json');
-    try {
-      Uint8List? listData = await languagePackList.getData();
-      if (listData != null) {
-        String languagePackListContents = Utf8Decoder().convert(listData);
-        List<dynamic> languagePackMapList =
-            jsonDecode(languagePackListContents);
-        if (version == "v1") {
-          languagePackMapList.add(toSummaryJson());
-          languagePackList.putString(jsonEncode(languagePackMapList));
-        } else {
-          for (final Map<String, dynamic> languagePack in languagePackMapList) {
-            if (languagePack['language_pack_code'] == languagePackCode) {
-              languagePack['version'] = version;
-            }
-          }
-          languagePackList.putString(jsonEncode(languagePackMapList));
-        }
-      }
-    } on FirebaseException catch (e) {
-      developer.log('ERROR: ${e.message}');
-      languagePackList.putString(jsonEncode([toSummaryJson()]));
-    }
-    jsonRef.putString(jsonEncode(toActivePhrasesJson()));
   }
 }

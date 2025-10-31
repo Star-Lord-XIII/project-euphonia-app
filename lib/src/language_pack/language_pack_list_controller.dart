@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 
-import 'language_pack.dart';
-import 'language_pack_list_tile.dart';
+import 'model/language_pack.dart';
 
 class LanguagePackListController extends StatefulWidget {
   const LanguagePackListController({super.key});
@@ -185,13 +184,12 @@ class _LanguagePackListControllerState
                     pinned: true,
                     flexibleSpace: AppBar(
                         centerTitle: false, title: Text('Language Packs'))),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                      (context, index) => LanguagePackListTile(
-                          packReference: data.docs[index].reference,
-                          pack: data.docs[index].data()),
-                      childCount: data.size),
-                ),
+                // SliverList(
+                //   delegate: SliverChildBuilderDelegate(
+                //       (context, index) => LanguagePackListTile(
+                //           pack: data.docs[index].data()),
+                //       childCount: data.size),
+                // ),
                 SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),
                 SliverToBoxAdapter(child: SizedBox(height: 100))
               ]);

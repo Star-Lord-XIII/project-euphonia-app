@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'firestore_phrase.dart';
+import '../model/firestore_phrase.dart';
 
 class PhrasesListTile extends StatelessWidget {
   final FirestorePhrase phrase;

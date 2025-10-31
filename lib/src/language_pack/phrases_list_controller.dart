@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:project_euphonia/src/language_pack/repository/language_pack_repo.dart';
 import 'package:uuid/uuid.dart';
 
-import 'firestore_phrase.dart';
-import 'language_pack.dart';
-import 'phrases_list_tile.dart';
+import 'model/firestore_phrase.dart';
+import 'model/language_pack.dart';
+import 'view/phrases_list_tile.dart';
 
 class PhrasesListController extends StatefulWidget {
   final DocumentReference<LanguagePack> reference;
@@ -88,11 +89,13 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
   }
 
   Future<void> publishLanguagePack(LanguagePack languagePack) async {
+    // TODO: This needs to be connected to repo
     languagePack.updateVersion();
     setState(() {
       isUpdating = true;
     });
-    languagePack.publishToCloudStorage();
+    // TODO: This needs to be connected to repo
+    // languagePack.publishToCloudStorage();
     await widget.reference.update(languagePack.toJson());
     setState(() {
       isUpdating = false;

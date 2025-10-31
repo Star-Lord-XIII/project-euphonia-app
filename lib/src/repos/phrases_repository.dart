@@ -22,13 +22,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sealed_languages/sealed_languages.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-import '../language_pack/firestore_phrase.dart';
-import '../language_pack/language_pack.dart';
-import 'language_pack_summary.dart';
+import '../language_pack/model/firestore_phrase.dart';
+import '../language_pack/model/language_pack.dart';
+import '../language_pack/model/language_pack_summary.dart';
 import 'phrase.dart';
 
 final class PhrasesRepository extends ChangeNotifier {

@@ -1,6 +1,17 @@
+///
+/// Item in Firebase Firestore language_pack_document's phrases list.
+///
 final class FirestorePhrase {
+  // A UUID that helps identify the phrase uniquely
   final String id;
+
+  // If its a
+  // text phrase - just plain text
+  // image phrase - path starting with a `/`
   final String text;
+
+  // Phrases once created shouldn't be deleted, they should be deactivated.
+  // As there can be a recording linked to the deactivated phrase.
   bool active;
 
   FirestorePhrase({required this.id, required this.text, required this.active});

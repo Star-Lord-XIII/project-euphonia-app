@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../generated/l10n/app_localizations.dart';
-import '../repos/language_pack_summary.dart';
+import '../language_pack/model/language_pack_summary.dart';
 import '../repos/phrases_repository.dart';
 import '../repos/settings_repository.dart';
 

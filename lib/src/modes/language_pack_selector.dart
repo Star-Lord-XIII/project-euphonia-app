@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../repos/language_pack_summary.dart';
+import '../language_pack/model/language_pack_summary.dart';
 import '../repos/phrases_repository.dart';
 
 class LanguagePackSelector extends StatefulWidget {
