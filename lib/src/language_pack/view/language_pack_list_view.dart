@@ -1,41 +1,61 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 
-import 'language_pack.dart';
-import 'language_pack_list_tile.dart';
+import '../../common/result.dart';
+import '../language_pack_list_tile.dart';
+import '../model/language_pack.dart';
+import '../model/language_pack_catalog_model.dart';
+import '../model/language_pack_summary.dart';
+import '../repository/language_pack_repo.dart';
 
-class LanguagePackListController extends StatefulWidget {
-  const LanguagePackListController({super.key});
+class LanguagePackListView extends StatefulWidget {
+  const LanguagePackListView({super.key});
 
   @override
-  State<LanguagePackListController> createState() =>
-      _LanguagePackListControllerState();
+  State<LanguagePackListView> createState() => _LanguagePackListViewState();
 }
 
-class _LanguagePackListControllerState
-    extends State<LanguagePackListController> {
+class _LanguagePackListViewState extends State<LanguagePackListView> {
+  late LanguagePackRepository _languagePackRepository;
   NaturalLanguage? _selectedLanguage;
   final TextEditingController _languageFilterController =
       TextEditingController();
   final TextEditingController _nameFieldController = TextEditingController();
   final TextEditingController _codeFieldController = TextEditingController();
-  CollectionReference<LanguagePack>? languagePackRef;
   String _warningMessage = '';
   String _languagePackCode = '';
 
   @override
   void initState() {
+    _languagePackRepository = context.read();
+    LanguagePackCatalogModel model = context.read();
+    _languagePackRepository
+        .getLanguagePackSummaryList()
+        .then((Result<List> languagePackListResult) {
+      List<dynamic> fetchedResults = [];
+      switch (languagePackListResult) {
+        case Ok<List>():
+          fetchedResults = languagePackListResult.value;
+          break;
+        case Error<void>():
+          break;
+      }
+      List<LanguagePackSummary> mappedList = fetchedResults
+          .map((x) => LanguagePackSummary(
+              version: x.version,
+              name: x.name,
+              language: x.language,
+              languagePackCode: x.languagePackCode,
+              phrasesCount: x.phrasesCount))
+          .toList();
+      model.updateLanguagePackSummaryList(
+          List<LanguagePackSummary>.from(mappedList));
+    });
     super.initState();
-    languagePackRef = FirebaseFirestore.instance
-        .collection('language_packs')
-        .withConverter<LanguagePack>(
-          fromFirestore: (snapshots, _) =>
-              LanguagePack.fromJson(snapshots.data()!),
-          toFirestore: (languagePack, _) => languagePack.toJson(),
-        );
   }
 
+  // TODO : Refactor this.
   void _showAddLanguagePackDialog() {
     showDialog<void>(
       context: context,
@@ -141,17 +161,24 @@ class _LanguagePackListControllerState
                         setState(() {
                           if (_selectedLanguage != null &&
                               _languagePackCode.isNotEmpty) {
-                            FirebaseFirestore.instance
-                                .collection('language_packs')
-                                .doc(_languagePackCode)
-                                .set(LanguagePack(
-                                    version: 'draft',
-                                    name: _nameFieldController.text,
-                                    language: _selectedLanguage!,
-                                    phrases: []).toJson());
+                            final newLanguagePack = LanguagePack(
+                                version: 'draft',
+                                name: _nameFieldController.text,
+                                language: _selectedLanguage!,
+                                phrases: []);
+                            _languagePackRepository.addLanguagePack(
+                                languagePack: newLanguagePack);
                             _selectedLanguage = null;
                             _nameFieldController.text = "";
                             Navigator.of(context).pop();
+                            LanguagePackCatalogModel model = context.read();
+                            var updatedLanguagePackSummaryList =
+                                model.languagePackSummaryList;
+                            updatedLanguagePackSummaryList.add(
+                                LanguagePackSummary.fromJson(
+                                    newLanguagePack.toSummaryJson()));
+                            model.updateLanguagePackSummaryList(
+                                updatedLanguagePackSummaryList);
                           }
                         });
                       },
@@ -164,40 +191,27 @@ class _LanguagePackListControllerState
 
   @override
   Widget build(BuildContext context) {
+    final languagePackCatalog =
+        Provider.of<LanguagePackCatalogModel>(context, listen: true);
     return Scaffold(
-        body: StreamBuilder<QuerySnapshot<LanguagePack>>(
-            stream: languagePackRef?.snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text(snapshot.error.toString()),
-                );
-              }
-
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              final data = snapshot.requireData;
-
-              return CustomScrollView(slivers: [
-                SliverAppBar(
-                    pinned: true,
-                    flexibleSpace: AppBar(
-                        centerTitle: false, title: Text('Language Packs'))),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                      (context, index) => LanguagePackListTile(
-                          packReference: data.docs[index].reference,
-                          pack: data.docs[index].data()),
-                      childCount: data.size),
-                ),
-                SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),
-                SliverToBoxAdapter(child: SizedBox(height: 100))
-              ]);
-            }),
+        body: CustomScrollView(slivers: [
+          SliverAppBar(
+              pinned: true,
+              flexibleSpace:
+                  AppBar(centerTitle: false, title: Text('Language Packs'))),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+                (context, index) => LanguagePackListTile(
+                    pack: languagePackCatalog.languagePackSummaryList[index]),
+                childCount: languagePackCatalog.languagePackSummaryList.length),
+          ),
+          SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),
+          SliverToBoxAdapter(child: SizedBox(height: 100))
+        ]),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
-            onPressed: () => _showAddLanguagePackDialog()));
+            onPressed: () {
+              _showAddLanguagePackDialog();
+            }));
   }
 }

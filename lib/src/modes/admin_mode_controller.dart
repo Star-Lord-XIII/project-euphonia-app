@@ -1,6 +1,8 @@
+import 'dart:core';
+
 import 'package:flutter/material.dart';
 
-import '../language_pack/language_pack_list_controller.dart';
+import '../language_pack/view/language_pack_list_view.dart';
 
 class AdminModeController extends StatefulWidget {
   const AdminModeController({super.key});
@@ -23,7 +25,7 @@ class _AdminModeControllerState extends State<AdminModeController> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const LanguagePackListController(),
+                builder: (context) => const LanguagePackListView(),
               ),
             );
           })

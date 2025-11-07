@@ -13,12 +13,19 @@
 // limitations under the License.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
+import 'src/language_pack/model/language_pack_catalog_model.dart';
+import 'src/language_pack/repository/language_pack_repo.dart';
+import 'src/language_pack/service/database_service.dart';
+import 'src/language_pack/service/file_storage_service.dart';
+import 'src/language_pack/service/firebase_firestore_service.dart';
+import 'src/language_pack/service/firebase_storage_service.dart';
 import 'src/project_euphonia.dart';
 import 'src/repos/audio_player.dart';
 import 'src/repos/audio_recorder.dart';
@@ -55,6 +62,11 @@ void main() async {
             audioPlayer!..loadPhrase(phraseRepoChangeNotifier.currentPhrase)),
     ChangeNotifierProvider(create: (context) => Uploader()),
     ChangeNotifierProvider(create: (context) => SettingsRepository()),
-    ChangeNotifierProvider(create: (context) => WebsocketTranscriber())
+    ChangeNotifierProvider(create: (context) => WebsocketTranscriber()),
+    Provider(create: (context) => FirebaseStorageService(firebaseStorageRef: FirebaseStorage.instance.ref()) as FileStorageService),
+    Provider(create: (context) => FirebaseFirestoreService(firestoreInstance: FirebaseFirestore.instance) as DatabaseService),
+    Provider(create: (context) => LanguagePackRepository(fileStorageService: context.read(),
+                                                          databaseService: context.read())),
+    ChangeNotifierProvider(create: (context) => LanguagePackCatalogModel())
   ], child: const ProjectEuphonia()));
 }

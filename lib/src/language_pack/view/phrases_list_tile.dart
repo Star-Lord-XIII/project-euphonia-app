@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'firestore_phrase.dart';
+import '../model/phrase.dart';
 
 class PhrasesListTile extends StatelessWidget {
-  final FirestorePhrase phrase;
+  final Phrase phrase;
   final void Function(bool)? onChanged;
 
   const PhrasesListTile(
