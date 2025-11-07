@@ -25,7 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-import '../language_pack/model/firestore_phrase.dart';
+import '../language_pack/model/phrase.dart' as lp;
 import '../language_pack/model/language_pack.dart';
 import '../language_pack/model/language_pack_summary.dart';
 import 'phrase.dart';
@@ -89,9 +89,9 @@ final class PhrasesRepository extends ChangeNotifier {
           .loadString('assets/export/${pack.languagePackCode}.txt')
           .then((content) {
         final textPhrases = LineSplitter.split(content).toList();
-        List<FirestorePhrase> phraseList = [];
+        List<lp.Phrase> phraseList = [];
         for (var i = 0; i < textPhrases.length; ++i) {
-          final curPhrase = FirestorePhrase(
+          final curPhrase = lp.Phrase(
               id: Uuid().v4(), text: textPhrases[i].trim(), active: true);
           phraseList.add(curPhrase);
         }
@@ -124,12 +124,12 @@ final class PhrasesRepository extends ChangeNotifier {
         var data = value.data() as Map<String, dynamic>;
         final textPhrases = LineSplitter.split(content).toList();
         List<dynamic> phraseListJson = data['phrases'];
-        List<FirestorePhrase> phraseList = phraseListJson
-            .map((x) => FirestorePhrase(
+        List<lp.Phrase> phraseList = phraseListJson
+            .map((x) => lp.Phrase(
                 id: x['id'], text: x['text'], active: x['active']))
             .toList();
         for (var i = 0; i < textPhrases.length; ++i) {
-          final curPhrase = FirestorePhrase(
+          final curPhrase = lp.Phrase(
               id: Uuid().v4(), text: textPhrases[i].trim(), active: true);
           phraseList.add(curPhrase);
         }

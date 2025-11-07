@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:project_euphonia/src/language_pack/model/language_pack_summary.dart';
 
-import 'model/language_pack.dart';
+import 'model/language_pack_summary.dart';
 import 'phrases_list_controller.dart';
 
 class LanguagePackListTile extends StatelessWidget {
@@ -26,12 +24,11 @@ class LanguagePackListTile extends StatelessWidget {
                 child: Icon(Icons.chevron_right))
           ]),
       onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //       builder: (context) =>
-        //           PhrasesListController(reference: packReference)),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  PhrasesListController(documentPath: pack.languagePackCode)));
       },
     );
   }

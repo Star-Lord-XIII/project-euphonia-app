@@ -1,15 +1,17 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:project_euphonia/src/language_pack/repository/language_pack_repo.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
-import 'model/firestore_phrase.dart';
+import '../common/result.dart';
+import 'model/phrase.dart';
 import 'model/language_pack.dart';
+import 'repository/language_pack_repo.dart';
+import 'service/database_service.dart';
 import 'view/phrases_list_tile.dart';
 
 class PhrasesListController extends StatefulWidget {
-  final DocumentReference<LanguagePack> reference;
-  const PhrasesListController({super.key, required this.reference});
+  final String documentPath;
+  const PhrasesListController({super.key, required this.documentPath});
 
   @override
   State<PhrasesListController> createState() => _PhrasesListControllerState();
@@ -17,11 +19,34 @@ class PhrasesListController extends StatefulWidget {
 
 class _PhrasesListControllerState extends State<PhrasesListController> {
   final TextEditingController _phraseFieldController = TextEditingController();
+  late DatabaseService databaseService;
+  LanguagePack? languagePack;
   String _warningMessage = '';
   var isUpdating = false;
 
+  @override
+  void initState() {
+    databaseService = context.read();
+    databaseService
+        .getRow(table: 'language_packs', id: widget.documentPath)
+        .then((lpMap) {
+      setState(() {
+        switch (lpMap) {
+          case Ok<Map<String, dynamic>>():
+            languagePack = LanguagePack.fromJson(lpMap.value);
+            break;
+          case Error<void>():
+            _warningMessage =
+                'Something went wrong while reading languagePack with id: $languagePack';
+            break;
+        }
+      });
+    });
+    super.initState();
+  }
+
   void _showAddNewPhraseDialog(
-      {required List<FirestorePhrase> currentPhrases}) {
+      {required List<Phrase> currentPhrases}) {
     showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -65,20 +90,24 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
                           });
                         }
                         if (_phraseFieldController.text.isNotEmpty) {
+                          var phrasesList = currentPhrases;
+                          final newPhrase = Phrase(
+                              id: Uuid().v4(),
+                              text: _phraseFieldController.text,
+                              active: true);
+                          phrasesList.add(newPhrase);
                           setState(() {
-                            var phrasesList = currentPhrases;
-                            final newPhrase = FirestorePhrase(
-                                id: Uuid().v4(),
-                                text: _phraseFieldController.text,
-                                active: true);
-                            phrasesList.add(newPhrase);
-                            widget.reference.update(<String, dynamic>{
-                              'phrases':
-                                  phrasesList.map((p) => p.toJson()).toList()
-                            });
-                            _phraseFieldController.text = '';
-                            Navigator.of(context).pop();
+                            languagePack!.phrases = phrasesList;
                           });
+                          databaseService.update(
+                              table: 'language_packs',
+                              id: widget.documentPath,
+                              updatedValues: <String, dynamic>{
+                                'phrases':
+                                    phrasesList.map((p) => p.toJson()).toList()
+                              });
+                          _phraseFieldController.text = '';
+                          Navigator.of(context).pop();
                         }
                       },
                     ),
@@ -89,93 +118,91 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
   }
 
   Future<void> publishLanguagePack(LanguagePack languagePack) async {
-    // TODO: This needs to be connected to repo
-    languagePack.updateVersion();
     setState(() {
       isUpdating = true;
     });
-    // TODO: This needs to be connected to repo
-    // languagePack.publishToCloudStorage();
-    await widget.reference.update(languagePack.toJson());
+    final LanguagePackRepository lpRepo = context.read();
+    languagePack.updateVersion();
+    await lpRepo.updateLanguagePack(languagePack);
+    await databaseService.update(
+        table: 'language_packs',
+        id: widget.documentPath,
+        updatedValues: {"version": languagePack.version});
     setState(() {
       isUpdating = false;
+      languagePack = languagePack;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot<LanguagePack>>(
-        stream: widget.reference.snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(snapshot.error.toString()),
-            );
-          }
-
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final data = snapshot.requireData;
-
-          return Scaffold(
-              body: CustomScrollView(slivers: [
-                SliverAppBar(
-                    pinned: true,
-                    flexibleSpace: AppBar(
-                      centerTitle: false,
-                      title: Text(
-                          "${data.data()?.name ?? "NA"} (${data.data()?.language.name})"),
-                      actions: isUpdating
-                          ? [
-                              CircularProgressIndicator(
-                                padding: EdgeInsets.symmetric(horizontal: 32),
-                              )
-                            ]
-                          : [
-                              Text(data.data()!.version),
-                              PopupMenuButton(
-                                icon: Icon(Icons.more_vert),
-                                itemBuilder: (BuildContext context) =>
-                                    <PopupMenuEntry>[
-                                  PopupMenuItem(
-                                    child: const ListTile(
-                                      leading: Icon(Icons.publish),
-                                      title: Text('Publish'),
-                                    ),
-                                    onTap: () async {
-                                      final languagePack = data.data()!;
-                                      publishLanguagePack(languagePack);
-                                    },
-                                  )
-                                ],
+    if (languagePack == null) {
+      return Center(child: CircularProgressIndicator());
+    }
+    if (_warningMessage.isNotEmpty) {
+      return Center(
+        child: Text(_warningMessage),
+      );
+    }
+    return Scaffold(
+        body: CustomScrollView(slivers: [
+          SliverAppBar(
+              pinned: true,
+              flexibleSpace: AppBar(
+                centerTitle: false,
+                title: Text(
+                    "${languagePack?.name ?? "NA"} (${languagePack?.language.name ?? "NA"})"),
+                actions: isUpdating
+                    ? [
+                        CircularProgressIndicator(
+                          padding: EdgeInsets.symmetric(horizontal: 32),
+                        )
+                      ]
+                    : [
+                        Text(languagePack?.version ?? "NA"),
+                        PopupMenuButton(
+                          icon: Icon(Icons.more_vert),
+                          itemBuilder: (BuildContext context) =>
+                              <PopupMenuEntry>[
+                            PopupMenuItem(
+                              child: const ListTile(
+                                leading: Icon(Icons.publish),
+                                title: Text('Publish'),
                               ),
-                            ],
-                    )),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final phrase = data.data()!.phrases[index];
-                    return PhrasesListTile(
-                        phrase: phrase,
-                        onChanged: (updatedSelection) {
-                          var phrasesList = data.data()!.phrases;
-                          phrasesList[index].active =
-                              !phrasesList[index].active;
-                          widget.reference.update(<String, dynamic>{
-                            'phrases':
-                                phrasesList.map((p) => p.toJson()).toList()
-                          });
+                              onTap: () async {
+                                publishLanguagePack(languagePack!);
+                              },
+                            )
+                          ],
+                        ),
+                      ],
+              )),
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final phrase = languagePack!.phrases[index];
+              return PhrasesListTile(
+                  phrase: phrase,
+                  onChanged: (updatedSelection) async {
+                    var phrasesList = languagePack!.phrases;
+                    phrasesList[index].active = !phrasesList[index].active;
+                    await databaseService.update(
+                        table: 'language_packs',
+                        id: widget.documentPath,
+                        updatedValues: <String, dynamic>{
+                          'phrases': phrasesList.map((p) => p.toJson()).toList()
                         });
-                  }, childCount: data.data()?.phrases.length ?? 0),
-                ),
-                SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),
-                SliverToBoxAdapter(child: SizedBox(height: 100))
-              ]),
-              floatingActionButton: FloatingActionButton(
-                  child: Icon(Icons.add),
-                  onPressed: () => _showAddNewPhraseDialog(
-                      currentPhrases: data.data()?.phrases ?? [])));
-        });
+                    setState(() {
+                      languagePack!.phrases = phrasesList;
+                    });
+                  });
+            }, childCount: languagePack?.phrases.length ?? 0),
+          ),
+          SliverPadding(padding: EdgeInsets.symmetric(vertical: 16)),
+          SliverToBoxAdapter(child: SizedBox(height: 100))
+        ]),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () => _showAddNewPhraseDialog(
+                currentPhrases: languagePack?.phrases ?? [])));
   }
 }

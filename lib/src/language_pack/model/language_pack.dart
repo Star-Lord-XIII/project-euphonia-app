@@ -1,6 +1,6 @@
 import 'package:sealed_languages/sealed_languages.dart';
 
-import 'firestore_phrase.dart';
+import 'phrase.dart';
 
 ///
 /// LanguagePack document in Firestore.
@@ -17,7 +17,7 @@ final class LanguagePack {
   final NaturalLanguage language;
 
   // List of phrases
-  final List<FirestorePhrase> phrases;
+  List<Phrase> phrases;
 
   LanguagePack(
       {required this.version,
@@ -32,7 +32,7 @@ final class LanguagePack {
             language:
                 NaturalLanguage.fromCodeShort(json['language_code'] ?? "en"),
             phrases: (json['phrases'] as List<dynamic>? ?? [])
-                .map((x) => FirestorePhrase.fromJson(x))
+                .map((x) => Phrase.fromJson(x))
                 .toList());
 
   Map<String, Object?> toJson() {

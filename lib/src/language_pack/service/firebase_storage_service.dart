@@ -5,14 +5,16 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:logging/logging.dart';
 
 import '../../common/result.dart';
+import 'file_storage_service.dart';
 
-final class FirestoreService {
-  final _log = Logger('language_pack.FirestoreService');
+final class FirebaseStorageService extends FileStorageService {
+  final _log = Logger('language_pack.FirebaseStorageService');
 
   final Reference firebaseStorageRef;
 
-  FirestoreService({required this.firebaseStorageRef});
+  FirebaseStorageService({required this.firebaseStorageRef});
 
+  @override
   Future<Result<String>> readFile({required String path}) async {
     final storageRef = firebaseStorageRef.child(path);
     try {
@@ -31,6 +33,7 @@ final class FirestoreService {
     }
   }
 
+  @override
   Future<Result<void>> writeFile({required String path,
                                   required String content}) async {
     final storageRef = firebaseStorageRef.child(path);

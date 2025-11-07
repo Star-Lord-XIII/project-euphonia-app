@@ -5,19 +5,26 @@ import 'package:logging/logging.dart';
 
 import '../../common/result.dart';
 import '../model/language_pack.dart';
-import '../model//language_pack_summary.dart';
-import '../service/firestore_service.dart';
+import '../model/language_pack_summary.dart';
+import '../service/database_service.dart';
+import '../service/file_storage_service.dart';
 
 final class LanguagePackRepository {
-  final FirestoreService firestoreService;
+  final FileStorageService _fileStorageService;
+  final DatabaseService _databaseService;
+  final languagePackTableName = 'language_packs';
   final _log = Logger('language_pack.LanguagePackRepository');
 
-  LanguagePackRepository({required this.firestoreService});
+  LanguagePackRepository(
+      {required FileStorageService fileStorageService,
+      required DatabaseService databaseService})
+      : _databaseService = databaseService,
+        _fileStorageService = fileStorageService;
 
   Future<Result<List<LanguagePackSummary>>> getLanguagePackSummaryList() async {
-    final languagePackSummaryPath = 'phrases/language_packs.json';
+    final languagePackSummaryPath = 'phrases/$languagePackTableName.json';
     final currentLanguagePackSummariesResult =
-        await firestoreService.readFile(path: languagePackSummaryPath);
+        await _fileStorageService.readFile(path: languagePackSummaryPath);
     switch (currentLanguagePackSummariesResult) {
       case Ok<String>():
         break;
@@ -31,25 +38,59 @@ final class LanguagePackRepository {
     return Result.ok(languagePackSummaryList);
   }
 
+  Future<Result<void>> addLanguagePack(
+      {required LanguagePack languagePack}) async {
+    _log.finer('Create new language pack: ${languagePack.languagePackCode}');
+    final insertResult = await _databaseService.insert(
+        table: languagePackTableName,
+        id: languagePack.languagePackCode,
+        newValue: languagePack.toJson());
+    switch (insertResult) {
+      case Ok<void>():
+        break;
+      case Error<void>():
+        final errorMessage =
+            'Error creating language pack with id: ${languagePack.languagePackCode}';
+        _log.warning(errorMessage);
+        return Result.error(Exception(errorMessage));
+    }
+    return const Result.ok(null);
+  }
+
+  Future<Result<LanguagePack>> getLanguagePack(
+      {required String languagePackId}) async {
+    _log.finer('Reading Language Pack by id: $languagePackId');
+    final languagePackResult = await _databaseService.getRow(
+        table: languagePackTableName, id: languagePackId);
+    switch (languagePackResult) {
+      case Ok<Map<String, dynamic>>():
+        break;
+      case Error<void>():
+        final errorMessage =
+            'Error reading language pack with id: $languagePackId';
+        _log.warning(errorMessage);
+        return Result.error(Exception(errorMessage));
+    }
+    final languagePack = LanguagePack.fromJson(languagePackResult.value);
+    return Result.ok(languagePack);
+  }
+
   @visibleForTesting
   List<LanguagePackSummary> convertStringToLanguagePackListSummaries(
       String languagePackListJson) {
     final listOfMaps = jsonDecode(languagePackListJson);
     List<LanguagePackSummary> languagePackSummaryList = [];
     for (final map in listOfMaps) {
-      languagePackSummaryList.add(LanguagePackSummary.fromJson(
-          map));
+      languagePackSummaryList.add(LanguagePackSummary.fromJson(map));
     }
     return languagePackSummaryList;
   }
 
   Future<Result<void>> updateLanguagePack(LanguagePack languagePack) async {
-    languagePack.updateVersion();
-
     _log.fine('Updating language pack version to ${languagePack.version}');
     final updatedLanguagePackPath =
         'phrases/${languagePack.languagePackCode}.${languagePack.version}.json';
-    final writeResult = await firestoreService.writeFile(
+    final writeResult = await _fileStorageService.writeFile(
         path: updatedLanguagePackPath,
         content: jsonEncode(languagePack.toActivePhrasesJson()));
     switch (writeResult) {
@@ -87,12 +128,13 @@ final class LanguagePackRepository {
     }).toList();
 
     if (isLanguagePackNew) {
-      updatedLanguageSummaryList.add(LanguagePackSummary.fromJson(languagePack.toSummaryJson()));
+      updatedLanguageSummaryList
+          .add(LanguagePackSummary.fromJson(languagePack.toSummaryJson()));
     }
 
     _log.fine('Update language pack summary list in Firebase Storage');
-    final languagePackSummaryPath = 'phrases/language_packs.json';
-    final updateResult = await firestoreService.writeFile(
+    final languagePackSummaryPath = 'phrases/$languagePackTableName.json';
+    final updateResult = await _fileStorageService.writeFile(
         path: languagePackSummaryPath,
         content: jsonEncode(updatedLanguageSummaryList));
     switch (updateResult) {

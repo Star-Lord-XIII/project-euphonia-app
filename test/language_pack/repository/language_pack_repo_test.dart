@@ -1,15 +1,18 @@
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_storage_mocks/firebase_storage_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:project_euphonia/src/common/result.dart';
-import 'package:project_euphonia/src/language_pack/model/firestore_phrase.dart';
+import 'package:project_euphonia/src/language_pack/model/phrase.dart';
 import 'package:project_euphonia/src/language_pack/model/language_pack.dart';
 import 'package:project_euphonia/src/language_pack/model/language_pack_summary.dart';
 import 'package:project_euphonia/src/language_pack/repository/language_pack_repo.dart';
-import 'package:project_euphonia/src/language_pack/service/firestore_service.dart';
+import 'package:project_euphonia/src/language_pack/service/firebase_firestore_service.dart';
+import 'package:project_euphonia/src/language_pack/service/firebase_storage_service.dart';
 import 'package:sealed_languages/sealed_languages.dart';
 
 void main() async {
   final mockFirebaseStorage = MockFirebaseStorage();
+  final mockFirestore = FakeFirebaseFirestore();
   final languagePackJsonList = """
     [
       {
@@ -35,8 +38,9 @@ void main() async {
   test("test reading Language pack summary list from Firebase storage",
       () async {
     final repo = LanguagePackRepository(
-        firestoreService:
-            FirestoreService(firebaseStorageRef: mockFirebaseStorage.ref()));
+        fileStorageService:
+        FirebaseStorageService(firebaseStorageRef: mockFirebaseStorage.ref()),
+        databaseService: FirebaseFirestoreService(firestoreInstance: mockFirestore));
 
     Result<List> fetchedListResult = await repo.getLanguagePackSummaryList();
     List<dynamic> fetchedList = [];
@@ -69,8 +73,9 @@ void main() async {
 
   test("json document from firestore should be parsed correctly", () {
     final repo = LanguagePackRepository(
-        firestoreService:
-            FirestoreService(firebaseStorageRef: mockFirebaseStorage.ref()));
+        fileStorageService:
+        FirebaseStorageService(firebaseStorageRef: mockFirebaseStorage.ref()),
+        databaseService: FirebaseFirestoreService(firestoreInstance: mockFirestore));
 
     final converted =
         repo.convertStringToLanguagePackListSummaries(languagePackJsonList);
@@ -86,20 +91,54 @@ void main() async {
     expect(converted.last.phrasesCount, 200);
   });
 
-  test("Update language packs and summary list", () async {
+  test("fetch language pack from firestore", () async {
     final repo = LanguagePackRepository(
-        firestoreService:
-            FirestoreService(firebaseStorageRef: mockFirebaseStorage.ref()));
+    fileStorageService:
+    FirebaseStorageService(firebaseStorageRef: mockFirebaseStorage.ref()),
+    databaseService: FirebaseFirestoreService(firestoreInstance: mockFirestore));
 
-    final updateResult = await repo.updateLanguagePack(LanguagePack(
+    final newLanguagePack = LanguagePack(
         version: "draft",
         name: "English Simple",
         language: NaturalLanguage.fromCodeShort("en"),
         phrases: [
-          FirestorePhrase(id: '1', text: "Hello, World!", active: true),
-          FirestorePhrase(id: '2', text: "A quick brown fox", active: true),
-          FirestorePhrase(id: '3', text: "Jumps over lazy fox", active: false),
-        ]));
+          Phrase(id: '1', text: "Hello, World!", active: true),
+          Phrase(id: '2', text: "A quick brown fox", active: true),
+          Phrase(id: '3', text: "Jumps over lazy fox", active: false),
+        ]);
+
+    await repo.addLanguagePack(languagePack: newLanguagePack);
+
+    final getLanguagePackResult = await repo.getLanguagePack(languagePackId: 'en.english-simple');
+
+    LanguagePack? languagePack;
+    switch(getLanguagePackResult) {
+      case Ok<LanguagePack>():
+        languagePack = getLanguagePackResult.value;
+        break;
+      case Error<void>():
+        break;
+    }
+    expect(jsonEncode(languagePack?.toJson()), jsonEncode(newLanguagePack.toJson()));
+  });
+
+  test("Update language packs and summary list", () async {
+    final repo = LanguagePackRepository(
+        fileStorageService:
+            FirebaseStorageService(firebaseStorageRef: mockFirebaseStorage.ref()),
+        databaseService: FirebaseFirestoreService(firestoreInstance: mockFirestore));
+
+    final newLanguagePack = LanguagePack(
+        version: "draft",
+        name: "English Simple",
+        language: NaturalLanguage.fromCodeShort("en"),
+        phrases: [
+          Phrase(id: '1', text: "Hello, World!", active: true),
+          Phrase(id: '2', text: "A quick brown fox", active: true),
+          Phrase(id: '3', text: "Jumps over lazy fox", active: false),
+        ]);
+    newLanguagePack.updateVersion();
+    final updateResult = await repo.updateLanguagePack(newLanguagePack);
 
     var succeeded = false;
     switch (updateResult) {
@@ -124,5 +163,6 @@ void main() async {
     expect(fetchedList[0].languagePackCode, "en.english-complicated");
     expect(fetchedList[1].languagePackCode, "en.kenyan-english");
     expect(fetchedList[2].languagePackCode, "en.english-simple");
+    expect(fetchedList[2].version, "v1");
   });
 }

@@ -1,7 +1,7 @@
 ///
 /// Item in Firebase Firestore language_pack_document's phrases list.
 ///
-final class FirestorePhrase {
+final class Phrase {
   // A UUID that helps identify the phrase uniquely
   final String id;
 
@@ -14,9 +14,9 @@ final class FirestorePhrase {
   // As there can be a recording linked to the deactivated phrase.
   bool active;
 
-  FirestorePhrase({required this.id, required this.text, required this.active});
+  Phrase({required this.id, required this.text, required this.active});
 
-  FirestorePhrase.fromJson(Map<String, Object?> json)
+  Phrase.fromJson(Map<String, Object?> json)
       : this(
             id: (json['id']! as String),
             text: (json['text']! as String),
