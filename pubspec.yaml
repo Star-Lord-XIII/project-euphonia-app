@@ -95,15 +95,15 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    - assets/ee/
-    - assets/en/
-    - assets/en/pictures/
-    - assets/it/
-    - assets/tw/
-    - assets/tw/pictures/
-    - assets/sw/
-    - assets/sw/pictures/
-    - assets/export/
+#    - assets/ee/
+#    - assets/en/
+#    - assets/en/pictures/
+#    - assets/it/
+#    - assets/tw/
+#    - assets/tw/pictures/
+#    - assets/sw/
+#    - assets/sw/pictures/
+#    - assets/export/
   fonts:
     - family: SocialIcons
       fonts:

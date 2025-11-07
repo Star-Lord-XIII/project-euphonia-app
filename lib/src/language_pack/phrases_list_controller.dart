@@ -6,7 +6,6 @@ import '../common/result.dart';
 import 'model/phrase.dart';
 import 'model/language_pack.dart';
 import 'repository/language_pack_repo.dart';
-import 'service/database_service.dart';
 import 'view/phrases_list_tile.dart';
 
 class PhrasesListController extends StatefulWidget {
@@ -19,25 +18,24 @@ class PhrasesListController extends StatefulWidget {
 
 class _PhrasesListControllerState extends State<PhrasesListController> {
   final TextEditingController _phraseFieldController = TextEditingController();
-  late DatabaseService databaseService;
+  late LanguagePackRepository languagePackRepository;
   LanguagePack? languagePack;
   String _warningMessage = '';
   var isUpdating = false;
 
   @override
   void initState() {
-    databaseService = context.read();
-    databaseService
-        .getRow(table: 'language_packs', id: widget.documentPath)
-        .then((lpMap) {
+    languagePackRepository = context.read();
+    languagePackRepository.getLanguagePack(languagePackId: widget.documentPath)
+        .then((lp) {
       setState(() {
-        switch (lpMap) {
-          case Ok<Map<String, dynamic>>():
-            languagePack = LanguagePack.fromJson(lpMap.value);
+        switch (lp) {
+          case Ok<LanguagePack>():
+            languagePack = lp.value;
             break;
           case Error<void>():
             _warningMessage =
-                'Something went wrong while reading languagePack with id: $languagePack';
+                'Something went wrong while reading languagePack with id: ${widget.documentPath}';
             break;
         }
       });
@@ -99,13 +97,8 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
                           setState(() {
                             languagePack!.phrases = phrasesList;
                           });
-                          databaseService.update(
-                              table: 'language_packs',
-                              id: widget.documentPath,
-                              updatedValues: <String, dynamic>{
-                                'phrases':
-                                    phrasesList.map((p) => p.toJson()).toList()
-                              });
+                          languagePackRepository.updateLanguagePack(languagePackId: languagePack!.languagePackCode,
+                            phrases: phrasesList);
                           _phraseFieldController.text = '';
                           Navigator.of(context).pop();
                         }
@@ -121,13 +114,8 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
     setState(() {
       isUpdating = true;
     });
-    final LanguagePackRepository lpRepo = context.read();
     languagePack.updateVersion();
-    await lpRepo.updateLanguagePack(languagePack);
-    await databaseService.update(
-        table: 'language_packs',
-        id: widget.documentPath,
-        updatedValues: {"version": languagePack.version});
+    await languagePackRepository.publishLanguagePack(languagePack);
     setState(() {
       isUpdating = false;
       languagePack = languagePack;
@@ -185,12 +173,7 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
                   onChanged: (updatedSelection) async {
                     var phrasesList = languagePack!.phrases;
                     phrasesList[index].active = !phrasesList[index].active;
-                    await databaseService.update(
-                        table: 'language_packs',
-                        id: widget.documentPath,
-                        updatedValues: <String, dynamic>{
-                          'phrases': phrasesList.map((p) => p.toJson()).toList()
-                        });
+                    await languagePackRepository.updateLanguagePack(languagePackId: widget.documentPath, phrases: phrasesList);
                     setState(() {
                       languagePack!.phrases = phrasesList;
                     });

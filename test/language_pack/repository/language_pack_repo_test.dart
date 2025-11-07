@@ -138,7 +138,7 @@ void main() async {
           Phrase(id: '3', text: "Jumps over lazy fox", active: false),
         ]);
     newLanguagePack.updateVersion();
-    final updateResult = await repo.updateLanguagePack(newLanguagePack);
+    final updateResult = await repo.publishLanguagePack(newLanguagePack);
 
     var succeeded = false;
     switch (updateResult) {

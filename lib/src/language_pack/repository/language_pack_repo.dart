@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import '../../common/result.dart';
 import '../model/language_pack.dart';
 import '../model/language_pack_summary.dart';
+import '../model/phrase.dart';
 import '../service/database_service.dart';
 import '../service/file_storage_service.dart';
 
@@ -86,8 +87,24 @@ final class LanguagePackRepository {
     return languagePackSummaryList;
   }
 
-  Future<Result<void>> updateLanguagePack(LanguagePack languagePack) async {
+  Future<Result<void>> updateLanguagePack({required String languagePackId,
+    String? version, List<Phrase>? phrases}) async {
+    Map<String, dynamic> updatedValues = {};
+    if (version != null) {
+      updatedValues['version'] = version;
+    }
+    if (phrases != null && phrases.isNotEmpty) {
+      updatedValues['phrases'] = phrases.map((p) => p.toJson()).toList();
+    }
+    final result = await _databaseService.update(table: languagePackTableName,
+        id: languagePackId, updatedValues: updatedValues);
+    return result;
+  }
+
+  Future<Result<void>> publishLanguagePack(LanguagePack languagePack) async {
     _log.fine('Updating language pack version to ${languagePack.version}');
+    updateLanguagePack(languagePackId: languagePack.languagePackCode,
+        version: languagePack.version);
     final updatedLanguagePackPath =
         'phrases/${languagePack.languagePackCode}.${languagePack.version}.json';
     final writeResult = await _fileStorageService.writeFile(
