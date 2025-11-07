@@ -55,7 +55,7 @@ class _LanguagePackListViewState extends State<LanguagePackListView> {
     super.initState();
   }
 
-  // TODO (chintanghate@gmail.com): Refactor this.
+  // TODO : Refactor this.
   void _showAddLanguagePackDialog() {
     showDialog<void>(
       context: context,
