@@ -130,7 +130,7 @@ jobs:
           IOS_EXPORT_OPTIONS: ${{ secrets.IOS_EXPORT_OPTIONS }}
         run: |
           cd ios
-          pod install
+          pod install --repo-update
           cd ..
           export REVERSED_CLIENT_ID="`plutil -extract REVERSED_CLIENT_ID raw -expect string ios/GoogleService-Info.plist`"
           sed -i '' "s/REVERSED_CLIENT_ID/$REVERSED_CLIENT_ID/g" ios/Runner/Info.plist
