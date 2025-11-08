@@ -87,7 +87,7 @@ jobs:
 
       #6 Building APK
       - name: Build APK
-        run: flutter build apk
+        run: flutter build apk --debug
 
       #7.a Install the Apple certificate and provisioning profile
       - name: Install the Apple certificate and provisioning profile
