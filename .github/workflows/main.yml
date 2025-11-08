@@ -30,7 +30,9 @@ jobs:
       - name: Set up XCode
         env:
           XCODEVERSION: '16.2'
-        run: sudo xcode-select -s /Applications/Xcode_${XCODEVERSION}.app
+        run: |
+          sudo xcode-select -s /Applications/Xcode_${XCODEVERSION}.app
+          xcodebuild -downloadPlatform iOS
 
       #3.b Setup Flutter
       - name: Set up Flutter
