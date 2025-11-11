@@ -105,6 +105,16 @@
         "description": "Accessibility action hint for next phrase button"
     },
 
+    "transcribeRecordingButton": "Transcribe recording",
+    "@transcribeRecordingButton": {
+        "description": "Accessibility label for transcribing recording button"
+    },
+
+    "transcribeRecordingButtonHint": "Double tap to transcribe current phrase recording",
+    "@transcribeRecordingButtonHint": {
+        "description": "Accessibility action hint for transcribing recording button"
+    },
+
     "autoAdvanceSettingTitle": "Auto advance",
     "@autoAdvanceSettingTitle": {
         "description": "Title for setting to auto advance phrase to next once current phrase is recorded"

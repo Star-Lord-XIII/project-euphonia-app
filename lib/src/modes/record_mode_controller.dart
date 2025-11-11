@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project_euphonia/src/common/result.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../language_pack/service/file_storage_service.dart';
 import '../repos/audio_player.dart';
 import '../repos/audio_recorder.dart';
 import '../repos/phrase.dart';
@@ -34,7 +38,11 @@ class RecordModeController extends StatefulWidget {
 
 class _RecordModeControllerState extends State<RecordModeController> {
   var _uploadStatus = UploadStatus.notStarted;
+  var _isTranscribing = false;
+  var _transcriptionStatus = UploadStatus.notStarted;
   final Key _key = GlobalKey();
+  final TextEditingController transcriptFieldController =
+      TextEditingController();
   PageController? _pageController;
   var _currentLanguagePackCode = '';
 
@@ -46,6 +54,14 @@ class _RecordModeControllerState extends State<RecordModeController> {
       _pageController?.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
       _uploadStatus = UploadStatus.notStarted;
+      _isTranscribing = false;
+      _transcriptionStatus = UploadStatus.notStarted;
+    });
+    final transcribedText =
+        (await _getCachedTranscript(phrasesRepoProvider.currentPhrase!)) ??
+            '';
+    setState(() {
+      transcriptFieldController.text = transcribedText;
     });
   }
 
@@ -53,10 +69,18 @@ class _RecordModeControllerState extends State<RecordModeController> {
     var phrasesRepoProvider =
         Provider.of<PhrasesRepository>(context, listen: false);
     await phrasesRepoProvider.moveToNextPhrase();
-    setState(() {
+    setState(() async {
       _pageController?.animateToPage(phrasesRepoProvider.currentPhraseIndex,
           duration: const Duration(milliseconds: 100), curve: Curves.linear);
       _uploadStatus = UploadStatus.notStarted;
+      _isTranscribing = false;
+      _transcriptionStatus = UploadStatus.notStarted;
+    });
+    final transcribedText =
+        (await _getCachedTranscript(phrasesRepoProvider.currentPhrase!)) ??
+            '';
+    setState(() {
+      transcriptFieldController.text = transcribedText;
     });
   }
 
@@ -84,6 +108,49 @@ class _RecordModeControllerState extends State<RecordModeController> {
     setState(() {
       _uploadStatus = UploadStatus.notStarted;
     });
+  }
+
+  void _transcribeRecording(Phrase phrase) async {
+    setState(() {
+      _isTranscribing = !_isTranscribing;
+    });
+  }
+
+  String _transcriptionKey(Phrase phrase) {
+    final userToken = FirebaseAuth.instance.currentUser?.uid ?? "data";
+    return '$userToken/${phrase.languagePackCode}/${phrase.uid}';
+  }
+
+  Future<void> _cacheTranscript(Phrase phrase, String transcript) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString(_transcriptionKey(phrase), transcript);
+  }
+
+  Future<String?> _getCachedTranscript(Phrase phrase) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_transcriptionKey(phrase));
+  }
+
+  void _saveTranscription(Phrase phrase) async {
+    final transcriptFile = '${_transcriptionKey(phrase)}.txt';
+    final transcript = transcriptFieldController.text;
+    final FileStorageService storageService = context.read();
+    setState(() {
+      _transcriptionStatus = UploadStatus.started;
+    });
+    final result = await storageService.writeFile(path: transcriptFile,
+        content: transcript);
+    switch (result) {
+      case Ok<void>():
+        await _cacheTranscript(phrase, transcript);
+        setState(() {
+          _transcriptionStatus = UploadStatus.completed;
+        });
+      case Error<void>():
+        setState(() {
+          _transcriptionStatus = UploadStatus.interrupted;
+        });
+    }
   }
 
   void _toggleType(Set<PhraseType> newSelection) async {
@@ -176,10 +243,18 @@ class _RecordModeControllerState extends State<RecordModeController> {
             : null,
         deleteRecording:
             player.canPlay ? () => _deleteRecording(repo.currentPhrase!) : null,
+        transcribeRecording:
+            player.canPlay && repo.currentPhrase?.type == PhraseType.image
+                ? () => _transcribeRecording(repo.currentPhrase!)
+                : null,
+        saveTranscription: () => _saveTranscription(repo.currentPhrase!),
         isPlaying: player.isPlaying,
         isRecorded: player.canPlay,
+        isTranscribing: _isTranscribing,
         uploadStatus: _uploadStatus,
+        transcriptionStatus: _transcriptionStatus,
         controller: _pageController,
+        transcriptFieldController: transcriptFieldController,
       );
     });
   }
