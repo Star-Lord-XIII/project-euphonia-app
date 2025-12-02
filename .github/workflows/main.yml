@@ -84,6 +84,7 @@ jobs:
           sed -i '' "s|DEFAULT_TRANSCRIPTION_ENDPOINT|$DEFAULT_TRANSCRIPTION_ENDPOINT|g" lib/src/repos/settings_repository.dart
           sed -i '' "s|SELECTED_LANGUAGE_PACK|$SELECTED_LANGUAGE_PACK|g" lib/src/repos/phrases_repository.dart
           sed -i '' "s|SELECTED_LANGUAGE_PACK|$SELECTED_LANGUAGE_PACK|g" RELEASE_NOTES.md
+          sed -i '' "s|SELECTED_LANGUAGE_PACK|$SELECTED_LANGUAGE_PACK|g" android/app/src/main/AndroidManifest.xml
 
       #6 Building APK
       - name: Build APK
