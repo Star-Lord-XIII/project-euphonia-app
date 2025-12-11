@@ -2,10 +2,10 @@ class TrainingJob {
   final String trainingId;
   final String userId;
   final String progress;
-  final String subProgress;
+  final String? subProgress;
   final String createdAt;
   final String lastUpdated;
-  final String message;
+  final String? message;
 
   const TrainingJob({
     required this.trainingId,
@@ -34,10 +34,10 @@ class TrainingJob {
       trainingId: map['training_id'] as String,
       userId: map['user_id'] as String,
       progress: map['progress'] as String,
-      subProgress: map['subprogress'] as String,
+      subProgress: map['subprogress'] as String?,
       createdAt: map['created_at'] as String,
       lastUpdated: map['last_updated'] as String,
-      message: map['message'] as String,
+      message: map['message'] as String?,
     );
   }
 }

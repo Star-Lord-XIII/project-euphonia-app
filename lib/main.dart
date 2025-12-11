@@ -33,6 +33,10 @@ import 'src/repos/phrases_repository.dart';
 import 'src/repos/settings_repository.dart';
 import 'src/repos/uploader.dart';
 import 'src/repos/websocket_transcriber.dart';
+import 'src/repository/model/model_repository.dart';
+import 'src/repository/model/model_repository_remote.dart';
+import 'src/service/model_training_service.dart';
+import 'src/service/model_training_service_impl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,6 +78,13 @@ void main() async {
         create: (context) => LanguagePackRepository(
             fileStorageService: context.read(),
             databaseService: context.read())),
+    Provider(
+        create: (context) =>
+            ModelTrainingServiceImpl() as ModelTrainingService),
+    Provider(
+        create: (context) =>
+            ModelRepositoryRemote(modelTrainingService: context.read())
+                as ModelRepository),
     ChangeNotifierProvider(create: (context) => LanguagePackCatalogModel())
   ], child: const ProjectEuphonia()));
 }

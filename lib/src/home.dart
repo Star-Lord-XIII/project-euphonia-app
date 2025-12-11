@@ -26,6 +26,9 @@ import 'repos/phrases_repository.dart';
 import 'repos/settings_repository.dart';
 import 'repos/uploader.dart';
 import 'settings/settings_controller.dart';
+import 'train/view/train_mode_view.dart';
+import 'train/view/training_job_history_view.dart';
+import 'train/viewmodel/training_job_history_viewmodel.dart';
 
 class HomeController extends StatefulWidget {
   final bool isCurrentUserAdmin;
@@ -72,6 +75,7 @@ class _HomeControllerState extends State<HomeController> {
     final List<Widget> widgetOptions = <Widget>[
       const RecordModeController(),
       const TranscribeModeController(),
+      const TrainModeView(),
       const AdminModeController(),
       const Center(
         child: IconButton(
@@ -102,6 +106,19 @@ class _HomeControllerState extends State<HomeController> {
                               padding: const EdgeInsets.all(6),
                               child: uploader.uploadIcon))
                     ])),
+            Visibility(
+                visible: _selectedIndex == 2,
+                child: IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => TrainingJobHistoryView(
+                                viewModel: TrainingJobHistoryViewModel(
+                                    modelRepository: context.read()))),
+                      );
+                    },
+                    icon: Icon(Icons.history))),
             const SizedBox(width: 24)
           ]),
       body: widgetOptions[_selectedIndex],
@@ -187,6 +204,8 @@ class _HomeControllerState extends State<HomeController> {
                 icon: const Icon(Icons.hearing),
                 label: AppLocalizations.of(context)!.transcribeModeTitle,
               ),
+              BottomNavigationBarItem(
+                  icon: const Icon(Icons.model_training), label: 'Train')
             ] +
             (widget.isCurrentUserAdmin
                 ? [
