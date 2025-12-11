@@ -63,10 +63,17 @@ void main() async {
     ChangeNotifierProvider(create: (context) => Uploader()),
     ChangeNotifierProvider(create: (context) => SettingsRepository()),
     ChangeNotifierProvider(create: (context) => WebsocketTranscriber()),
-    Provider(create: (context) => FirebaseStorageService(firebaseStorageRef: FirebaseStorage.instance.ref()) as FileStorageService),
-    Provider(create: (context) => FirebaseFirestoreService(firestoreInstance: FirebaseFirestore.instance) as DatabaseService),
-    Provider(create: (context) => LanguagePackRepository(fileStorageService: context.read(),
-                                                          databaseService: context.read())),
+    Provider(
+        create: (context) => FirebaseStorageService(
+                firebaseStorageRef: FirebaseStorage.instance.ref())
+            as FileStorageService),
+    Provider(
+        create: (context) => FirebaseFirestoreService(
+            firestoreInstance: FirebaseFirestore.instance) as DatabaseService),
+    Provider(
+        create: (context) => LanguagePackRepository(
+            fileStorageService: context.read(),
+            databaseService: context.read())),
     ChangeNotifierProvider(create: (context) => LanguagePackCatalogModel())
   ], child: const ProjectEuphonia()));
 }

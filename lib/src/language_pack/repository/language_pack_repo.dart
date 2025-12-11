@@ -87,8 +87,10 @@ final class LanguagePackRepository {
     return languagePackSummaryList;
   }
 
-  Future<Result<void>> updateLanguagePack({required String languagePackId,
-    String? version, List<Phrase>? phrases}) async {
+  Future<Result<void>> updateLanguagePack(
+      {required String languagePackId,
+      String? version,
+      List<Phrase>? phrases}) async {
     Map<String, dynamic> updatedValues = {};
     if (version != null) {
       updatedValues['version'] = version;
@@ -96,14 +98,17 @@ final class LanguagePackRepository {
     if (phrases != null && phrases.isNotEmpty) {
       updatedValues['phrases'] = phrases.map((p) => p.toJson()).toList();
     }
-    final result = await _databaseService.update(table: languagePackTableName,
-        id: languagePackId, updatedValues: updatedValues);
+    final result = await _databaseService.update(
+        table: languagePackTableName,
+        id: languagePackId,
+        updatedValues: updatedValues);
     return result;
   }
 
   Future<Result<void>> publishLanguagePack(LanguagePack languagePack) async {
     _log.fine('Updating language pack version to ${languagePack.version}');
-    updateLanguagePack(languagePackId: languagePack.languagePackCode,
+    updateLanguagePack(
+        languagePackId: languagePack.languagePackCode,
         version: languagePack.version);
     final updatedLanguagePackPath =
         'phrases/${languagePack.languagePackCode}.${languagePack.version}.json';

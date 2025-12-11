@@ -128,8 +128,10 @@ final class PhrasesRepository extends ChangeNotifier {
               id: Uuid().v4(), text: textPhrases[i].trim(), active: true);
           phraseList.add(curPhrase);
         }
-        value.reference
-            .update({'phrases': FieldValue.arrayUnion(phraseList.map((p) => p.toJson()).toList())});
+        value.reference.update({
+          'phrases':
+              FieldValue.arrayUnion(phraseList.map((p) => p.toJson()).toList())
+        });
       });
     });
   }
