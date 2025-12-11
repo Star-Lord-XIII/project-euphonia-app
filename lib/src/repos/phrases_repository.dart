@@ -113,28 +113,23 @@ final class PhrasesRepository extends ChangeNotifier {
       return;
     }
     updated = true;
-    var additionalPhrases = 'assets/export/tw.twi-images.v2.txt';
-    var existingLanguagePack = 'tw.twi-images';
+    var additionalPhrases = 'assets/export/de.german-daily-phrases.v2.txt';
+    var existingLanguagePack = 'de.german-daily-phrases';
     rootBundle.loadString(additionalPhrases).then((content) {
       FirebaseFirestore.instance
           .collection('language_packs')
           .doc(existingLanguagePack)
           .get()
           .then((value) {
-        var data = value.data() as Map<String, dynamic>;
         final textPhrases = LineSplitter.split(content).toList();
-        List<dynamic> phraseListJson = data['phrases'];
-        List<lp.Phrase> phraseList = phraseListJson
-            .map((x) => lp.Phrase(
-                id: x['id'], text: x['text'], active: x['active']))
-            .toList();
+        List<lp.Phrase> phraseList = [];
         for (var i = 0; i < textPhrases.length; ++i) {
           final curPhrase = lp.Phrase(
               id: Uuid().v4(), text: textPhrases[i].trim(), active: true);
           phraseList.add(curPhrase);
         }
         value.reference
-            .update({'phrases': phraseList.map((p) => p.toJson()).toList()});
+            .update({'phrases': FieldValue.arrayUnion(phraseList.map((p) => p.toJson()).toList())});
       });
     });
   }
