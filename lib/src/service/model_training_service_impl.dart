@@ -36,15 +36,11 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
   Future<Result<List<TrainingJob>>> listAllTrainingJobs(
       {String? userId}) async {
     final uri = Uri.parse(
-        '$_backendEndpoint${userId == null
-            ? _listAllTrainingJobsPath
-            : '$_listAllForUserTrainingJobsPath?user_id=$userId'}');
-    final Map<String, String>? headers = userId == null
-        ? null
-        : {
-            HttpHeaders.contentTypeHeader: 'application/json',
-            HttpHeaders.authorizationHeader: "Bearer $_token"
-          };
+        '$_backendEndpoint${userId == null ? _listAllTrainingJobsPath : '$_listAllForUserTrainingJobsPath?user_id=$userId'}');
+    final Map<String, String> headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: "Bearer $_token"
+    };
     final http.Response response = await http.get(uri, headers: headers);
     final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -67,9 +63,26 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
   }
 
   @override
-  Future<Result<void>> downloadModel(
-      {required String userId, required String trainingId}) {
-    // TODO: implement downloadModel
-    throw UnimplementedError();
+  Future<Result<String>> downloadModel(
+      {required String userId, required String trainingId}) async {
+    final uri = Uri.parse(
+        '$_backendEndpoint$_downloadModelPath?training_id=$trainingId&user_id=$userId');
+    final Map<String, String>? headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: "Bearer $_token"
+    };
+    final http.Response response = await http.get(uri, headers: headers);
+    final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
+    // error
+    if (response.statusCode != 200) {
+      var errorMessage = 'Something went wrong fetching training jobs';
+      if (responseBody.containsKey('detail')) {
+        errorMessage = jsonEncode(responseBody['detail']);
+      }
+      return Result.error(Exception(errorMessage));
+    }
+
+    // success
+    return Result.ok(responseBody['download_url']);
   }
 }

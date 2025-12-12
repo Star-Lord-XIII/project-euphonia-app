@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../common/error_indicator.dart';
+import '../../service/model/training_job.dart';
 import '../viewmodel/training_job_history_viewmodel.dart';
 
 class TrainingJobHistoryView extends StatefulWidget {
@@ -77,17 +78,10 @@ class _TrainingJobHistoryViewState extends State<TrainingJobHistoryView> {
                                   SizedBox(width: 32),
                                   Text(job.subProgress ?? '')
                                 ]),
-                                trailing: Visibility(
-                                    visible: job.progress == 'finished',
-                                    child: MaterialButton(
-                                        onPressed: () {},
-                                        color: Colors.blueAccent,
-                                        textColor: Colors.white,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(80)),
-                                        ),
-                                        child: Text('Download'))),
+                                trailing: _trailingWidgetForListTile(
+                                    job,
+                                    widget.viewModel.getModelDownloadStatus(
+                                        job.trainingId)),
                                 onTap: () {},
                               ),
                             )
@@ -113,5 +107,39 @@ class _TrainingJobHistoryViewState extends State<TrainingJobHistoryView> {
       return Colors.greenAccent;
     }
     return Colors.redAccent;
+  }
+
+  Widget _trailingWidgetForListTile(TrainingJob job, DownloadStatus status) {
+    Widget? trailingWidget;
+    switch (status) {
+      case DownloadStatus.notStarted:
+        trailingWidget = MaterialButton(
+            onPressed: () {
+              widget.viewModel.downloadModel.execute(job.trainingId);
+            },
+            color: Colors.blueAccent,
+            textColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(80)),
+            ),
+            child: Text('Download'));
+      case DownloadStatus.inProgress:
+        trailingWidget = CircularProgressIndicator();
+      case DownloadStatus.interrupted:
+        trailingWidget = MaterialButton(
+            onPressed: () {
+              widget.viewModel.downloadModel.execute(job.trainingId);
+            },
+            color: Colors.redAccent,
+            textColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(80)),
+            ),
+            child: Text('Try again!'));
+      case DownloadStatus.completed:
+        trailingWidget = Chip(label: Text('Available'));
+    }
+    return Visibility(
+        visible: job.progress == 'finished', child: trailingWidget);
   }
 }
