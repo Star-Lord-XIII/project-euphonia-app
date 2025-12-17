@@ -91,7 +91,7 @@ class _TrainingJobHistoryViewState extends State<TrainingJobHistoryView> {
                                                     : [
                                                         Text(downloadProgress !=
                                                                 null
-                                                            ? '(${downloadProgress.downloaded}/${downloadProgress.total})'
+                                                            ? '(${(downloadProgress.downloaded / 1048576.0).toStringAsFixed(2)}/${(downloadProgress.total / 1048576.0).toStringAsFixed(2)} mb)'
                                                             : '')
                                                       ])),
                                       ].cast<Widget>() +
