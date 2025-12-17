@@ -10,6 +10,7 @@ class TrainingJobHistoryViewModel extends ChangeNotifier {
   final ModelRepository _modelRepository;
   List<TrainingJob> _trainingJobs = [];
   final Map<String, DownloadStatus> _modelDownloadStatus = {};
+  final Map<String, DownloadProgress> _modelDownloadProgress = {};
 
   TrainingJobHistoryViewModel({required ModelRepository modelRepository})
       : _modelRepository = modelRepository {
@@ -28,7 +29,7 @@ class TrainingJobHistoryViewModel extends ChangeNotifier {
       return Result.error(Exception('No current user found!'));
     }
     final trainingJobsResult =
-        _modelRepository.listTrainingJobs(userId: 'user_1').then((result) {
+        _modelRepository.listTrainingJobs(userId: 'test_user').then((result) {
       switch (result) {
         case Ok<List<TrainingJob>>():
           _trainingJobs = result.value;
@@ -49,6 +50,10 @@ class TrainingJobHistoryViewModel extends ChangeNotifier {
     return _modelDownloadStatus[trainingId] ?? DownloadStatus.notStarted;
   }
 
+  DownloadProgress? getModelDownloadProgress(String trainingId) {
+    return _modelDownloadProgress[trainingId];
+  }
+
   Future<Result<void>> _downloadModel(String trainingId) async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
@@ -57,7 +62,13 @@ class TrainingJobHistoryViewModel extends ChangeNotifier {
     _modelDownloadStatus[trainingId] = DownloadStatus.inProgress;
     notifyListeners();
     final result = await _modelRepository.downloadModel(
-        trainingId: trainingId, userId: 'user_1');
+        trainingId: trainingId,
+        userId: 'test_user',
+        onProgress: (downloaded, total) {
+          _modelDownloadProgress[trainingId] =
+              DownloadProgress(downloaded: downloaded, total: total);
+          notifyListeners();
+        });
     if (result is Ok) {
       _modelDownloadStatus[trainingId] = DownloadStatus.completed;
     } else {
@@ -69,3 +80,13 @@ class TrainingJobHistoryViewModel extends ChangeNotifier {
 }
 
 enum DownloadStatus { notStarted, inProgress, interrupted, completed }
+
+class DownloadProgress {
+  final int downloaded;
+  final int total;
+
+  const DownloadProgress({
+    required this.downloaded,
+    required this.total,
+  });
+}

@@ -21,4 +21,9 @@ abstract class ModelTrainingService {
   /// Download trained model if the training is completed.
   Future<Result<void>> downloadModel(
       {required String userId, required String trainingId});
+
+  Future<Result<void>> downloadFile(
+      {required String remoteUrl,
+      required String localPath,
+      Function(int received, int total)? onProgress});
 }

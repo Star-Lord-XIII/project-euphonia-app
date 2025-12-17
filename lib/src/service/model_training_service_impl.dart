@@ -13,7 +13,7 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
   static const String _trainModePath = '/model/train';
   static const String _listAllTrainingJobsPath = '/model/list_all';
   static const String _listAllForUserTrainingJobsPath = '/model/list_for_user';
-  static const String _downloadModelPath = '/download';
+  static const String _downloadModelPath = '/model/download';
 
   @override
   Future<Result<void>> trainModel(
@@ -84,5 +84,41 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
 
     // success
     return Result.ok(responseBody['download_url']);
+  }
+
+  @override
+  Future<Result<void>> downloadFile(
+      {required String remoteUrl,
+      required String localPath,
+      Function(int received, int total)? onProgress}) async {
+    try {
+      final request = http.Request('GET', Uri.parse(remoteUrl));
+      final response = await request.send();
+
+      if (response.statusCode != 200) {
+        return Result.error(
+            Exception('Error: Status code ${response.statusCode}'));
+      }
+
+      final totalBytes = response.contentLength ?? 0;
+      int receivedBytes = 0;
+
+      final file = File(localPath);
+      final sink = file.openWrite();
+
+      await for (var chunk in response.stream) {
+        sink.add(chunk);
+        receivedBytes += chunk.length;
+
+        if (onProgress != null && totalBytes > 0) {
+          onProgress(receivedBytes, totalBytes);
+        }
+      }
+
+      await sink.close();
+      return Result.ok(null);
+    } catch (e) {
+      return Result.error(Exception('Error downloading file: $e'));
+    }
   }
 }

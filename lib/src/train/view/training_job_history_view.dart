@@ -61,31 +61,62 @@ class _TrainingJobHistoryViewState extends State<TrainingJobHistoryView> {
                         horizontal: 0,
                       ),
                       sliver: SliverList.list(
-                        children: widget.viewModel.trainingJobs
-                            .map(
-                              (job) => ListTile(
-                                leading: Container(
-                                    width: 16,
-                                    height: 16,
-                                    decoration: ShapeDecoration(
-                                      shape: const CircleBorder(),
-                                      color: _colorForTrainingJobProgress(
-                                          job.progress),
-                                    )),
-                                title: Text(job.trainingId),
-                                subtitle: Row(children: [
-                                  Text(job.progress),
-                                  SizedBox(width: 32),
-                                  Text(job.subProgress ?? '')
-                                ]),
-                                trailing: _trailingWidgetForListTile(
-                                    job,
-                                    widget.viewModel.getModelDownloadStatus(
-                                        job.trainingId)),
-                                onTap: () {},
-                              ),
-                            )
-                            .toList(),
+                        children: widget.viewModel.trainingJobs.map((job) {
+                          final downloadProgress = widget.viewModel
+                              .getModelDownloadProgress(job.trainingId);
+                          final downloadStatus = widget.viewModel
+                              .getModelDownloadStatus(job.trainingId);
+                          return ListTile(
+                              leading: Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: ShapeDecoration(
+                                    shape: const CircleBorder(),
+                                    color: _colorForTrainingJobProgress(
+                                        job.progress),
+                                  )),
+                              title: Text(job.trainingId),
+                              subtitle: Column(
+                                  children: [
+                                        Row(
+                                            children: [
+                                                  Text(job.progress),
+                                                  SizedBox(width: 32),
+                                                  Text(job.subProgress ?? ''),
+                                                ].cast<Widget>() +
+                                                (downloadStatus !=
+                                                        DownloadStatus
+                                                            .inProgress
+                                                    ? []
+                                                    : [
+                                                        Text(downloadProgress !=
+                                                                null
+                                                            ? '(${downloadProgress.downloaded}/${downloadProgress.total})'
+                                                            : '')
+                                                      ])),
+                                      ].cast<Widget>() +
+                                      (downloadStatus !=
+                                              DownloadStatus.inProgress
+                                          ? []
+                                          : [
+                                              SizedBox(height: 8),
+                                              downloadProgress != null
+                                                  ? LinearProgressIndicator(
+                                                      value: ((downloadProgress
+                                                                  .downloaded *
+                                                              1.0) /
+                                                          (downloadProgress
+                                                                  .total *
+                                                              1.0)),
+                                                      color: Colors.blueAccent,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              2))
+                                                  : Container()
+                                            ])),
+                              trailing: _trailingWidgetForListTile(
+                                  job, downloadStatus));
+                        }).toList(),
                       ),
                     ),
                   ],
