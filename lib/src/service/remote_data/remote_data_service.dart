@@ -6,8 +6,8 @@ abstract class RemoteDataService {
     required String languagePackCode,
   });
 
-  Future<Result<void>> downloadAllUtterances({
-    required String userUid,
-    required String languagePackCode,
-  });
+  Future<Result<void>> downloadAllUtterances(
+      {required String userUid,
+      required String languagePackCode,
+      Function(int received, int total)? onProgress});
 }

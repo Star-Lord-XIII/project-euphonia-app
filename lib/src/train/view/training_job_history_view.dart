@@ -68,15 +68,22 @@ class _TrainingJobHistoryViewState extends State<TrainingJobHistoryView> {
                               .getModelDownloadStatus(job.trainingId);
                           return ListTile(
                               isThreeLine: true,
-                              leading: Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: ShapeDecoration(
-                                    shape: const CircleBorder(),
-                                    color: _colorForTrainingJobProgress(
-                                        job.progress),
-                                  )),
-                              title: Text(job.trainingId),
+                              leading: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                        width: 16,
+                                        height: 16,
+                                        decoration: ShapeDecoration(
+                                          shape: const CircleBorder(),
+                                          color: _colorForTrainingJobProgress(
+                                              job.progress),
+                                        ))
+                                  ]),
+                              title: Row(spacing: 16.0, children: [
+                                Text(job.trainingId.split('-').first),
+                                Text(job.createdAt)
+                              ]),
                               subtitle: Column(
                                   children: [
                                         Row(

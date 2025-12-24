@@ -34,24 +34,14 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
     request.files.add(await http.MultipartFile.fromPath('data', data));
 
     final response = await request.send();
-    final responseBody = jsonDecode(await response.stream.bytesToString())
-        as Map<String, dynamic>;
+    final responseBody = await response.stream.bytesToString();
 
     // error
     if (response.statusCode != 200) {
       var errorMessage = 'Something went wrong starting a training jobs';
-      if (responseBody.containsKey('detail')) {
-        errorMessage = jsonEncode(responseBody['detail']);
-      }
       return Result.error(Exception(errorMessage));
     }
 
-    // success
-    List<TrainingJob> trainingJobs = [];
-    if (responseBody.containsKey('jobs')) {
-      final jobsVal = responseBody['jobs'] as List<dynamic>;
-      trainingJobs = jobsVal.map((jv) => TrainingJob.fromMap(jv)).toList();
-    }
     return Result.ok(null);
   }
 

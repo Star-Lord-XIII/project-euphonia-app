@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../common/result.dart';
 import '../../language_pack/model/language_pack.dart';
@@ -80,9 +81,24 @@ class ModelRepositoryRemote implements ModelRepository {
 
   @override
   Future<Result<void>> startTrainingJob(
-      {required String userId, required String languagePackCode}) async {
+      {required String userId,
+      required String languagePackCode,
+      Function(String progressStatus)? onProgress}) async {
+    final utteranceCountForTrainingCacheKey =
+        '$userId-$languagePackCode-utt-count-key';
+    final prefs = await SharedPreferences.getInstance();
+
     final downloadResult = await _remoteDataService.downloadAllUtterances(
-        userUid: userId, languagePackCode: languagePackCode);
+        userUid: userId,
+        languagePackCode: languagePackCode,
+        onProgress: (downloaded, total) {
+          if (onProgress != null) {
+            onProgress('Downloading $downloaded/$total utterances');
+          }
+        });
+    if (onProgress != null) {
+      onProgress('Downloading Language Pack');
+    }
     final languagePackResult = await _remoteDataService.getMasterLanguagePack(
         languagePackCode: languagePackCode);
 
@@ -91,12 +107,18 @@ class ModelRepositoryRemote implements ModelRepository {
     } else if (languagePackResult is Error) {
       return languagePackResult;
     }
+    if (onProgress != null) {
+      onProgress('Language Pack downloaded');
+    }
 
     final appDocDir = await getApplicationDocumentsDirectory();
     final downloadDir =
         Directory('${appDocDir.path}/$userId/$languagePackCode');
     var downloadedUtterances = [];
 
+    if (onProgress != null) {
+      onProgress('Starting to build archive');
+    }
     final archive = Archive();
 
     if (downloadDir.existsSync()) {
@@ -111,6 +133,17 @@ class ModelRepositoryRemote implements ModelRepository {
         downloadedUtterances.add(fileName);
       }
     }
+
+    final currentUtteranceCount =
+        prefs.getInt(utteranceCountForTrainingCacheKey) ?? 0;
+    if (currentUtteranceCount == downloadedUtterances.length) {
+      if (onProgress != null) {
+        onProgress('No new utterances found to start new training task');
+      }
+      return Result.error(
+          Exception('There are no new utterances to train a model'));
+    }
+
     if (languagePackResult is Ok<LanguagePack>) {
       for (final phrase in languagePackResult.value.phrases) {
         if (downloadedUtterances.contains(phrase.id)) {
@@ -132,14 +165,30 @@ class ModelRepositoryRemote implements ModelRepository {
     final gzipEncoder = GZipEncoder();
     final gzipBytes = gzipEncoder.encodeBytes(tarBytes);
     final compressedFile = File(compressedGZipFilePath);
-    compressedFile.writeAsBytes(gzipBytes);
+    await compressedFile.writeAsBytes(gzipBytes);
+    if (onProgress != null) {
+      onProgress('Archive created at $compressedGZipFilePath');
+    }
 
     final trainingJobResult = await _modelTrainingService.trainModel(
         userId: userId,
         baseModel: 'openai/whisper-tiny',
         language: languagePackCode.split('.').first,
         data: compressedGZipFilePath);
-
+    if (trainingJobResult is Ok) {
+      if (onProgress != null) {
+        onProgress('Training Job requested');
+      }
+      prefs.setInt(
+          utteranceCountForTrainingCacheKey, downloadedUtterances.length);
+      _modelHistory?.clear();
+      _modelHistory = null;
+    }
+    if (trainingJobResult is Error) {
+      if (onProgress != null) {
+        onProgress(trainingJobResult.error.toString());
+      }
+    }
     return const Result.ok(null);
   }
 }

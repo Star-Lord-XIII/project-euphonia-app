@@ -9,6 +9,7 @@ class TrainModeViewModel extends ChangeNotifier {
   final ModelRepository _modelRepository;
 
   bool _training = false;
+  String _progressStatus = '';
 
   TrainModeViewModel({required ModelRepository modelRepository})
       : _modelRepository = modelRepository {
@@ -17,6 +18,7 @@ class TrainModeViewModel extends ChangeNotifier {
 
   late final Command0 train;
   bool get training => _training;
+  String get progressStatus => _progressStatus;
 
   Future<Result<void>> _train() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -26,7 +28,12 @@ class TrainModeViewModel extends ChangeNotifier {
     _training = true;
     notifyListeners();
     final result = await _modelRepository.startTrainingJob(
-        userId: userId, languagePackCode: 'en.english-complicated');
+        userId: userId,
+        languagePackCode: 'en.english-complicated',
+        onProgress: (status) {
+          _progressStatus = status;
+          notifyListeners();
+        });
     _training = false;
     notifyListeners();
     return result;

@@ -20,7 +20,9 @@ class FirebaseDataService implements RemoteDataService {
 
   @override
   Future<Result<void>> downloadAllUtterances(
-      {required String userUid, required String languagePackCode}) async {
+      {required String userUid,
+      required String languagePackCode,
+      Function(int received, int total)? onProgress}) async {
     final utterancesRef = _storageRef.child('$userUid/$languagePackCode');
     final ListResult result = await utterancesRef.listAll();
 
@@ -30,17 +32,22 @@ class FirebaseDataService implements RemoteDataService {
       Directory(localUserDir).createSync(recursive: true);
     }
 
-    for (final fileRef in result.items) {
-      if (!fileRef.name.endsWith('.wav')) {
-        continue;
-      }
+    final wavFiles = result.items.where((f) => f.name.endsWith('.wav'));
+    int downloaded = 0;
+    for (final fileRef in wavFiles) {
       final localFile = File('$localUserDir/${fileRef.name}');
       if (localFile.existsSync()) {
-        print('ALREADY EXISTS: ${fileRef.name}');
+        if (onProgress != null) {
+          downloaded += 1;
+          onProgress(downloaded, wavFiles.length);
+        }
         continue;
       }
       await fileRef.writeToFile(localFile);
-      print('DOWNLOADED: ${fileRef.name}');
+      if (onProgress != null) {
+        downloaded += 1;
+        onProgress(downloaded, wavFiles.length);
+      }
     }
 
     return Result.ok(null);
