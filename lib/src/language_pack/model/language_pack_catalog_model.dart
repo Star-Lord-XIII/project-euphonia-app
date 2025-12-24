@@ -6,7 +6,8 @@ final class LanguagePackCatalogModel extends ChangeNotifier {
   List<LanguagePackSummary> _languagePackSummaryList = [];
   LanguagePack? _languagePack;
 
-  List<LanguagePackSummary> get languagePackSummaryList => _languagePackSummaryList;
+  List<LanguagePackSummary> get languagePackSummaryList =>
+      _languagePackSummaryList;
   LanguagePack? get languagePack => _languagePack;
 
   LanguagePackCatalogModel();

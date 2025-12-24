@@ -26,7 +26,8 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
   @override
   void initState() {
     languagePackRepository = context.read();
-    languagePackRepository.getLanguagePack(languagePackId: widget.documentPath)
+    languagePackRepository
+        .getLanguagePack(languagePackId: widget.documentPath)
         .then((lp) {
       setState(() {
         switch (lp) {
@@ -43,8 +44,7 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
     super.initState();
   }
 
-  void _showAddNewPhraseDialog(
-      {required List<Phrase> currentPhrases}) {
+  void _showAddNewPhraseDialog({required List<Phrase> currentPhrases}) {
     showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -97,8 +97,9 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
                           setState(() {
                             languagePack!.phrases = phrasesList;
                           });
-                          languagePackRepository.updateLanguagePack(languagePackId: languagePack!.languagePackCode,
-                            phrases: phrasesList);
+                          languagePackRepository.updateLanguagePack(
+                              languagePackId: languagePack!.languagePackCode,
+                              phrases: phrasesList);
                           _phraseFieldController.text = '';
                           Navigator.of(context).pop();
                         }
@@ -173,7 +174,9 @@ class _PhrasesListControllerState extends State<PhrasesListController> {
                   onChanged: (updatedSelection) async {
                     var phrasesList = languagePack!.phrases;
                     phrasesList[index].active = !phrasesList[index].active;
-                    await languagePackRepository.updateLanguagePack(languagePackId: widget.documentPath, phrases: phrasesList);
+                    await languagePackRepository.updateLanguagePack(
+                        languagePackId: widget.documentPath,
+                        phrases: phrasesList);
                     setState(() {
                       languagePack!.phrases = phrasesList;
                     });

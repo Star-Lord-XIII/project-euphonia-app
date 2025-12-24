@@ -38,9 +38,10 @@ void main() async {
   test("test reading Language pack summary list from Firebase storage",
       () async {
     final repo = LanguagePackRepository(
-        fileStorageService:
-        FirebaseStorageService(firebaseStorageRef: mockFirebaseStorage.ref()),
-        databaseService: FirebaseFirestoreService(firestoreInstance: mockFirestore));
+        fileStorageService: FirebaseStorageService(
+            firebaseStorageRef: mockFirebaseStorage.ref()),
+        databaseService:
+            FirebaseFirestoreService(firestoreInstance: mockFirestore));
 
     Result<List> fetchedListResult = await repo.getLanguagePackSummaryList();
     List<dynamic> fetchedList = [];
@@ -73,9 +74,10 @@ void main() async {
 
   test("json document from firestore should be parsed correctly", () {
     final repo = LanguagePackRepository(
-        fileStorageService:
-        FirebaseStorageService(firebaseStorageRef: mockFirebaseStorage.ref()),
-        databaseService: FirebaseFirestoreService(firestoreInstance: mockFirestore));
+        fileStorageService: FirebaseStorageService(
+            firebaseStorageRef: mockFirebaseStorage.ref()),
+        databaseService:
+            FirebaseFirestoreService(firestoreInstance: mockFirestore));
 
     final converted =
         repo.convertStringToLanguagePackListSummaries(languagePackJsonList);
@@ -93,9 +95,10 @@ void main() async {
 
   test("fetch language pack from firestore", () async {
     final repo = LanguagePackRepository(
-    fileStorageService:
-    FirebaseStorageService(firebaseStorageRef: mockFirebaseStorage.ref()),
-    databaseService: FirebaseFirestoreService(firestoreInstance: mockFirestore));
+        fileStorageService: FirebaseStorageService(
+            firebaseStorageRef: mockFirebaseStorage.ref()),
+        databaseService:
+            FirebaseFirestoreService(firestoreInstance: mockFirestore));
 
     final newLanguagePack = LanguagePack(
         version: "draft",
@@ -109,24 +112,27 @@ void main() async {
 
     await repo.addLanguagePack(languagePack: newLanguagePack);
 
-    final getLanguagePackResult = await repo.getLanguagePack(languagePackId: 'en.english-simple');
+    final getLanguagePackResult =
+        await repo.getLanguagePack(languagePackId: 'en.english-simple');
 
     LanguagePack? languagePack;
-    switch(getLanguagePackResult) {
+    switch (getLanguagePackResult) {
       case Ok<LanguagePack>():
         languagePack = getLanguagePackResult.value;
         break;
       case Error<void>():
         break;
     }
-    expect(jsonEncode(languagePack?.toJson()), jsonEncode(newLanguagePack.toJson()));
+    expect(jsonEncode(languagePack?.toJson()),
+        jsonEncode(newLanguagePack.toJson()));
   });
 
   test("Update language packs and summary list", () async {
     final repo = LanguagePackRepository(
-        fileStorageService:
-            FirebaseStorageService(firebaseStorageRef: mockFirebaseStorage.ref()),
-        databaseService: FirebaseFirestoreService(firestoreInstance: mockFirestore));
+        fileStorageService: FirebaseStorageService(
+            firebaseStorageRef: mockFirebaseStorage.ref()),
+        databaseService:
+            FirebaseFirestoreService(firestoreInstance: mockFirestore));
 
     final newLanguagePack = LanguagePack(
         version: "draft",

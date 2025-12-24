@@ -12,10 +12,10 @@ class ImagePhraseView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
         child: Center(
-            child: Image(
-              image: FirebaseImageProvider(
-                FirebaseUrl.fromReference(FirebaseStorage.instance.ref(phrase.firebaseRef))
-              ),
-            ),));
+      child: Image(
+        image: FirebaseImageProvider(FirebaseUrl.fromReference(
+            FirebaseStorage.instance.ref(phrase.firebaseRef))),
+      ),
+    ));
   }
 }

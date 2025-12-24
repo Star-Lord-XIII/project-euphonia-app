@@ -6,8 +6,7 @@ import 'phrases_list_controller.dart';
 class LanguagePackListTile extends StatelessWidget {
   final LanguagePackSummary pack;
 
-  const LanguagePackListTile(
-      {super.key,  required this.pack});
+  const LanguagePackListTile({super.key, required this.pack});
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +24,10 @@ class LanguagePackListTile extends StatelessWidget {
           ]),
       onTap: () {
         Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  PhrasesListController(documentPath: pack.languagePackCode)));
+            context,
+            MaterialPageRoute(
+                builder: (context) => PhrasesListController(
+                    documentPath: pack.languagePackCode)));
       },
     );
   }

@@ -33,6 +33,12 @@ import 'src/repos/phrases_repository.dart';
 import 'src/repos/settings_repository.dart';
 import 'src/repos/uploader.dart';
 import 'src/repos/websocket_transcriber.dart';
+import 'src/repository/model/model_repository.dart';
+import 'src/repository/model/model_repository_remote.dart';
+import 'src/service/model_training_service.dart';
+import 'src/service/model_training_service_impl.dart';
+import 'src/service/remote_data/firebase_data_service.dart';
+import 'src/service/remote_data/remote_data_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +55,10 @@ void main() async {
     persistenceEnabled: true,
   );
   runApp(MultiProvider(providers: [
+    Provider(
+        create: (context) => FirebaseDataService(
+            firestore: FirebaseFirestore.instance,
+            storageRef: FirebaseStorage.instance.ref()) as RemoteDataService),
     ChangeNotifierProvider(create: (context) => PhrasesRepository()),
     ChangeNotifierProxyProvider<PhrasesRepository, AudioRecorder>(
         create: (context) => AudioRecorder(),
@@ -63,10 +73,24 @@ void main() async {
     ChangeNotifierProvider(create: (context) => Uploader()),
     ChangeNotifierProvider(create: (context) => SettingsRepository()),
     ChangeNotifierProvider(create: (context) => WebsocketTranscriber()),
-    Provider(create: (context) => FirebaseStorageService(firebaseStorageRef: FirebaseStorage.instance.ref()) as FileStorageService),
-    Provider(create: (context) => FirebaseFirestoreService(firestoreInstance: FirebaseFirestore.instance) as DatabaseService),
-    Provider(create: (context) => LanguagePackRepository(fileStorageService: context.read(),
-                                                          databaseService: context.read())),
+    Provider(
+        create: (context) => FirebaseStorageService(
+                firebaseStorageRef: FirebaseStorage.instance.ref())
+            as FileStorageService),
+    Provider(
+        create: (context) => FirebaseFirestoreService(
+            firestoreInstance: FirebaseFirestore.instance) as DatabaseService),
+    Provider(
+        create: (context) => LanguagePackRepository(
+            fileStorageService: context.read(),
+            databaseService: context.read())),
+    Provider(
+        create: (context) =>
+            ModelTrainingServiceImpl() as ModelTrainingService),
+    Provider(
+        create: (context) => ModelRepositoryRemote(
+            modelTrainingService: context.read(),
+            remoteDataService: context.read()) as ModelRepository),
     ChangeNotifierProvider(create: (context) => LanguagePackCatalogModel())
   ], child: const ProjectEuphonia()));
 }

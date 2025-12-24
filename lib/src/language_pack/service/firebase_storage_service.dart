@@ -34,8 +34,8 @@ final class FirebaseStorageService extends FileStorageService {
   }
 
   @override
-  Future<Result<void>> writeFile({required String path,
-                                  required String content}) async {
+  Future<Result<void>> writeFile(
+      {required String path, required String content}) async {
     final storageRef = firebaseStorageRef.child(path);
     try {
       await storageRef.putString(content);
