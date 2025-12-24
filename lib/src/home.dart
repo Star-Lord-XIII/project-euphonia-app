@@ -28,6 +28,7 @@ import 'repos/uploader.dart';
 import 'settings/settings_controller.dart';
 import 'train/view/train_mode_view.dart';
 import 'train/view/training_job_history_view.dart';
+import 'train/viewmodel/train_mode_viewmodel.dart';
 import 'train/viewmodel/training_job_history_viewmodel.dart';
 
 class HomeController extends StatefulWidget {
@@ -75,7 +76,8 @@ class _HomeControllerState extends State<HomeController> {
     final List<Widget> widgetOptions = <Widget>[
       const RecordModeController(),
       const TranscribeModeController(),
-      const TrainModeView(),
+      TrainModeView(
+          viewModel: TrainModeViewModel(modelRepository: context.read())),
       const AdminModeController(),
       const Center(
         child: IconButton(

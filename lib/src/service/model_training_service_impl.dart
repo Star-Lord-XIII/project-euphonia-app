@@ -20,9 +20,39 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
       {required String userId,
       required String baseModel,
       required String language,
-      required String data}) {
-    // TODO: implement trainModel
-    throw UnimplementedError();
+      required String data}) async {
+    final uri = Uri.parse('$_backendEndpoint$_trainModePath');
+    final request = http.MultipartRequest('POST', uri);
+    request.headers[HttpHeaders.contentTypeHeader] = 'application/json';
+    request.headers[HttpHeaders.authorizationHeader] = "Bearer $_token";
+
+    request.fields['user_id'] = userId;
+    request.fields['base_model'] = baseModel;
+    request.fields['language'] = language;
+    request.fields['audio_type'] = 'wav';
+
+    request.files.add(await http.MultipartFile.fromPath('data', data));
+
+    final response = await request.send();
+    final responseBody = jsonDecode(await response.stream.bytesToString())
+        as Map<String, dynamic>;
+
+    // error
+    if (response.statusCode != 200) {
+      var errorMessage = 'Something went wrong starting a training jobs';
+      if (responseBody.containsKey('detail')) {
+        errorMessage = jsonEncode(responseBody['detail']);
+      }
+      return Result.error(Exception(errorMessage));
+    }
+
+    // success
+    List<TrainingJob> trainingJobs = [];
+    if (responseBody.containsKey('jobs')) {
+      final jobsVal = responseBody['jobs'] as List<dynamic>;
+      trainingJobs = jobsVal.map((jv) => TrainingJob.fromMap(jv)).toList();
+    }
+    return Result.ok(null);
   }
 
   @override

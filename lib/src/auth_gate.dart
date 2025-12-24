@@ -48,7 +48,7 @@ class AuthGate extends StatelessWidget {
                   .map((lpa) => lpa.emailId)
                   .toList()
                   .contains(currentUser);
-              return HomeController(isCurrentUserAdmin: isCurrentUserAdmin);
+              return HomeController(isCurrentUserAdmin: false);
             });
       },
     );

@@ -1,19 +1,25 @@
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
 import '../../common/result.dart';
+import '../../language_pack/model/language_pack.dart';
 import '../../service/model/training_job.dart';
 import '../../service/model_training_service.dart';
+import '../../service/remote_data/remote_data_service.dart';
 import 'model_repository.dart';
 
 class ModelRepositoryRemote implements ModelRepository {
   final ModelTrainingService _modelTrainingService;
+  final RemoteDataService _remoteDataService;
 
-  ModelRepositoryRemote({
-    required ModelTrainingService modelTrainingService,
-  }) : _modelTrainingService = modelTrainingService;
+  ModelRepositoryRemote(
+      {required ModelTrainingService modelTrainingService,
+      required RemoteDataService remoteDataService})
+      : _modelTrainingService = modelTrainingService,
+        _remoteDataService = remoteDataService;
 
   List<TrainingJob>? _modelHistory;
   final Map<String, String> _trainingIdToModelDownloadURL = {};
@@ -69,6 +75,71 @@ class ModelRepositoryRemote implements ModelRepository {
       await _modelTrainingService.downloadFile(
           remoteUrl: url, localPath: path, onProgress: onProgress);
     }
+    return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<void>> startTrainingJob(
+      {required String userId, required String languagePackCode}) async {
+    final downloadResult = await _remoteDataService.downloadAllUtterances(
+        userUid: userId, languagePackCode: languagePackCode);
+    final languagePackResult = await _remoteDataService.getMasterLanguagePack(
+        languagePackCode: languagePackCode);
+
+    if (downloadResult is Error) {
+      return downloadResult;
+    } else if (languagePackResult is Error) {
+      return languagePackResult;
+    }
+
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final downloadDir =
+        Directory('${appDocDir.path}/$userId/$languagePackCode');
+    var downloadedUtterances = [];
+
+    final archive = Archive();
+
+    if (downloadDir.existsSync()) {
+      for (final file in downloadDir.listSync()) {
+        if (!file.path.endsWith('.wav')) {
+          continue;
+        }
+        final fileNameWExt = p.basename(file.path);
+        final bytes = await File(file.path).readAsBytes();
+        archive.addFile(ArchiveFile(fileNameWExt, bytes.length, bytes));
+        final fileName = fileNameWExt.split('.').first;
+        downloadedUtterances.add(fileName);
+      }
+    }
+    if (languagePackResult is Ok<LanguagePack>) {
+      for (final phrase in languagePackResult.value.phrases) {
+        if (downloadedUtterances.contains(phrase.id)) {
+          final textFilePath = '${downloadDir.path}/${phrase.id}.txt';
+          await File(textFilePath).writeAsString(phrase.text);
+          final bytes = await File(textFilePath).readAsBytes();
+          archive.addFile(ArchiveFile('${phrase.id}.txt', bytes.length, bytes));
+        }
+      }
+    }
+
+    final compressedGZipFilePath =
+        '${appDocDir.path}/$userId/$languagePackCode.tar.gz';
+    if (File(compressedGZipFilePath).existsSync()) {
+      File(compressedGZipFilePath).deleteSync();
+    }
+    final tarEncoder = TarEncoder();
+    final tarBytes = tarEncoder.encodeBytes(archive);
+    final gzipEncoder = GZipEncoder();
+    final gzipBytes = gzipEncoder.encodeBytes(tarBytes);
+    final compressedFile = File(compressedGZipFilePath);
+    compressedFile.writeAsBytes(gzipBytes);
+
+    final trainingJobResult = await _modelTrainingService.trainModel(
+        userId: userId,
+        baseModel: 'openai/whisper-tiny',
+        language: languagePackCode.split('.').first,
+        data: compressedGZipFilePath);
+
     return const Result.ok(null);
   }
 }

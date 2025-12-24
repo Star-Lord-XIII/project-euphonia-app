@@ -29,7 +29,7 @@ class TrainingJobHistoryViewModel extends ChangeNotifier {
       return Result.error(Exception('No current user found!'));
     }
     final trainingJobsResult =
-        _modelRepository.listTrainingJobs(userId: 'test_user').then((result) {
+        _modelRepository.listTrainingJobs(userId: userId).then((result) {
       switch (result) {
         case Ok<List<TrainingJob>>():
           _trainingJobs = result.value;
@@ -63,7 +63,7 @@ class TrainingJobHistoryViewModel extends ChangeNotifier {
     notifyListeners();
     final result = await _modelRepository.downloadModel(
         trainingId: trainingId,
-        userId: 'test_user',
+        userId: userId,
         onProgress: (downloaded, total) {
           _modelDownloadProgress[trainingId] =
               DownloadProgress(downloaded: downloaded, total: total);

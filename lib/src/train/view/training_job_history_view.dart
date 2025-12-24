@@ -67,6 +67,7 @@ class _TrainingJobHistoryViewState extends State<TrainingJobHistoryView> {
                           final downloadStatus = widget.viewModel
                               .getModelDownloadStatus(job.trainingId);
                           return ListTile(
+                              isThreeLine: true,
                               leading: Container(
                                   width: 16,
                                   height: 16,
@@ -79,10 +80,15 @@ class _TrainingJobHistoryViewState extends State<TrainingJobHistoryView> {
                               subtitle: Column(
                                   children: [
                                         Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                                   Text(job.progress),
                                                   SizedBox(width: 32),
-                                                  Text(job.subProgress ?? ''),
+                                                  Expanded(
+                                                      child: Text(
+                                                          job.subProgress ?? '',
+                                                          maxLines: 3)),
                                                 ].cast<Widget>() +
                                                 (downloadStatus !=
                                                         DownloadStatus
