@@ -80,8 +80,12 @@ jobs:
         env:
           SELECTED_LANGUAGE_PACK: ${{ secrets.SELECTED_LANGUAGE_PACK }}
           DEFAULT_TRANSCRIPTION_ENDPOINT: ${{ secrets.DEFAULT_TRANSCRIPTION_ENDPOINT }}
+          MODEL_TRAINING_BACKEND_TOKEN: ${{ secrets.MODEL_TRAINING_BACKEND_TOKEN }}
+          MODEL_TRAINING_BACKEND: ${{ secrets.MODEL_TRAINING_BACKEND }}
         run: |
           sed -i '' "s|DEFAULT_TRANSCRIPTION_ENDPOINT|$DEFAULT_TRANSCRIPTION_ENDPOINT|g" lib/src/repos/settings_repository.dart
+          sed -i '' "s|MODEL_TRAINING_BACKEND_TOKEN|$MODEL_TRAINING_BACKEND_TOKEN|g" lib/src/service/model_training_service_impl.dart
+          sed -i '' "s|MODEL_TRAINING_BACKEND|$MODEL_TRAINING_BACKEND|g" lib/src/service/model_training_service_impl.dart
           sed -i '' "s|SELECTED_LANGUAGE_PACK|$SELECTED_LANGUAGE_PACK|g" lib/src/repos/phrases_repository.dart
           sed -i '' "s|SELECTED_LANGUAGE_PACK|$SELECTED_LANGUAGE_PACK|g" RELEASE_NOTES.md
           sed -i '' "s|SELECTED_LANGUAGE_PACK|$SELECTED_LANGUAGE_PACK|g" android/app/src/main/AndroidManifest.xml

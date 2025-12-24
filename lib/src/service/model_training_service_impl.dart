@@ -8,8 +8,8 @@ import 'model/training_job.dart';
 import 'model_training_service.dart';
 
 class ModelTrainingServiceImpl implements ModelTrainingService {
-  static const String _backendEndpoint = 'BACKEND_END_POINT';
-  static const String _token = 'TOKEN';
+  static const String _backendEndpoint = 'MODEL_TRAINING_BACKEND';
+  static const String _token = 'MODEL_TRAINING_BACKEND_TOKEN';
   static const String _trainModePath = '/model/train';
   static const String _listAllTrainingJobsPath = '/model/list_all';
   static const String _listAllForUserTrainingJobsPath = '/model/list_for_user';
