@@ -1,3 +1,5 @@
-# v1.0.0(9)(SELECTED_LANGUAGE_PACK)
+# v1.0.0(10)(SELECTED_LANGUAGE_PACK)
 
-- Add Train tab to allow users to train personalized models using the model training service backend.
+- Add Language pack selection in Train mode.
+- Avoid caching language pack history responses.
+- View training-job details for completed jobs.

@@ -24,21 +24,14 @@ class ModelRepositoryRemote implements ModelRepository {
 
   List<TrainingJob>? _modelHistory;
   final Map<String, String> _trainingIdToModelDownloadURL = {};
+  final Map<String, String> _trainingIdToTrainingJobData = {};
 
   List<TrainingJob>? get modelHistory => _modelHistory;
 
   @override
   Future<Result<List<TrainingJob>>> listTrainingJobs(
       {required String userId}) async {
-    if (_modelHistory != null) {
-      return Result.ok(_modelHistory!);
-    }
-    final result =
-        await _modelTrainingService.listAllTrainingJobs(userId: userId);
-    if (result is Ok<List<TrainingJob>>) {
-      _modelHistory = result.value;
-    }
-    return result;
+    return _modelTrainingService.listAllTrainingJobs(userId: userId);
   }
 
   @override
@@ -133,7 +126,14 @@ class ModelRepositoryRemote implements ModelRepository {
         downloadedUtterances.add(fileName);
       }
     }
-
+    if (downloadedUtterances.length < 20) {
+      if (onProgress != null) {
+        onProgress(
+            'You need at least 20 utterances to train a personalized model.');
+      }
+      return Result.error(Exception(
+          'You need at least 20 utterances to train a personalized model.'));
+    }
     final currentUtteranceCount =
         prefs.getInt(utteranceCountForTrainingCacheKey) ?? 0;
     if (currentUtteranceCount == downloadedUtterances.length) {
@@ -190,5 +190,19 @@ class ModelRepositoryRemote implements ModelRepository {
       }
     }
     return const Result.ok(null);
+  }
+
+  @override
+  Future<Result<String>> getTrainingJobDetails(
+      {required String userId, required String trainingId}) async {
+    if (_trainingIdToTrainingJobData.containsKey(trainingId)) {
+      return Result.ok(_trainingIdToTrainingJobData[trainingId]!);
+    }
+    final result = await _modelTrainingService.getTrainingJob(
+        userId: userId, trainingId: trainingId);
+    if (result is Ok<String>) {
+      _trainingIdToTrainingJobData[trainingId] = result.value;
+    }
+    return result;
   }
 }

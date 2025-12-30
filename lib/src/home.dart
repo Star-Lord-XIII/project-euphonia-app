@@ -77,7 +77,9 @@ class _HomeControllerState extends State<HomeController> {
       const RecordModeController(),
       const TranscribeModeController(),
       TrainModeView(
-          viewModel: TrainModeViewModel(modelRepository: context.read())),
+          viewModel: TrainModeViewModel(
+              modelRepository: context.read(),
+              languagePackRepository: context.read())),
       const AdminModeController(),
       const Center(
         child: IconButton(

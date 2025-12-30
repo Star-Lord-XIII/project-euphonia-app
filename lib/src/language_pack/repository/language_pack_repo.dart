@@ -22,7 +22,12 @@ final class LanguagePackRepository {
       : _databaseService = databaseService,
         _fileStorageService = fileStorageService;
 
+  List<LanguagePackSummary> _cachedLanguagePackSummaryList = [];
+
   Future<Result<List<LanguagePackSummary>>> getLanguagePackSummaryList() async {
+    if (_cachedLanguagePackSummaryList.isNotEmpty) {
+      return Result.ok(_cachedLanguagePackSummaryList);
+    }
     final languagePackSummaryPath = 'phrases/$languagePackTableName.json';
     final currentLanguagePackSummariesResult =
         await _fileStorageService.readFile(path: languagePackSummaryPath);
@@ -36,6 +41,7 @@ final class LanguagePackRepository {
     }
     final languagePackSummaryList = convertStringToLanguagePackListSummaries(
         currentLanguagePackSummariesResult.value);
+    _cachedLanguagePackSummaryList = languagePackSummaryList;
     return Result.ok(languagePackSummaryList);
   }
 
