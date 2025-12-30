@@ -23,6 +23,8 @@ class _TrainingJobHistoryViewState extends State<TrainingJobHistoryView> {
       builder: (context, orientation) {
         final double verticalPadding = 32;
         return Scaffold(
+          appBar:
+              AppBar(title: Text('Training job history'), centerTitle: true),
           body: ListenableBuilder(
             listenable: widget.viewModel.initializeModel,
             builder: (context, child) {
@@ -53,11 +55,6 @@ class _TrainingJobHistoryViewState extends State<TrainingJobHistoryView> {
               builder: (context, child) {
                 return CustomScrollView(
                   slivers: [
-                    SliverAppBar(
-                      title: Text('Training job history'),
-                      centerTitle: true,
-                      pinned: true,
-                    ),
                     SliverPadding(
                       padding: EdgeInsetsGeometry.symmetric(
                         vertical: verticalPadding,

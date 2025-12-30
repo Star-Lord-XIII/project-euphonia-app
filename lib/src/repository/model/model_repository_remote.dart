@@ -126,7 +126,14 @@ class ModelRepositoryRemote implements ModelRepository {
         downloadedUtterances.add(fileName);
       }
     }
-
+    if (downloadedUtterances.length < 20) {
+      if (onProgress != null) {
+        onProgress(
+            'You need at least 20 utterances to train a personalized model.');
+      }
+      return Result.error(Exception(
+          'You need at least 20 utterances to train a personalized model.'));
+    }
     final currentUtteranceCount =
         prefs.getInt(utteranceCountForTrainingCacheKey) ?? 0;
     if (currentUtteranceCount == downloadedUtterances.length) {

@@ -79,7 +79,9 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
 
     Map<String, dynamic> responseBody = {};
     dynamic error;
-    final http.Response response = await http.get(uri, headers: headers).then((value) => value, onError: (e) {
+    final http.Response response = await http
+        .get(uri, headers: headers)
+        .then((value) => value, onError: (e) {
       error = e;
       return http.Response('{"detail": "Unable to reach server!"}', 500);
     });

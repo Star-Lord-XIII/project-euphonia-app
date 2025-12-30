@@ -13,9 +13,7 @@ class TrainingJobDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: Text(_viewModel.trainingId),
-            centerTitle: true),
+        appBar: AppBar(title: Text(_viewModel.trainingId), centerTitle: true),
         body: ListenableBuilder(
             listenable: _viewModel.initializeModel,
             builder: (context, child) {
@@ -41,13 +39,36 @@ class TrainingJobDetailView extends StatelessWidget {
                 ],
               );
             },
-            child: Padding(padding: EdgeInsets.all(32), child: ListenableBuilder(
-                listenable: _viewModel,
-                builder: (context, _) => Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 16, children: [
-                  Row(spacing: 16, children: [Text('Base models', style: TextTheme.of(context).bodyLarge), Text(_viewModel.trainingData.baseModel)]),
-                  Row(spacing: 16, children: [Text('Utterances   ', style: TextTheme.of(context).bodyLarge), Text('${_viewModel.trainingData.trainingExamples}')]),
-                  Row(spacing: 16, children: [Text('Language     ', style: TextTheme.of(context).bodyLarge), Text('${_viewModel.trainingData.language}')]),
-                  Row(spacing: 16, children: [Text('WER             ', style: TextTheme.of(context).bodyLarge), Text('${_viewModel.trainingData.wordErrorRate.toStringAsFixed(2)}')]),
-                    ])))));
+            child: Padding(
+                padding: EdgeInsets.all(32),
+                child: ListenableBuilder(
+                    listenable: _viewModel,
+                    builder: (context, _) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 16,
+                            children: [
+                              Row(spacing: 16, children: [
+                                Text('Base models',
+                                    style: TextTheme.of(context).bodyLarge),
+                                Text(_viewModel.trainingData.baseModel)
+                              ]),
+                              Row(spacing: 16, children: [
+                                Text('Utterances   ',
+                                    style: TextTheme.of(context).bodyLarge),
+                                Text(
+                                    '${_viewModel.trainingData.trainingExamples}')
+                              ]),
+                              Row(spacing: 16, children: [
+                                Text('Language     ',
+                                    style: TextTheme.of(context).bodyLarge),
+                                Text('${_viewModel.trainingData.language}')
+                              ]),
+                              Row(spacing: 16, children: [
+                                Text('WER             ',
+                                    style: TextTheme.of(context).bodyLarge),
+                                Text(
+                                    '${_viewModel.trainingData.wordErrorRate.toStringAsFixed(2)}')
+                              ]),
+                            ])))));
   }
 }
