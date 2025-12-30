@@ -10,7 +10,7 @@ abstract class ModelTrainingService {
       required String data});
 
   /// Get status of a specific training job
-  Future<Result<TrainingJob>> getTrainingJob(
+  Future<Result<String>> getTrainingJob(
       {required String userId, required String trainingId});
 
   /// List all training jobs. If a userId is supplied, the endpoint will return

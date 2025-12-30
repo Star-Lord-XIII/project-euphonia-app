@@ -13,6 +13,7 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
   static const String _trainModePath = '/model/train';
   static const String _listAllTrainingJobsPath = '/model/list_all';
   static const String _listAllForUserTrainingJobsPath = '/model/list_for_user';
+  static const String _listJobForUserPath = '/model/list_job';
   static const String _downloadModelPath = '/model/download';
 
   @override
@@ -46,10 +47,24 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
   }
 
   @override
-  Future<Result<TrainingJob>> getTrainingJob(
-      {required String userId, required String trainingId}) {
-    // TODO: implement getTrainingJob
-    throw UnimplementedError();
+  Future<Result<String>> getTrainingJob(
+      {required String userId, required String trainingId}) async {
+    final uri = Uri.parse(
+        '$_backendEndpoint$_listJobForUserPath?user_id=$userId&training_id=$trainingId');
+    final Map<String, String> headers = {
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.authorizationHeader: "Bearer $_token"
+    };
+    final http.Response response = await http.get(uri, headers: headers);
+    final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode != 200) {
+      var errorMessage = 'Something went wrong fetching training job';
+      if (responseBody.containsKey('detail')) {
+        errorMessage = jsonEncode(responseBody['detail']);
+      }
+      return Result.error(Exception(errorMessage));
+    }
+    return Result.ok(response.body);
   }
 
   @override
@@ -61,11 +76,17 @@ class ModelTrainingServiceImpl implements ModelTrainingService {
       HttpHeaders.contentTypeHeader: 'application/json',
       HttpHeaders.authorizationHeader: "Bearer $_token"
     };
-    final http.Response response = await http.get(uri, headers: headers);
-    final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
+
+    Map<String, dynamic> responseBody = {};
+    dynamic error;
+    final http.Response response = await http.get(uri, headers: headers).then((value) => value, onError: (e) {
+      error = e;
+      return http.Response('{"detail": "Unable to reach server!"}', 500);
+    });
+    responseBody = jsonDecode(response.body) as Map<String, dynamic>;
 
     // error
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 || error != null) {
       var errorMessage = 'Something went wrong fetching training jobs';
       if (responseBody.containsKey('detail')) {
         errorMessage = jsonEncode(responseBody['detail']);
