@@ -47,28 +47,39 @@ class TrainingJobDetailView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: 16,
                             children: [
-                              Row(spacing: 16, children: [
-                                Text('Base models',
-                                    style: TextTheme.of(context).bodyLarge),
-                                Text(_viewModel.trainingData.baseModel)
-                              ]),
-                              Row(spacing: 16, children: [
-                                Text('Utterances   ',
-                                    style: TextTheme.of(context).bodyLarge),
-                                Text(
-                                    '${_viewModel.trainingData.trainingExamples}')
-                              ]),
-                              Row(spacing: 16, children: [
-                                Text('Language     ',
-                                    style: TextTheme.of(context).bodyLarge),
-                                Text('${_viewModel.trainingData.language}')
-                              ]),
-                              Row(spacing: 16, children: [
-                                Text('WER             ',
-                                    style: TextTheme.of(context).bodyLarge),
-                                Text(
-                                    '${_viewModel.trainingData.wordErrorRate.toStringAsFixed(2)}')
-                              ]),
+                              detailRow(context,
+                                  label: 'Base model',
+                                  value: _viewModel.trainingData.baseModel),
+                              detailRow(context,
+                                  label: 'Utterances',
+                                  value:
+                                      '${_viewModel.trainingData.trainingExamples}'),
+                              detailRow(context,
+                                  label: 'Language',
+                                  value: _viewModel.trainingData.language),
+                              detailRow(context,
+                                  label: 'Final WER',
+                                  value: _viewModel.trainingData.wordErrorRate
+                                      .toStringAsFixed(2)),
+                              detailRow(context,
+                                  label: 'Baseline WER',
+                                  value: _viewModel
+                                      .trainingData.baselineModelWER
+                                      .toStringAsFixed(2)),
+                              detailRow(context,
+                                  label: 'Splits',
+                                  value:
+                                      '(dev: ${_viewModel.trainingData.utterancesInDev}, train: ${_viewModel.trainingData.utterancesInTrain})'),
                             ])))));
+  }
+
+  Widget detailRow(BuildContext context,
+      {required String label, required String value}) {
+    return Row(spacing: 16, children: [
+      SizedBox(
+          width: 150,
+          child: Text(label, style: TextTheme.of(context).bodyLarge)),
+      Text(value)
+    ]);
   }
 }

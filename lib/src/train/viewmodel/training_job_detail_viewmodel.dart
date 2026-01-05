@@ -42,11 +42,18 @@ class TrainingJobDetailViewModel extends ChangeNotifier {
           final int utteranceCount = responseMap['data']['num_examples'];
           final double finalWer =
               responseMap['result']['final_metrics']['eval_wer'];
+          final double baselineModelWER =
+              responseMap['result']['baseline_metrics']['eval_wer'];
+          final int devUtt = responseMap['data']['splits']['dev'];
+          final int trainUtt = responseMap['data']['splits']['train'];
           _trainingData = TrainingData(
               trainingExamples: utteranceCount,
               baseModel: baseModel,
               language: language,
-              wordErrorRate: finalWer);
+              wordErrorRate: finalWer,
+              baselineModelWER: baselineModelWER,
+              utterancesInDev: devUtt,
+              utterancesInTrain: trainUtt);
         case Error():
           errorMessage += '${result.error}\n';
       }
