@@ -68,6 +68,8 @@ final class PhrasesRepository extends ChangeNotifier {
     }
     updated = true;
     final languagePackList = [
+      // LanguagePackSummary(version: 'draft', name: 'German Beginner Phrases', language: NaturalLanguage.fromCodeShort('de'), languagePackCode: 'de.german-beginner-phrases', phrasesCount: 146),
+      // LanguagePackSummary(version: 'draft', name: 'Spanish Bike Phrases', language: NaturalLanguage.fromCodeShort('es'), languagePackCode: 'es.spanish-bike-phrases', phrasesCount: 175),
       // LanguagePackSummary(version: 'draft', name: 'Ugandan english long', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-english-long', phrasesCount: 100),
       // LanguagePackSummary(version: 'draft', name: 'Luganda text prompts long', language: NaturalLanguage.fromCodeShort('lg'), languagePackCode: 'lg.luganda-text-prompts-long', phrasesCount: 120),
       // LanguagePackSummary(version: 'draft', name: 'Ugandan images', language: NaturalLanguage.fromCodeShort('en'), languagePackCode: 'en.ugandan-images', phrasesCount: 66),
@@ -198,6 +200,8 @@ final class PhrasesRepository extends ChangeNotifier {
   Future<List<LanguagePackSummary>>
       getLanguagePackSummaryListFromCloudStorage() async {
     if (_cachedLanguagePackSummaryList.isNotEmpty) {
+      _cachedLanguagePackSummaryList
+          .sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
       return _cachedLanguagePackSummaryList;
     }
     final storageRef = FirebaseStorage.instance.ref();
@@ -213,6 +217,8 @@ final class PhrasesRepository extends ChangeNotifier {
           languagePackSummaryList
               .add(LanguagePackSummary.fromJson(languagePack));
         }
+        languagePackSummaryList.sort(
+            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
         _cachedLanguagePackSummaryList = languagePackSummaryList;
         return languagePackSummaryList;
       }

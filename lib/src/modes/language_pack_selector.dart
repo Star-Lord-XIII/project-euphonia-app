@@ -39,6 +39,7 @@ class _LanguagePackSelectorState extends State<LanguagePackSelector> {
                       }
                       return DropdownMenu(
                           label: Text('Language pack'),
+                          menuHeight: 200,
                           dropdownMenuEntries: snapshot.requireData
                               .map((x) => DropdownMenuEntry(
                                   value: x,
